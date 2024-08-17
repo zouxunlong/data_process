@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# step 1 -- convert mp4 files to mp3 files
+bash convert_to_mp3.sh
+
+# Step 2 -- combine mp3 files
+bash combine_audio.sh
+
+# Step 3 -- convert doc files to docx files (do not combine docx files at this step)
+bash convert_to_docx.sh
+bash dox2docx.sh
+bash check_doc_filename.sh
+
+# Step 4 -- change docx filenames -- alignment with audio files
+bash process_docx_name.sh # after using code, still need to modify some files manully
+## some files leave in transcripts_docx need to check
+
+# Step 5 -- check audio-docx pairs
+bash ./train_code/check_audio_docx_filename.sh
+## step4&5 cyclic inspection
+
+# Step 6 -- clean transcripts
+python clean_transcrips.py
+## 103 has more than two speakers
+## combine docx files at this step --> jq -s '.[0] * .[1]' file1.jsonl file2.jsonl > $merged_json
+
+# Step 7 -- ffmpeg reformatqq
+bash ffmpeg_reformat_audio.sh
+
+# Step 8 -- alignment
+python aligner.py
+- error 1: AttributeError("'int' object has no attribute 'round'")
+solution：update model version
+- error 2: IndexError('list index out of range')
+solution:
+1) mp3 file no content -- skip 
+2) sentence_tokenization -- remove last several sentences only have punctuations
+- error 3: 004045-08.jsonl not exist / several jsonl files are empty.
+xxxxx.docx --> not convert to jsonl file
+- other errors --> /home/Collaborative_Projects/NLB_data_preparation/NLB_data/NLB_splitted_zhuohan/train/errors
+
+
+
+### 000021 --> doc to docx has Problem

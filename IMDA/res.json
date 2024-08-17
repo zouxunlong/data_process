@@ -1,0 +1,61 @@
+{
+    "PART3": {
+        "gender": [
+            "F",
+            "M"
+        ],
+        "ethnic_groups": [
+            "Indian",
+            "Others",
+            "Malay",
+            "Chinese"
+        ]
+    },
+    "PART4": {
+        "gender": [
+            "F",
+            "M"
+        ],
+        "ethnic_groups": [
+            "Indian",
+            "Others",
+            "Malay",
+            "Chinese"
+        ]
+    },
+    "PART5": {
+        "gender": [
+            "Female",
+            "Male"
+        ],
+        "ethnic_groups": [
+            "Indian",
+            "Malay",
+            "Chinese"
+        ]
+    },
+    "PART1": {
+        "gender": [
+            "F",
+            "M"
+        ],
+        "ethnic_groups": [
+            "Indian",
+            "Others",
+            "Malay",
+            "Chinese"
+        ]
+    },
+    "PART2": {
+        "gender": [
+            "F",
+            "M"
+        ],
+        "ethnic_groups": [
+            "Indian",
+            "Others",
+            "Malay",
+            "Chinese"
+        ]
+    }
+}

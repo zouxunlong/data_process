@@ -1,0 +1,26 @@
+{
+    "0": {
+        "Question": "Can you determine the gender of the speaker in this audio files?",
+        "Answer": "The audio suggesting speaker is a #XXXX#."
+    },
+    "1": {
+        "Question": "Based on the voice characteristics, can you identify whether the speaker is male or female?",
+        "Answer": "Yes, I can analyze the audio and determine there is a #XXXX# speaker."
+    },
+    "2": {
+        "Question": "Can you tell me if the speaker in this audio clip is likely to be male or female?",
+        "Answer": "Yes,  I can listen to the audio and provide an assessment of the speaker's gender. Tt is a #XXXX# speaker in this clip."
+    },
+    "3": {
+        "Question": "Is it possible for you to identify whether the speaker in this recording is male or female?",
+        "Answer": "Certainly, based on what I listening, there is a #XXXX# speaker inside."
+    },
+    "4": {
+        "Question": "Based on what you heard, can you identify whether the speaker is male or female?",
+        "Answer": "Based on the auditory cues, it sounds like the speaker is a #XXXX#."
+    },
+    "5": {
+        "Question": "How would you describe the speaker's gender in this clip?",
+        "Answer": "The speaker sounds like a #XXXX#."
+    }
+}

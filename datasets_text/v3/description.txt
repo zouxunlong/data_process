@@ -1,0 +1,16 @@
+Data_v1 (23,600,007 docs after deduplication)
+massive crawl data ( 55k domains): 36,938,898 docs
+
+
+Data_v2 (6,830,390 docs after deduplication):
+Selected massive crawl data ( select 29 out of top 100 domains): 3,516,892 docs
+Unselected massive crawl data ( using SG_Text_Classifier to classify 29,718,398 rest domain docs): 2,213,418 docs
+newslink straits times (full historical archive): 1,259,494 docs
+wikipedia_HF_Nov23_extracted_SG_V1.0: 101,810 docs
+Hardwarezone (crawled threads): 583,106 docs
+
+Data_v3 (11,551,609 docs after deduplication):
+Data_v2: 6,830,390 docs
+Local English news and magazine articles from newslink (exclude straitstimes): 1,172,452 docs
+Local Indonesia news articles from Bisnis, koranjakarta, mediaindonesia, Antara: 1,116,126 docs
+Local Chinese news articles from zaobao, shinmindaily, wanbao, wobao, zaobaoOnline, FridayWeekly, thumbsup, ZaobaoComma, shinmindailyOnline: 2,601,667 docs

@@ -1,0 +1,26 @@
+{
+    "0": {
+        "Question": "What overall sentiment do you perceive from the speaker's tone of voice?",
+        "Answer": "The speaker's tone suggesting a #XXXX# sentiment."
+    },
+    "1": {
+        "Question": "Based on the speaker's speech patterns, would you say their sentiment is more positive, negative, or neutral?",
+        "Answer": "The speaker's speech indicating a #XXXX# sentiment."
+    },
+    "2": {
+        "Question": "Overall, how would you describe the speaker's sentiment in this audio?",
+        "Answer": "The speaker's sentiment is #XXXX#, as reflected in their language throughout the audio."
+    },
+    "3": {
+        "Question": "How would you interpret the speaker's sentiment state from their speech?",
+        "Answer": "From the speaker's speech, it seems they are in a #XXXX# sentiment state."
+    },
+    "4": {
+        "Question": "Based on what you heard, what sentiment state do you think the speaker is conveying?",
+        "Answer": "Based on the auditory cues, it sounds like the speaker is #XXXX#."
+    },
+    "5": {
+        "Question": "How would you describe the tone of the speaker's voice?",
+        "Answer": "The speaker's tone sounds #XXXX#."
+    }
+}

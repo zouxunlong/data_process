@@ -1,0 +1,34 @@
+{
+    "0": {
+        "Question": "How would you describe the tone of the speaker's voice?",
+        "Answer": "The speaker's tone sounds #XXXX#."
+    },
+    "1": {
+        "Question": "What emotions do you think the speaker is expressing?",
+        "Answer": "Based on the tone of the speaker's voice and their delivery, it seems like the speaker is #XXXX#."
+    },
+    "2": {
+        "Question": "Do you think the speaker sounds happy, sad, angry, or something else?",
+        "Answer": "The speaker's emotion seems #XXXX#."
+    },
+    "3": {
+        "Question": "Can you describe the tone of the speaker's voice and what it suggests about their emotion?",
+        "Answer": "The tone of the speaker's voice suggests that the speaker may be feeling #XXXX#."
+    },
+    "4": {
+        "Question": "Based on what you heard, what emotion do you think the speaker is conveying?",
+        "Answer": "Based on the auditory cues, it sounds like the speaker is #XXXX#."
+    },
+    "5": {
+        "Question": "What do you think the speaker is feeling based on their speech patterns (e.g., pace, pitch, volume)?",
+        "Answer": "Based on the speaker's speech patterns, it seems like they are feeling #XXXX#."
+    },
+    "6": {
+        "Question": "How would you interpret the speaker's emotional state from their speech?",
+        "Answer": "From the speaker's speech, it seems they are in a #XXXX# state."
+    },
+    "7": {
+        "Question": "Based on the speaker's speech patterns, what do you think they are feeling?",
+        "Answer": "The speaker's speech suggesting they might be feeling #XXXX#."
+    }
+}
