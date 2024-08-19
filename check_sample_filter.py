@@ -19,16 +19,16 @@ def filter_fn(batch):
     return [True]
 
 
-def do_check(ds_path):
+def do_check(ds_path, num_proc=30):
     print(f"start checking {ds_path}", flush=True)
     ds = load_from_disk(ds_path)
     N = len(ds)
-    ds_filtered = ds.filter(filter_fn, batched=True, batch_size=1, writer_batch_size=1, num_proc=30)
+    ds_filtered = ds.filter(filter_fn, batched=True, batch_size=1, writer_batch_size=1, num_proc=num_proc)
     if len(ds_filtered) != N:
-        ds_filtered.save_to_disk(f"{ds_path}_v1", num_proc=4)
+        ds_filtered.save_to_disk(f"{ds_path}_filtered", num_proc=4)
         print(f"complete checking {ds_path} error found", flush=True)
     else:
-        print(f"complete", flush=True)
+        print(f"complete checking {ds_path}", flush=True)
 
 
 def main(dir):
@@ -39,5 +39,4 @@ def main(dir):
 
 
 if __name__ == "__main__":
-
     fire.Fire(main)
