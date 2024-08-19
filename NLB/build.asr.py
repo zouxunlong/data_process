@@ -293,8 +293,8 @@ def process_audio(batch):
     try:
 
         items = batch['transcriptions'][0]
-        path = batch['audio'][0]["path"]
-        array = batch['audio'][0]['array']
+        path = batch['context'][0]['audio']["path"]
+        array = batch['context'][0]['audio']['array']
 
         for item in items:
 
