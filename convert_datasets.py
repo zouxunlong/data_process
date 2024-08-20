@@ -8,7 +8,6 @@ import shutil
 from multiprocessing import Pool
 from streaming.base.util import merge_index
 
-n_cpus = 32
 
 def get_text(text):
     return text if text is not None else ""
@@ -16,8 +15,6 @@ def get_text(text):
 def get_array(audio):
     return audio["array"] if audio is not None else np.array([0])
 
-dataset_dir = "/mnt/data/all_datasets"
-output_dir = "/mnt/data/all_datasets/mds_datasets"
 
 def each_task(dataset_path, dataset_output_path, dataset_length, n_cpus, task):
     chunk_size = [dataset_length//n_cpus+1 if i < dataset_length%n_cpus else dataset_length//n_cpus for i in range(n_cpus)]
@@ -67,12 +64,16 @@ def convert_to_mds(args) -> None:
             except:
                 pass
 
+n_cpus = 64
+dataset_dir = "/home/users/astar/ares/zoux/scratch"
+output_dir = "/home/users/astar/ares/zoux/scratch/mds_datasets"
+
 for task in ["ASR", "ASQA", "Paralingual", "SI", "SQA", "ST"]:
-    dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
-    dataset_path_multimodal_train = glob(os.path.join(dataset_dir, "datasets_multimodal/train",f"{task}/**/dataset_info.json"), recursive=True)
+    # dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
+    # dataset_path_multimodal_train = glob(os.path.join(dataset_dir, "datasets_multimodal/train",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_nlb_test         = glob(os.path.join(dataset_dir, "nlb_data/test",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_nlb_train        = glob(os.path.join(dataset_dir, "nlb_data/train",f"{task}/**/dataset_info.json"), recursive=True)
-    dataset_path_all              = dataset_path_multimodal_test+dataset_path_multimodal_train+dataset_path_nlb_test+dataset_path_nlb_train
+    dataset_path_all              = dataset_path_nlb_test+dataset_path_nlb_train
     dataset_path_all.sort()
     
     for dataset_path in dataset_path_all:
