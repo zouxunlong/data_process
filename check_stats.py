@@ -34,13 +34,13 @@ def check_data(hf_folder: str, num_worker: int = 30):
         num_of_samples = len(ds)
         total_audio_hours = sum(ds["audio_length"])/3600
         max_audio_seconds = max(ds["audio_length"])
-        max_audio_seconds = min(ds["audio_length"])
+        min_audio_seconds = min(ds["audio_length"])
 
         curr_res = {
             "num_of_samples"   : num_of_samples,
             "total_audio_hours": total_audio_hours,
             "max_audio_seconds": max_audio_seconds,
-            "max_audio_seconds": max_audio_seconds
+            "min_audio_seconds": min_audio_seconds
         }
 
         with open(os.path.join(split, 'ds_stats.json'), 'w') as f:
