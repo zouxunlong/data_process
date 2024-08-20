@@ -344,7 +344,6 @@ def chunking(batch, chunk_limit):
                     dialog.append((speaker, sentence, start, end))
 
         for dialog in dialogs:
-            
             start_time   = dialog[0][2]
             end_time     = dialog[-1][3]
             conversation = build_conversation(dialog)
