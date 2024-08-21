@@ -13,7 +13,7 @@ def get_all_split(ds_path):
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 28):
+def check_data(hf_folder: str, num_worker: int = 8):
 
     def map_fn(example):
         return {"audio_length": len(example["context"]["audio"]["array"])/16000}

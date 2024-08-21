@@ -9,7 +9,6 @@ python /mnt/data/all_datasets/xunlong_working_repo/check_stats.py /mnt/data/all_
 
 echo "Done checking datasets_multimodal stats"
 
-sleep 5
 
 echo "Done"
 
