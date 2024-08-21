@@ -64,13 +64,13 @@ def convert_to_mds(args) -> None:
             except:
                 pass
 
-n_cpus = 64
-dataset_dir = "/home/users/astar/ares/zoux/scratch"
-output_dir = "/home/users/astar/ares/zoux/scratch/mds_datasets"
+n_cpus = 32
+dataset_dir = "/mnt/data/all_datasets"
+output_dir = "/mnt/data/all_datasets/mds_datasets"
 
 for task in ["ASR", "ASQA", "Paralingual", "SI", "SQA", "ST"]:
-    # dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
-    # dataset_path_multimodal_train = glob(os.path.join(dataset_dir, "datasets_multimodal/train",f"{task}/**/dataset_info.json"), recursive=True)
+    dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
+    dataset_path_multimodal_train = glob(os.path.join(dataset_dir, "datasets_multimodal/train",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_nlb_test         = glob(os.path.join(dataset_dir, "nlb_data/test",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_nlb_train        = glob(os.path.join(dataset_dir, "nlb_data/train",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_all              = dataset_path_nlb_test+dataset_path_nlb_train
@@ -85,7 +85,8 @@ for task in ["ASR", "ASQA", "Paralingual", "SI", "SQA", "ST"]:
         dataset_output_path = os.path.join(output_dir, dataset_base_path)
 
         if os.path.exists(dataset_output_path):
-            shutil.rmtree(dataset_output_path)
+            print(f"Skipping {dataset_output_path}", flush=True)
+            continue
         os.makedirs(dataset_output_path, exist_ok=True)
 
         dataset = load_from_disk(dataset_path)

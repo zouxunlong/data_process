@@ -13,7 +13,7 @@ def get_all_split(ds_path):
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 2):
+def check_data(hf_folder: str, num_worker: int = 28):
 
     def map_fn(example):
         return {"audio_length": len(example["context"]["audio"]["array"])/16000}
@@ -22,6 +22,9 @@ def check_data(hf_folder: str, num_worker: int = 2):
     stats = {}
 
     for split in splits:
+        if os.path.exists(os.path.join(split, 'ds_stats.json')):
+            stats[split] = json.load(open(os.path.join(split, 'ds_stats.json')))
+            continue
 
         print('Checking {}'.format(split), flush=True)
         ds = load_from_disk(split).select_columns(["context"])
