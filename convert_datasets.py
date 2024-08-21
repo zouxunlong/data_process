@@ -78,17 +78,16 @@ for task in ["ASR", "ASQA", "Paralingual", "SI", "SQA", "ST"]:
     
     for dataset_path in dataset_path_all:
 
-        print(dataset_path)
         dataset_path = os.path.dirname(dataset_path)
-
         dataset_base_path = dataset_path.replace(dataset_dir, "")[1:]
         dataset_output_path = os.path.join(output_dir, dataset_base_path)
 
         if os.path.exists(dataset_output_path):
             print(f"Skipping {dataset_output_path}", flush=True)
             continue
-        os.makedirs(dataset_output_path, exist_ok=True)
 
+        print('Converting {}'.format(dataset_base_path), flush=True)
+        os.makedirs(dataset_output_path, exist_ok=True)
         dataset = load_from_disk(dataset_path)
         dataset_length = len(dataset)
         arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, n_cpus, task)

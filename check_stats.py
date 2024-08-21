@@ -23,6 +23,7 @@ def check_data(hf_folder: str, num_worker: int = 8):
 
     for split in splits:
         if os.path.exists(os.path.join(split, 'ds_stats.json')):
+            print(f"Skipping {split}", flush=True)
             stats[split] = json.load(open(os.path.join(split, 'ds_stats.json')))
             continue
 
