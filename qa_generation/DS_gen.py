@@ -34,7 +34,7 @@ candidate_instructions = [
 
 def map_fn(sample):
 
-    port=random.choice([8000, 8001, 8002, 8003])
+    port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
     client = OpenAI(
         api_key="EMPTY",
         base_url=f"http://localhost:{port}/v1",
@@ -93,7 +93,7 @@ def ds_generation(split):
         map_fn,
         features=features,
         batched=False,
-        num_proc=96,
+        num_proc=32,
         writer_batch_size=1,
         desc="Dialog summarization for {}".format(split.split("/IMDA/")[-1]),
     )

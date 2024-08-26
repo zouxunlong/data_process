@@ -1,75 +1,79 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+
+import random
+import fire
 from datasets import load_from_disk
-import torch
-from fire import Fire
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-os.environ["TOKENIZERS_PARALLELISM"] = "true"
+from openai import OpenAI
 
 
-PROMPT_TEMPLATE = """\
-    [Question]
-    {question}
+def map_fn(batch):
+    
+    responses=[]
 
-    [Ground Truth Reference]
-    {reference}
+    for instruction, answer in zip(batch["instruction"], batch["answer"]):
 
-    [System]
-    You're given the question and the groundtruth reference based on an audio clip.
-    Please rewrite the groundtruth reference as one complete sentence.
-    Please strictly make sure they convey the same meaning and sounds nature as a response to the question based on the audio clip.
-    Your response should be formatted as follows:
-    Explanation: (Provide a brief explanation.)
-    Answer: (your rephrased answer)"""
+        PROMPT_TEMPLATE = """\
+            [Question]
+            {question}
 
+            [Ground Truth Reference]
+            {reference}
 
-model_path = '/home/xunlong/question_generation/Meta-Llama-3-8B-Instruct-hf'
-tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side='left')
-tokenizer.pad_token = tokenizer.eos_token
-model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.bfloat16, device_map="auto")
+            [System]
+            You're given the question and the groundtruth reference based on an audio clip.
+            Please rewrite the groundtruth reference as one complete sentence.
+            Please strictly make sure they convey the same meaning and sounds nature as a response to the question based on the audio clip.
+            Additional, provide a brief explanation of the rationale behind your question.
+
+            Format your response as follows:
+            Explanation: (Briefly explain the rationale behind your question.)
+            Answer: (your rephrased answer)"""
+
+        prompt_sample = PROMPT_TEMPLATE.format(question=instruction["text"], reference=answer["text"])
+
+        port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006])
+        client = OpenAI(
+            api_key="EMPTY",
+            base_url=f"http://localhost:{port}/v1",
+        )
+
+        chat_response = client.chat.completions.create(
+            model="/mnt/home/zoux/models/Meta-Llama-3.1-8B-Instruct",
+            messages=[
+                {"role": "user", "content": prompt_sample},
+            ]
+        )
+
+        responses.append(chat_response.choices[0].message.content)
+
+    answers = [sample.split("Answer: ")[1].split("\n")[0].strip() if 'Answer: ' in sample else "No Answer Found" for sample in responses]
+    
+    batch["answer"]=[{"audio":None, "text":answer} for answer in answers]
+    
+
+    return batch
+
 
 
 def main():
 
-    for split in ["validation"]:
+    for split in ["test", "train", "validation"]:
 
-        def qa_process(batch):
-
-            messages=[[{"role": "user", "content": PROMPT_TEMPLATE.format(question=instruction["text"], reference=answer["text"])}]
-                      for instruction, answer in 
-                      zip(batch["instruction"], batch["answer"])]
-
-            input_ids = tokenizer.apply_chat_template(
-                messages,
-                padding=True,
-                add_generation_prompt=True,
-                return_tensors="pt").to(model.device)
-
-            outputs = model.generate(input_ids, max_new_tokens=256, eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.eos_token_id, do_sample=False)
-            
-            response_ids = torch.stack([output[input_ids[i].shape[-1]:] for i, output in enumerate(outputs)])
-            with torch.no_grad():
-                responses=tokenizer.batch_decode(response_ids, skip_special_tokens=True)
-
-            batch["answer"]=[{"audio":None, "text":response.split("\nAnswer:")[-1].strip()} for response in responses]
-            return batch
-
-        dataset = load_from_disk('/data/xunlong/clotho_aqa.schemed/{}'.format(split))
+        dataset = load_from_disk('/mnt/home/zoux/xunlong_working_repo/data_AQA/clotho_aqa/clotho_aqa.hf/{}'.format(split))
         dataset = dataset.map(
-            qa_process,
+            map_fn,
             batched=True,
-            batch_size=80,
-            num_proc=1,
-            load_from_cache_file=True,
-            writer_batch_size=35,
-            keep_in_memory=False,
+            batch_size=1,
+            num_proc=64,
+            writer_batch_size=1,
             desc="Answer rephrase",
         )
         
-        dataset.save_to_disk('/data/xunlong/clotho_aqa.rephrase.schemed/{}'.format(split), num_proc=4)
+        dataset.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
+
+        dataset.save_to_disk('/mnt/home/zoux/xunlong_working_repo/data_AQA/clotho_aqa/clotho_aqa_v1/{}'.format(split), num_proc=4)
 
 
 if __name__ == '__main__':
-    Fire(main)
+    fire.Fire(main)
 
 
