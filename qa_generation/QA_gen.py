@@ -21,7 +21,7 @@ def map_fn(batch_samples):
             {context}
 
             [Task]
-            You are given one dialogue. Please generate two factual questions related to the transcription.
+            You are given one speech audio. Please generate two factual questions related to the transcription.
             Make sure that the transcription has enough information to provide the answer to these questions.
             If the question is about a specific speaker, please mention the speaker's name in the question.
             Do not output 'according to the transcription'.
