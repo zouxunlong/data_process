@@ -21,7 +21,7 @@ def map_fn(batch_samples):
             {context}
 
             [Task]
-            You are given one dialogue. Please generate five factual questions related to the transcription.
+            You are given one dialogue. Please generate two factual questions related to the transcription.
             Make sure that the transcription has enough information to provide the answer to these questions.
             If the question is about a specific speaker, please mention the speaker's name in the question.
             Do not output 'according to the transcription'.
@@ -32,17 +32,11 @@ def map_fn(batch_samples):
             Explanation: (Briefly explain the rationale behind your question.)
             Question: (Write your question here)
             Explanation: (Briefly explain the rationale behind your question.)
-            Question: (Write your question here)
-            Explanation: (Briefly explain the rationale behind your question.)
-            Question: (Write your question here)
-            Explanation: (Briefly explain the rationale behind your question.)
-            Question: (Write your question here)
-            Explanation: (Briefly explain the rationale behind your question.)
             """
 
         prompt_sample = QUESTION_TEMPLATE.format(context=text)
 
-        port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006])
+        port=random.choice([8000, 8001, 8002, 8003])
         client = OpenAI(
             api_key="EMPTY",
             base_url=f"http://localhost:{port}/v1",
@@ -86,7 +80,7 @@ def map_fn(batch_samples):
         for question in questions:
             format_sample = ANSWER_TEMPLATE.format(context=text, question=question)
 
-            port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006])
+            port=random.choice([8000, 8001, 8002, 8003])
             client = OpenAI(
                 api_key="EMPTY",
                 base_url=f"http://localhost:{port}/v1",
@@ -139,14 +133,14 @@ def qa_generation(split):
 
     data = data.shuffle()
 
-    data.save_to_disk(split.replace("_ASR_", "_SQA_"), num_proc=4)
+    data.save_to_disk(split.replace("ASR", "SQA"), num_proc=4)
 
 
 def main(pattern):
     splits = glob(pattern)
     splits.sort()
     for split in splits:
-        if os.path.exists(split.replace("_ASR_", "_SQA_")):
+        if os.path.exists(split.replace("ASR", "SQA")):
             print("complete {}".format(split), flush=True)
             continue
         print("start {}".format(split), flush=True)
