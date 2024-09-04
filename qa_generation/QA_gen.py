@@ -21,7 +21,7 @@ def map_fn(batch_samples):
             {context}
 
             [Task]
-            You are given one speech audio. Please generate two factual questions related to the transcription.
+            You are given one speech transcription. Please generate two factual questions related to the transcription.
             Make sure that the transcription has enough information to provide the answer to these questions.
             If the question is about a specific speaker, please mention the speaker's name in the question.
             Do not output 'according to the transcription'.
@@ -36,7 +36,7 @@ def map_fn(batch_samples):
 
         prompt_sample = QUESTION_TEMPLATE.format(context=text)
 
-        port=random.choice([8000, 8001, 8002, 8003])
+        port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
         client = OpenAI(
             api_key="EMPTY",
             base_url=f"http://localhost:{port}/v1",
@@ -51,8 +51,8 @@ def map_fn(batch_samples):
 
         generated_questions.append(chat_response.choices[0].message.content)
 
-    generated_questions = [[item.split('Explanation: ')[0].strip() for item in sample.split('Question: ')[1:]] if 'Question: ' in sample and len(sample.split('Question: '))==6 else ["No Question Found"]*5 for sample in generated_questions]
-    
+    generated_questions = [[item.split('Explanation: ')[0].strip() for item in sample.split('Question: ')[1:]] if 'Question: ' in sample and len(sample.split('Question: '))==3 else ["No Question Found"]*2 for sample in generated_questions]
+
 
     # Generate the answer
     generated_answers = []
@@ -80,7 +80,7 @@ def map_fn(batch_samples):
         for question in questions:
             format_sample = ANSWER_TEMPLATE.format(context=text, question=question)
 
-            port=random.choice([8000, 8001, 8002, 8003])
+            port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
             client = OpenAI(
                 api_key="EMPTY",
                 base_url=f"http://localhost:{port}/v1",
@@ -99,8 +99,8 @@ def map_fn(batch_samples):
 
     instructions     = [{'text': question, 'audio': None} for questions in generated_questions for question in questions]
     answers          = [{'text': answer, 'audio': None} for answer in generated_answers]
-    other_attributes = [{'transcription': sample['text']} for _sample in batch_samples['answer'] for sample in [_sample]*5]
-    contexts         = [context for _context in batch_samples['context'] for context in [_context]*5]
+    other_attributes = [{'transcription': sample['text']} for _sample in batch_samples['answer'] for sample in [_sample]*2]
+    contexts         = [context for _context in batch_samples['context'] for context in [_context]*2]
 
     new_batch = {
         'context'         : contexts,
@@ -113,12 +113,12 @@ def map_fn(batch_samples):
 
 def qa_generation(split):
 
-    data = load_from_disk(split)
+    ds = load_from_disk(split)
 
-    features = data.features
+    features = ds.features
     features['other_attributes'] = {"transcription": Value(dtype='string')}
 
-    data = data.map(
+    ds = ds.map(
         map_fn,
         features          = features,
         batched           = True,
@@ -128,12 +128,12 @@ def qa_generation(split):
         desc              = "QA Generation for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    data.filter(lambda x: x['instruction']['text'] != 'No Question Found', num_proc=20)
-    data.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
+    ds=ds.filter(lambda x: x['instruction']['text'] != 'No Question Found', num_proc=20)
+    ds=ds.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
 
-    data = data.shuffle()
+    ds = ds.shuffle()
 
-    data.save_to_disk(split.replace("ASR", "SQA"), num_proc=4)
+    ds.save_to_disk(split.replace("ASR", "SQA"), num_proc=4)
 
 
 def main(pattern):
