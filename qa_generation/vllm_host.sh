@@ -1,13 +1,13 @@
 
+GPU=$1
+PORT=$2
 
-export HF_HOME=~/.cache/huggingface
-
-export CUDA_VISIBLE_DEVICES=2,3
+export CUDA_VISIBLE_DEVICES=$GPU
 
 python -m vllm.entrypoints.openai.api_server \
-        --model /mnt/home/zoux/models/Meta-Llama-3.1-8B-Instruct \
-        --port 8000 \
+        --model casperhansen/llama-3-70b-instruct-awq \
+        --port $PORT \
         --disable-log-requests \
-        --disable-log-stats &
+        --disable-log-stats
         
 

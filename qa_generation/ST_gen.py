@@ -65,13 +65,12 @@ def map_fn(batch_samples):
         )
 
         chat_response = client.chat.completions.create(
-            model="/mnt/home/zoux/models/Meta-Llama-3.1-8B-Instruct",
+            model="casperhansen/llama-3-70b-instruct-awq",
             messages=[
                 {"role": "user", "content": prompt_sample},
             ]
         )
 
-        breakpoint()
 
         generated_translations.append(chat_response.choices[0].message.content)
 
