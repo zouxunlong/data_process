@@ -68,7 +68,7 @@ def main():
             desc="Answer rephrase",
         )
         
-        dataset.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
+        dataset=dataset.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
 
         dataset.save_to_disk('/mnt/home/zoux/xunlong_working_repo/data_AQA/clotho_aqa/clotho_aqa_v1/{}'.format(split), num_proc=4)
 

@@ -98,7 +98,7 @@ def ds_generation(split):
         desc="Dialog summarization for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    data.filter(lambda x: x['answer']['text'] != 'Template not matched.', num_proc=20)
+    data = data.filter(lambda x: x['answer']['text'] != 'Template not matched.', num_proc=20)
 
     data = data.shuffle()
     

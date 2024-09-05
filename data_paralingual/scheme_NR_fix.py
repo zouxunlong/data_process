@@ -1,4 +1,5 @@
 
+from glob import glob
 from datasets import load_from_disk, Audio, Features, Value
 import random
 import os
@@ -82,33 +83,27 @@ def get_all_split(root_hf):
 def mapping(example):
 
     return {
-        "context": {
-            "text": None,
-            "audio": example["audio"]
-        },
-        "instruction": {
-            "text": random.choice(questions_NR),
-            "audio": None
-        },
         "answer": {
-            "text": f'Base on the accent, the speaker may be from {example['Nationality']}.',
+            "text": f'Base on the accent, the speaker may be from {example["other_attributes"]["Nationality"]}.',
             "audio": None
-        },
-        "other_attributes": {
-            "Gender": example["Gender"],
-            "Nationality": example["Nationality"],
-            "VGGFace1 ID": example["VGGFace1 ID"],
-            "VoxCeleb1 ID": example["VoxCeleb1 ID"],
-            "index": example["index"],
         }
     }
 
 
-def map2schema(split, workers=32):
+def map2schema(split, workers=64):
 
     print(f"start {split}", flush=True)
 
     ds = load_from_disk(split)
+
+    ds = ds.map(mapping,
+                features=ds.features,
+                num_proc=workers,
+                batch_size=1,
+                writer_batch_size=1,
+                keep_in_memory=False,
+                load_from_cache_file=True
+                )
 
     problem_ids = []
     for _i in tqdm(range(len(ds)), desc="checking samples"):
@@ -118,39 +113,19 @@ def map2schema(split, workers=32):
             problem_ids.append(_i)
     ds = ds.select([_i for _i in range(len(ds)) if _i not in problem_ids])
 
-    features = Features({
-        'context': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
-        'instruction': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
-        'answer': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
-        'other_attributes': {
-            "Gender": ds.features["Gender"],
-            "Nationality": ds.features["Nationality"],
-            "VGGFace1 ID": ds.features["VGGFace1 ID"],
-            "VoxCeleb1 ID": ds.features["VoxCeleb1 ID"],
-            "index": ds.features["index"],
-        }
-    })
-
-    ds = ds.map(mapping,
-                features=features,
-                remove_columns=ds.column_names,
-                num_proc=workers,
-                batch_size=1,
-                writer_batch_size=1,
-                keep_in_memory=False,
-                load_from_cache_file=True
-                )
-
-    ds.save_to_disk(split.replace("VoxCeleb1", "VoxCeleb1_NR_v1"), num_proc=4)
+    ds.save_to_disk(split.replace("VoxCeleb1_NR_v1", "VoxCeleb1_NR_v2"), num_proc=4)
     print(f"complete {split}", flush=True)
 
 
-def main(dir):
-    splits = get_all_split(dir)
+def main(pattern):
+
+    splits = glob(pattern)
     splits.sort()
     for split in splits:
+        if os.path.exists(split.replace("VoxCeleb1_NR_v1", "VoxCeleb1_NR_v2")):
+            print("complete {}".format(split), flush=True)
+            continue
         map2schema(split)
-
 
 if __name__ == "__main__":
     Fire(main)

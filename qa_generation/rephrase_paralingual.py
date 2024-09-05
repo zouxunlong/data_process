@@ -71,8 +71,8 @@ def qa_rephrase(split):
         desc              = "QA re-write for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    data.filter(lambda x: x['instruction']['text'] != 'No Question Found', num_proc=20)
-    data.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
+    data = data.filter(lambda x: x['instruction']['text'] != 'No Question Found', num_proc=20)
+    data = data.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
 
     data.save_to_disk(split.replace("_v1", "_v2"), num_proc=4)
 
