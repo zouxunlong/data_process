@@ -128,8 +128,11 @@ def qa_generation(split):
         desc              = "QA Generation for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    ds = ds.filter(lambda x: x['instruction']['text'] != 'No Question Found', num_proc=20)
-    ds = ds.filter(lambda x: x['answer']['text'] != 'No Answer Found', num_proc=20)
+    ds = ds.filter(lambda x: x['instruction']['text'] != 'No Question Found' and x['answer']['text'] != 'No Answer Found',
+                   batch_size=1,
+                   writer_batch_size=1,
+                   num_proc=20
+                   )
 
     ds = ds.shuffle()
 
