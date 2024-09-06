@@ -51,7 +51,7 @@ def map_fn(batch_samples):
 
         generated_questions.append(chat_response.choices[0].message.content)
 
-    generated_questions = [[item.split('Explanation: ')[0].strip() for item in sample.split('Question: ')[1:]] if 'Question: ' in sample and len(sample.split('Question: '))==3 else ["No Question Found"]*2 for sample in generated_questions]
+    generated_questions = [[item.split('Explanation: ')[0].strip() for item in sample.split('Question: ')[1:]] if 'Question: ' in sample and len(sample.split('Question: '))==3 else ["Template not matched."]*2 for sample in generated_questions]
 
 
     # Generate the answer
@@ -94,7 +94,7 @@ def map_fn(batch_samples):
             )
             generated_answers.append(chat_response.choices[0].message.content)
 
-    generated_answers = [sample.split('Answer: ')[1].strip() if 'Answer: ' in sample else "No Answer Found" for sample in generated_answers]
+    generated_answers = [sample.split('Answer: ')[1].strip() if 'Answer: ' in sample else "Template not matched." for sample in generated_answers]
 
 
     instructions     = [{'text': question, 'audio': None} for questions in generated_questions for question in questions]
@@ -111,7 +111,7 @@ def map_fn(batch_samples):
     return new_batch
 
 
-def qa_generation(split):
+def qa_generation(split, num_proc=32):
 
     ds = load_from_disk(split)
 
@@ -123,15 +123,15 @@ def qa_generation(split):
         features          = features,
         batched           = True,
         batch_size        = 1,
-        num_proc          = 128,
+        num_proc          = num_proc,
         writer_batch_size = 1,
         desc              = "QA Generation for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    ds = ds.filter(lambda x: x['instruction']['text'] != 'No Question Found' and x['answer']['text'] != 'No Answer Found',
+    ds = ds.filter(lambda x: x['instruction']['text'] != 'Template not matched.' and x['answer']['text'] != 'Template not matched.',
                    batch_size=1,
                    writer_batch_size=1,
-                   num_proc=20
+                   num_proc=num_proc
                    )
 
     ds = ds.shuffle()

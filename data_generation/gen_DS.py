@@ -34,7 +34,7 @@ candidate_instructions = [
 
 def map_fn(sample):
 
-    port=random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
+    port = random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
     client = OpenAI(
         api_key="EMPTY",
         base_url=f"http://localhost:{port}/v1",
@@ -70,19 +70,20 @@ def map_fn(sample):
     else:
         llm_output = "Template not matched."
 
-    instruction = {'text': random.choice(candidate_instructions), 'audio': None,}
-    answer = {'text': llm_output, 'audio': None,}
+    instruction = {'text': random.choice(
+        candidate_instructions), 'audio': None, }
+    answer = {'text': llm_output, 'audio': None, }
 
     new_sample = {
-        'instruction'     : instruction,
-        'answer'          : answer,
+        'instruction': instruction,
+        'answer': answer,
         'other_attributes': {'transcription': sample['answer']['text']}
     }
 
     return new_sample
 
 
-def ds_generation(split):
+def ds_generation(split, num_proc=32):
 
     data = load_from_disk(split)
 
@@ -93,15 +94,19 @@ def ds_generation(split):
         map_fn,
         features=features,
         batched=False,
-        num_proc=32,
+        num_proc=num_proc,
         writer_batch_size=1,
         desc="Dialog summarization for {}".format(split.split("/IMDA/")[-1]),
     )
 
-    data = data.filter(lambda x: x['answer']['text'] != 'Template not matched.', num_proc=20)
+    data = data.filter(lambda x: x['answer']['text'] != 'Template not matched.',
+                       batch_size=1,
+                       writer_batch_size=1,
+                       num_proc=num_proc
+                       )
 
     data = data.shuffle()
-    
+
     data.save_to_disk(split.replace("_ASR_", "_DS_"), num_proc=4)
 
 
@@ -115,6 +120,7 @@ def main(pattern):
         print("start {}".format(split), flush=True)
         ds_generation(split)
         print("complete {}".format(split), flush=True)
+
 
 if __name__ == '__main__':
     fire.Fire(main)
