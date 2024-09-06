@@ -6,7 +6,7 @@ export CUDA_VISIBLE_DEVICES=$GPU
 
 python -m vllm.entrypoints.openai.api_server \
         --model hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4 \
-        --max-model-len 40960 \
+        --max-model-len 4096 \
         --port $PORT \
         --disable-log-requests \
         --disable-log-stats

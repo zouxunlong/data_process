@@ -76,7 +76,7 @@ def map_fn(sample, language):
     }
 
 
-def st_generation(split, language, lang_code, num_proc=64):
+def st_generation(split, language, lang_code, num_proc=128):
 
     ds = load_from_disk(split)
 
