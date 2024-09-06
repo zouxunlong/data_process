@@ -59,7 +59,7 @@ def map_fn(sample):
     format_sample = TEMPLATE.format(context=text)
 
     chat_response = client.chat.completions.create(
-        model="casperhansen/llama-3-70b-instruct-awq",
+        model="hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
         messages=[{"role": "user", "content": format_sample}]
     )
 
