@@ -105,15 +105,7 @@ def map2schema(split, workers=64):
                 load_from_cache_file=True
                 )
 
-    problem_ids = []
-    for _i in tqdm(range(len(ds)), desc="checking samples"):
-        try:
-            sample = ds[_i]
-        except:
-            problem_ids.append(_i)
-    ds = ds.select([_i for _i in range(len(ds)) if _i not in problem_ids])
-
-    ds.save_to_disk(split.replace("VoxCeleb1_NR_v1", "VoxCeleb1_NR_v2"), num_proc=4)
+    ds.save_to_disk(split.replace("VoxCeleb1_NR_v2", "VoxCeleb1_NR_v1"), num_proc=4)
     print(f"complete {split}", flush=True)
 
 
@@ -122,7 +114,7 @@ def main(pattern):
     splits = glob(pattern)
     splits.sort()
     for split in splits:
-        if os.path.exists(split.replace("VoxCeleb1_NR_v1", "VoxCeleb1_NR_v2")):
+        if os.path.exists(split.replace("VoxCeleb1_NR_v2", "VoxCeleb1_NR_v1")):
             print("complete {}".format(split), flush=True)
             continue
         map2schema(split)

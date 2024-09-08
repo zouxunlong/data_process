@@ -14,7 +14,7 @@ def get_all_split(root_hf):
     return directories
 
 
-def fix(split, num_proc=96):
+def fix(split, num_proc=32):
 
     def filter_fn(example):
         return example['instruction']['text'].strip() not in ['No Question Found', ''] and example['answer']['text'].strip() not in ['No Answer Found', 'Template not matched.', '']
