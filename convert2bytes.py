@@ -14,7 +14,7 @@ def get_all_split(root_hf):
 
 def map_fn(example):
     audio_array=example["context"]["audio"]["array"]
-    fname=tempfile.NamedTemporaryFile(dir="tmp", suffix=".mp3").name
+    fname=tempfile.NamedTemporaryFile(suffix=".mp3").name
     sf.write(fname, audio_array, 16000)
     example["context"]["audio"]={"bytes": open(fname, "rb").read()}
     return example
@@ -38,8 +38,6 @@ def main(dir, num_proc=128):
             continue
         convert(split, num_proc)
         print("======complete {}=======".format(split), flush=True)
-        shutil.rmtree("/mnt/home/zoux/tmp")
-        os.makedirs("/mnt/home/zoux/tmp")
 
 if __name__ == "__main__":
     fire.Fire(main)
