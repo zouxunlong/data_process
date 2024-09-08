@@ -104,7 +104,7 @@ def st_generation(split, language, lang_code, num_proc=128):
         desc              = "filter",
     )
 
-    ds.save_to_disk(split.replace("ASR", "ST_{}".format(lang_code)), num_proc=4)
+    ds.save_to_disk(split.replace("/ASR/", "/ST/").replace("_ASR_", "_ST_{}_".format(lang_code)), num_proc=4)
 
 
 def main(pattern, language, lang_code):

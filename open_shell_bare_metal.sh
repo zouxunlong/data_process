@@ -1,1 +1,1 @@
-srun --overlap --jobid 620 --pty $SHELL\
+srun --overlap --jobid 620 --pty $SHELL

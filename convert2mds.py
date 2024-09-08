@@ -64,9 +64,9 @@ def convert_to_mds(args) -> None:
             except:
                 pass
 
-n_cpus = 16
-dataset_dir = "/mnt/data/all_datasets"
-output_dir = "/mnt/data/all_datasets/mds_datasets"
+n_cpus      = 32
+dataset_dir = "/mnt/home/zoux"
+output_dir  = "/mnt/home/zoux/mds_datasets"
 
 for task in ["ASR", "ASQA", "AC", "DS", "Paralingual", "SI", "SQA", "ST"]:
     dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
