@@ -1,3 +1,4 @@
+from pprint import pprint
 from datasets import load_from_disk
 import tempfile
 import fire
@@ -31,6 +32,7 @@ def convert(split, num_proc):
 def main(dir, num_proc=128):
     splits=get_all_split(dir)
     splits.sort()
+    pprint(splits)
     for split in splits:
         print("=====start {}==========".format(split), flush=True)
         if os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_bytes")):
