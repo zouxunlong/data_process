@@ -10,7 +10,7 @@ def json2excel(json_file):
         if other_prepared=="other_prepared":
             split= ".".join(key.split("/")[8:])
         else:
-            split= None
+            split= other_prepared
         num_of_samples= value['num_of_samples']
         total_audio_hours= value['total_audio_hours']
         max_audio_seconds= value['max_audio_seconds']
