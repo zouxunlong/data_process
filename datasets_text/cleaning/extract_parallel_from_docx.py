@@ -168,7 +168,7 @@ def extract_docx(docx_path):
     texts.clear()
 
 
-def extract_dir(root_dir='./file_upload'):
+def extract_dir(root_dir):
 
     if not os.path.isdir(root_dir):
         return
@@ -232,6 +232,6 @@ def extract_dir(root_dir='./file_upload'):
             texts.clear()
 
 if __name__=="__main__":
-    # extract_dir('/home/xuanlong/dataclean/data/Batch8(CD8)_extracted')
-    # files_combine('/home/xuanlong/dataclean/data/Batch8(CD8)_extracted')
-    files_split('/home/xuanlong/dataclean/data')
+    extract_dir('/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/categorized/docx')
+    # files_combine('/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/categorized/docx')
+    # files_split('/home/xuanlong/dataclean/data')
