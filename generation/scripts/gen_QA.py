@@ -1,7 +1,7 @@
 
 import random
 import fire
-from datasets import load_from_disk, Value
+from datasets import load_from_disk, Value, concatenate_datasets
 from openai import OpenAI
 from glob import glob
 import os
@@ -56,6 +56,9 @@ def map_fn(batch):
 
     return batch
 
+def filter_fn(example):
+    return example['answer']['text'].strip() not in ['Template not matched.', '']
+
 
 def qa_generation(split, num_proc=128):
 
@@ -81,9 +84,6 @@ def qa_generation(split, num_proc=128):
         num_proc          = num_proc,
         desc              = "QA Generation",
     )
-
-    def filter_fn(example):
-        return example['answer']['text'].strip() not in ['Template not matched.', '']
 
     ds = ds.filter(
         filter_fn,

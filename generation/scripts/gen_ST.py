@@ -1,7 +1,7 @@
 
 import random
 import fire
-from datasets import load_from_disk, Value
+from datasets import load_from_disk, Value, concatenate_datasets
 from openai import OpenAI
 from glob import glob
 import os
@@ -75,6 +75,8 @@ def map_fn(sample, language):
         'other_attributes': {'transcription': sample['answer']['text']}
     }
 
+def filter_fn(example):
+    return example['answer']['text'].strip() not in ['Template not matched.', '']
 
 def st_generation(split, language, lang_code, num_proc=128):
 
@@ -82,6 +84,14 @@ def st_generation(split, language, lang_code, num_proc=128):
 
     features = ds.features
     features['other_attributes'] = {"transcription": Value(dtype='string')}
+
+    ds = ds.filter(
+        lambda x: len(x['answer']['text'].strip().split()) > 8,
+        batch_size        = 1,
+        writer_batch_size = 1,
+        num_proc          = num_proc,
+        desc              = "filter",
+    )
 
     ds = ds.map(
         map_fn,
@@ -93,9 +103,6 @@ def st_generation(split, language, lang_code, num_proc=128):
         desc="ST Generation for {}".format(split),
     )
 
-    def filter_fn(example):
-        return example['answer']['text'].strip() not in ['Template not matched.', '']
-
     ds = ds.filter(
         filter_fn,
         batch_size        = 1,
@@ -104,14 +111,14 @@ def st_generation(split, language, lang_code, num_proc=128):
         desc              = "filter",
     )
 
-    ds.save_to_disk(split.replace("/ASR/", "/ST/").replace("_ASR_", "_ST_{}_".format(lang_code)), num_proc=4)
+    ds.save_to_disk(split.replace("/ASR/", "/ST/").replace("_ASR_", "_en_{}_ST_".format(lang_code)), num_proc=4)
 
 
 def main(pattern, language, lang_code):
     splits = glob(pattern)
     splits.sort()
     for split in splits:
-        if os.path.exists(split.replace("ASR", "ST_{}".format(lang_code))):
+        if os.path.exists(split.replace("/ASR/", "/ST/").replace("_ASR_", "_en_{}_ST_".format(lang_code))):
             print("complete {}".format(split), flush=True)
             continue
         print("start {}".format(split), flush=True)

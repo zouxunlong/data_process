@@ -66,15 +66,15 @@ def convert_to_mds(args) -> None:
 
 n_cpus      = 32
 dataset_dir = "/mnt/home/zoux"
-output_dir  = "/mnt/home/zoux/mds_datasets"
+output_dir  = "/mnt/home/zoux/mds_datasets_v2"
 
 for task in ["ASR", "ASQA", "AC", "DS", "Paralingual", "SI", "SQA", "ST"]:
     dataset_path_multimodal_test  = glob(os.path.join(dataset_dir, "datasets_multimodal/test",f"{task}/**/dataset_info.json"), recursive=True)
     dataset_path_multimodal_train = glob(os.path.join(dataset_dir, "datasets_multimodal/train",f"{task}/**/dataset_info.json"), recursive=True)
-    # dataset_path_nlb_test         = glob(os.path.join(dataset_dir, "nlb_data/test",f"{task}/**/dataset_info.json"), recursive=True)
-    # dataset_path_nlb_train        = glob(os.path.join(dataset_dir, "nlb_data/train",f"{task}/**/dataset_info.json"), recursive=True)
-    # dataset_path_all              = dataset_path_nlb_test + dataset_path_nlb_train + dataset_path_multimodal_test + dataset_path_multimodal_train
-    dataset_path_all              =  dataset_path_multimodal_test + dataset_path_multimodal_train
+    dataset_path_nlb_test         = glob(os.path.join(dataset_dir, "nlb_data/test",f"{task}/**/dataset_info.json"), recursive=True)
+    dataset_path_nlb_train        = glob(os.path.join(dataset_dir, "nlb_data/train",f"{task}/**/dataset_info.json"), recursive=True)
+    dataset_path_all              = dataset_path_nlb_test + dataset_path_nlb_train + dataset_path_multimodal_test + dataset_path_multimodal_train
+    # dataset_path_all              =  dataset_path_multimodal_test + dataset_path_multimodal_train
     dataset_path_all.sort()
     
     for dataset_path in dataset_path_all:

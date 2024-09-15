@@ -1,1 +1,4 @@
-srun --overlap --jobid 620 --pty $SHELL
+
+task_id=$1
+
+srun --overlap --jobid $task_id --pty $SHELL
