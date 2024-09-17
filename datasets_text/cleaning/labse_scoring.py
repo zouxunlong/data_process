@@ -12,6 +12,7 @@ mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 db_data_pool = mongo_client['mlops']
 
 
+
 def score_sentences(sentences_src, sentences_tgt):
 
     embeddings_src = model_sentence_transformers.encode(

@@ -67,7 +67,7 @@ def get_all_paragraphs(node):
     return list(_get(node._element))
 
 
-def texts_extract(docx_path):
+def texts_extract(docx_path, with_additional=True):
 
     if not str(docx_path).endswith('.docx'):
         return []
@@ -104,22 +104,23 @@ def texts_extract(docx_path):
         ).replace('|||', ' ').strip()
         for text in texts if text.strip()]
 
-    additional_texts = set()
+    if with_additional:
+        additional_texts = set()
 
-    for text in texts:
-        if re.search(r'[\(\[（【】）\]\)]', text):
-            # find all Brackets content and the words sequence in front of Brackets,
-            # return format: ('words sequence','word infront','Brackets content')
-            results = re.findall(
-                r'(?=((\s[^\s】）\]\)]+){2,8})\s?[\(\[（【](.+?)[】）\]\)])', text)
-            results2 = re.findall(
-                r'(?=(^[^\(\[（【】）\]\)]+)\s?[\(\[（【](.+?)[】）\]\)])', text)
-            for tuple in results:
-                additional_texts.update(tuple)
-            for tuple in results2:
-                additional_texts.update(tuple)
+        for text in texts:
+            if re.search(r'[\(\[（【】）\]\)]', text):
+                # find all Brackets content and the words sequence in front of Brackets,
+                # return format: ('words sequence','word infront','Brackets content')
+                results = re.findall(
+                    r'(?=((\s[^\s】）\]\)]+){2,8})\s?[\(\[（【](.+?)[】）\]\)])', text)
+                results2 = re.findall(
+                    r'(?=(^[^\(\[（【】）\]\)]+)\s?[\(\[（【](.+?)[】）\]\)])', text)
+                for tuple in results:
+                    additional_texts.update(tuple)
+                for tuple in results2:
+                    additional_texts.update(tuple)
 
-    texts.extend([text.strip() for text in additional_texts if text.strip()])
+        texts.extend([text.strip() for text in additional_texts if text.strip()])
 
     return texts
 

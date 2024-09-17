@@ -1,6 +1,5 @@
 import sys
 import pycld2 as cld2
-import cld3
 import fasttext
 import os
 import re
@@ -8,10 +7,13 @@ from utils_data import Prallel_miner, texts_extract, files_combine, files_split
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-model_fasttext = fasttext.load_model('./model/lid.176.bin')
+model_fasttext = fasttext.load_model('/home/xunlong/xunlong_working_repo/datasets_text/cleaning/model/lid.176.bin')
 
-parallel_miner = Prallel_miner(knn_neighbors=6, min_matching_score=0.99, min_cos_sim=0.675,
-                               model_path_or_name='./model/labse_bert_model', sort_by_cos=False)
+parallel_miner = Prallel_miner(knn_neighbors=6, 
+                               min_matching_score=0.65, 
+                               min_cos_sim=0.65,
+                               model_path_or_name='/home/xunlong/xunlong_working_repo/datasets_text/cleaning/model/LaBSE', 
+                               sort_by_cos=False)
 
 pattern_punctuation = r"""[!?,.:;"#$£€%&'()+-/<≤=≠≥>@[\]^_{|}，。、—‘’“”：；【】￥…《》？！（）]"""
 pattern_url = r"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"
@@ -54,21 +56,20 @@ def lang_detect(text_for_lang_detect1):
 
         try:
             lang_by_cld2 = cld2.detect(text_for_lang_detect)[2][0][1]
-            lang_by_cld3 = cld3.get_language(text_for_lang_detect)[0]
             lang_by_fasttext = model_fasttext.predict(
                 text_for_lang_detect)[0][0][-2:]
 
-            if {"en"} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {"en"} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('en')
-            if {'ms'} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {'ms'} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('ms')
-            if {'id'} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {'id'} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('id')
-            if {'th'} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {'th'} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('th')
-            if {'vi'} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {'vi'} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('vi')
-            if {'ta'} & {lang_by_cld2, lang_by_cld3, lang_by_fasttext}:
+            if {'ta'} & {lang_by_cld2, lang_by_fasttext}:
                 lang_detected.add('ta')
 
         except Exception as err:
@@ -183,7 +184,9 @@ def extract_dir(root_dir):
             file_path = os.path.join(root, file)
 
             if file_path.endswith('.docx'):
-                texts.extend(texts_extract(file_path))
+                texts.extend(texts_extract(file_path, with_additional=False))
+            else:
+                continue
 
             if i+1 < len(files) and os.path.splitext(file)[0][:-1].replace(' ', '') == os.path.splitext(files[i+1])[0][:-1].replace(' ', ''):
                 continue
@@ -232,6 +235,5 @@ def extract_dir(root_dir):
             texts.clear()
 
 if __name__=="__main__":
-    extract_dir('/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/categorized/docx')
-    # files_combine('/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/categorized/docx')
-    # files_split('/home/xuanlong/dataclean/data')
+    extract_dir('/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/origin/batch16')
+    files_combine('/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/for_extraction/origin/batch16')

@@ -3,6 +3,7 @@ import os
 
 def inject_from_file(file, output_filepath):
     with open(file, encoding='utf8') as fIN, open(output_filepath, 'a', encoding='utf8') as fOUT:
+        # fOUT.write('\n=================='+file+'======================\n\n')
         for i, sentence in enumerate(fIN):
             if sentence.strip():
                 fOUT.write(sentence.strip()+'\n')

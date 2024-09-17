@@ -1,6 +1,5 @@
 import sys
 import pycld2 as cld2
-import cld3
 import re
 from utils_data import Reg_Exp
 
@@ -33,17 +32,16 @@ def lang_detect(text_for_lang_detect):
 
         try:
             lang_by_cld2 = cld2.detect(text_for_lang_detect)[2][0][1][:2]
-            lang_by_cld3 = cld3.get_language(text_for_lang_detect)[0][:2]
 
-            if {"en"} & {lang_by_cld2, lang_by_cld3}:
+            if {"en"} & {lang_by_cld2}:
                 lang_detected.add('en')
-            if {'ms', 'id'} & {lang_by_cld2, lang_by_cld3}:
+            if {'ms', 'id'} & {lang_by_cld2}:
                 lang_detected.add('ms', 'id')
-            if {'th'} & {lang_by_cld2, lang_by_cld3}:
+            if {'th'} & {lang_by_cld2}:
                 lang_detected.add('th')
-            if {'vi'} & {lang_by_cld2, lang_by_cld3}:
+            if {'vi'} & {lang_by_cld2}:
                 lang_detected.add('vi')
-            if {'ta'} & {lang_by_cld2, lang_by_cld3}:
+            if {'ta'} & {lang_by_cld2}:
                 lang_detected.add('ta')
 
         except Exception as err:

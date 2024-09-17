@@ -15,7 +15,7 @@ def do_check(ds_path):
     print(f"start checking {ds_path}", flush=True)
     ds = load_from_disk(ds_path)
     N = len(ds)
-    print(f"complete checking {ds_path}", flush=True)
+    print(f"complete checking {ds_path}: {N}", flush=True)
 
 
 def main(dir):
