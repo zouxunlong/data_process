@@ -10,7 +10,7 @@ features = Features({'answer': {'audio': Audio(sampling_rate=16000, mono=True, d
                                  'text': Value(dtype='string', id=None)},
                      'instruction': {'audio': Audio(sampling_rate=16000, mono=True, decode=True, id=None),
                                      'text': Value(dtype='string', id=None)},
-                     'other_attributes': {}
+                     'other_attributes': {'answer': Value(dtype='string', id=None)}
                      })
 
 
@@ -37,9 +37,11 @@ def csv2hf(file, split):
         ds_dict["context"].append({"audio": audio, "text": None})
         ds_dict["instruction"].append({"audio": None, "text": question})
         ds_dict["answer"].append({"audio": None, "text": answer})
-        ds_dict["other_attributes"].append({})
+        ds_dict["other_attributes"].append({"answer": answer})
     ds = Dataset.from_dict(mapping=ds_dict, features=features, split=split)
     ds.save_to_disk("clotho_aqa.schemed/{}".format(split))
 
 
 csv2hf("clotho_aqa_train.csv", "train")
+csv2hf("clotho_aqa_test.csv", "test")
+csv2hf("clotho_aqa_val.csv", "validation")
