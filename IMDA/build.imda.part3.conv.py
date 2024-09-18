@@ -211,7 +211,7 @@ def process_file_separate(conversation_id,
 
 
 def build_hf(
-        root="/home/user/data/data_IMDA/mixed_wav/PART3",
+        root="/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/IMDA_mixed_wav/PART3",
         output_path="PART3.conv.hf2",
         workers=5
 ):

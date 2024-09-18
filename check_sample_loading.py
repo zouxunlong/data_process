@@ -1,4 +1,5 @@
 import os
+import shutil
 from datasets import load_from_disk
 import fire
 
@@ -26,7 +27,9 @@ def do_check(ds_path, num_proc=96):
     ds_filtered = ds.filter(filter_fn, batched=True, batch_size=1, writer_batch_size=1, num_proc=num_proc)
     if len(ds_filtered) != N:
         ds_filtered.save_to_disk(f"{ds_path}_filtered", num_proc=4)
-        print(f"complete checking {ds_path} error found", flush=True)
+        shutil.rmtree(ds_path)
+        os.rename(f"{ds_path}_filtered", ds_path)
+        print(f"complete checking {ds_path} {N-len(ds_filtered)}error found and filtered", flush=True)
     else:
         print(f"complete checking {ds_path}", flush=True)
 

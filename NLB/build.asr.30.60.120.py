@@ -329,7 +329,8 @@ def chunking(batch, chunk_limit):
                 dialog.append(item)
 
             else:
-                dialogs.append(dialog.copy())
+                if item["end"] - dialog[0]["start"] > chunk_limit/2:
+                    dialogs.append(dialog.copy())
                 dialog.clear()
                 if item["end"] - item["start"] < chunk_limit:
                     dialog.append(item)

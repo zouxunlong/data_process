@@ -338,7 +338,8 @@ def chunking(batch, chunk_limit):
                 dialog.append((speaker, sentence, start, end))
 
             else:
-                dialogs.append(dialog.copy())
+                if end - dialog[0][2] > chunk_limit/2:
+                    dialogs.append(dialog.copy())
                 dialog.clear()
                 if end - start < chunk_limit:
                     dialog.append((speaker, sentence, start, end))
@@ -414,7 +415,7 @@ def chunk(split, workers=100):
 
 
 def main():
-    splits = get_all_split("/mnt/home/zoux/datasets/xunlong_working_repo/IMDA.hf")
+    splits = get_all_split("/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/IMDA.hf")
     splits.sort()
     for split in splits:
         if "PART1" in split or "PART2" in split:
