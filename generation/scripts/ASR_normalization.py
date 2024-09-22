@@ -1,4 +1,5 @@
 
+from pprint import pprint
 import random
 import fire
 from datasets import load_from_disk, Value, concatenate_datasets
@@ -9,7 +10,7 @@ import os
 
 def map_fn(sample):
 
-    port = random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006])
+    port = random.choice([8000, 8001, 8002, 8003, 8004, 8005, 8006, 8007])
     client = OpenAI(
         api_key="EMPTY",
         base_url=f"http://localhost:{port}/v1",
@@ -78,6 +79,7 @@ def generation(split, num_proc=128):
 def main(pattern):
     splits = glob(pattern)
     splits.sort()
+    pprint(splits)
     for split in splits:
         if os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_norm")):
             print("complete {}".format(split), flush=True)
