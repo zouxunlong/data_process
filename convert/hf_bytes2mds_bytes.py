@@ -24,7 +24,7 @@ def get_bytes(audio):
     return audio["bytes"] if audio is not None else b""
 
 
-def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task):
+def each_task(dataset, dataset_output_path, dataset_length, num_pro, task):
     chunk_size = [dataset_length//num_pro+1 if i < dataset_length%num_pro else dataset_length//num_pro for i in range(num_pro)]
 
     cur_start_id = 0
@@ -32,13 +32,19 @@ def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task):
         start_sample_idx = cur_start_id
         end_sample_idx = cur_start_id + chunk_size[group]
         dataset_output_subpath = os.path.join(dataset_output_path, str(group))
-        yield dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro
+        yield dataset, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro
         cur_start_id += chunk_size[group]
 
 
 def convert_to_mds(args) -> None:
-    dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro = args
+    dataset, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro = args
 
+
+    features                     = dataset.features
+    features['context']['audio'] = Audio(sampling_rate=16000, mono=True, decode=False, id=None)
+    dataset                      = dataset.cast(features=features, num_proc=num_pro, keep_in_memory=True)
+
+        
     # A dictionary of input fields to an Encoder/Decoder type
     columns = {
         "context_text": "str",
@@ -56,10 +62,6 @@ def convert_to_mds(args) -> None:
         compression="zstd",
         size_limit=1024*1024*500,
     ) as out:
-        dataset                      = load_from_disk(dataset_path)
-        features                     = dataset.features
-        features['context']['audio'] = Audio(sampling_rate=16000, mono=True, decode=False, id=None)
-        dataset                      = dataset.cast(features=features, num_proc=num_pro)
 
         for sample in tqdm(dataset.select(range(start_sample_idx, end_sample_idx))):
             try:
@@ -78,30 +80,31 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(output_dir="datasets_mosaic_opus"):
+def main(intput_dir, output_dir="mds_opus"):
+    
     start_time = time.time()
     num_pro    = 16
 
-    dataset_path_multimodal_test  = get_all_split("datasets_multimodal_opus/test")
-    dataset_path_multimodal_train = get_all_split("datasets_multimodal_opus/train")
-    dataset_path_nlb_test         = get_all_split("datasets_nlb_opus/test")
-    dataset_path_nlb_train        = get_all_split("datasets_nlb_opus/train")
-    dataset_path_all              = dataset_path_nlb_test + dataset_path_nlb_train + dataset_path_multimodal_test + dataset_path_multimodal_train
+    dataset_path_all  = get_all_split(intput_dir)
     dataset_path_all.sort()
+    
 
     for dataset_path in dataset_path_all:
-        dataset_output_path = os.path.join(output_dir, dataset_path)
-
+        dataset_output_path = os.path.join(output_dir, *dataset_path.split("/")[-4:])
+        
         if os.path.exists(dataset_output_path):
             print(f"Skipping {dataset_output_path}", flush=True)
             continue
 
         print('Converting {}'.format(dataset_path), flush=True)
         os.makedirs(dataset_output_path, exist_ok=True)
-        dataset = load_from_disk(dataset_path)
-        dataset_length = len(dataset)
-        task=dataset_path.split('/')[-2]
-        arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
+    
+        dataset                      = load_from_disk(dataset_path)
+        dataset_length               = len(dataset)
+
+
+        task                         = dataset_path.split('/')[-2]
+        arg_tuples                   = each_task(dataset, dataset_output_path, dataset_length, num_pro, task)
 
         with Pool(processes=num_pro) as pool:
             for count in pool.imap(convert_to_mds, arg_tuples):
