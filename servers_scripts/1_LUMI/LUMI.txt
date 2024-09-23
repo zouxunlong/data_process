@@ -1,0 +1,14 @@
+lumi-workspaces
+
+salloc --job-name=trial_job --partition=standard-g --nodes=1 --ntasks-per-node=1 --gpus-per-node=1 --time=48:00:00 --account=project_462000514
+
+
+srun --partition=standard-g --nodes=1 --ntasks-per-node=1 --gpus-per-node=1 --pty bash
+
+
+
+
+
+singularity shell -B /scratch/project_462000514:/scratch/project_462000514 -B /scratch/project_462000514/wangbin/conda_hx_patched:/conda_hx_patched ./attn2.sif
+
+conda activate ./conda_hx_patched

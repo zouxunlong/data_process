@@ -1,0 +1,4 @@
+NSCC
+
+export PBS_JOBID=123456.pbs101
+ssh 123456.pbs101
