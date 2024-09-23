@@ -1,9 +1,9 @@
+import time
 from streaming import MDSWriter
-
+import fire
 import os
 from datasets import load_from_disk, Audio
 from tqdm import tqdm
-
 from multiprocessing import Pool
 from streaming.base.util import merge_index
 
@@ -77,30 +77,41 @@ def convert_to_mds(args) -> None:
             except:
                 pass
 
-num_pro      = 16
 
-dataset_path_multimodal_test  = get_all_split("datasets_multimodal_opus/test")
-dataset_path_multimodal_train = get_all_split("datasets_multimodal_opus/train")
-dataset_path_nlb_test         = get_all_split("datasets_nlb_opus/test")
-dataset_path_nlb_train        = get_all_split("datasets_nlb_opus/train")
-dataset_path_all              = dataset_path_nlb_test + dataset_path_nlb_train + dataset_path_multimodal_test + dataset_path_multimodal_train
-dataset_path_all.sort()
+def main(output_dir="datasets_mosaic_opus"):
+    start_time = time.time()
+    num_pro    = 16
 
-for dataset_path in dataset_path_all:
-    dataset_output_path = os.path.join("datasets_mosaic_opus", dataset_path)
+    dataset_path_multimodal_test  = get_all_split("datasets_multimodal_opus/test")
+    dataset_path_multimodal_train = get_all_split("datasets_multimodal_opus/train")
+    dataset_path_nlb_test         = get_all_split("datasets_nlb_opus/test")
+    dataset_path_nlb_train        = get_all_split("datasets_nlb_opus/train")
+    dataset_path_all              = dataset_path_nlb_test + dataset_path_nlb_train + dataset_path_multimodal_test + dataset_path_multimodal_train
+    dataset_path_all.sort()
 
-    if os.path.exists(dataset_output_path):
-        print(f"Skipping {dataset_output_path}", flush=True)
-        continue
+    for dataset_path in dataset_path_all:
+        dataset_output_path = os.path.join(output_dir, dataset_path)
 
-    print('Converting {}'.format(dataset_path), flush=True)
-    os.makedirs(dataset_output_path, exist_ok=True)
-    dataset = load_from_disk(dataset_path)
-    dataset_length = len(dataset)
-    task=dataset_path.split('/')[-2]
-    arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
+        if os.path.exists(dataset_output_path):
+            print(f"Skipping {dataset_output_path}", flush=True)
+            continue
 
-    with Pool(processes=num_pro) as pool:
-        for count in pool.imap(convert_to_mds, arg_tuples):
-            pass 
-    merge_index(dataset_output_path, keep_local=True)
+        print('Converting {}'.format(dataset_path), flush=True)
+        os.makedirs(dataset_output_path, exist_ok=True)
+        dataset = load_from_disk(dataset_path)
+        dataset_length = len(dataset)
+        task=dataset_path.split('/')[-2]
+        arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
+
+        with Pool(processes=num_pro) as pool:
+            for count in pool.imap(convert_to_mds, arg_tuples):
+                pass 
+        merge_index(dataset_output_path, keep_local=True)
+
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time} seconds", flush=True)
+
+
+if __name__ == "__main__":
+    fire.Fire(main)
+
