@@ -86,7 +86,7 @@ def main(intput_dir, output_dir="mds_opus"):
     num_pro    = 16
 
     dataset_path_all  = get_all_split(intput_dir)
-    dataset_path_all.sort()
+    dataset_path_all.sort(reverse=True)
     
 
     for dataset_path in dataset_path_all:
