@@ -1,0 +1,2154 @@
+commit 49f69196c2aa8396734955d6ff2ad986b352e960
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Sep 8 16:21:56 2024 +0100
+
+    Version v1.68.0
+
+commit 3f7651291b98534ea27d4036fec446f4618896be
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Sep 8 12:13:06 2024 +0100
+
+    gofile: fix failed downloads on newly uploaded objects
+    
+    The upload routine no longer returns a url to download the object.
+    
+    This fixes the problem by fetching it if necessary when we attempt to
+    Open the object.
+
+commit 796013dd06f66290755bcc7329204b03b78e8976
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Sep 8 12:02:01 2024 +0100
+
+    gofile: fix Move a file
+    
+    For some reason the parent ID got out of date in the Object (exact
+    reason not known - but the fact that this was OK before suggests a
+    change in the provider).
+    
+    However we know the parent ID as it is in the directory cache, so use
+    that instead.
+
+commit e0da406ca71aedc9bbf7ffe19f6c08318aa8ba4e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Sep 7 12:22:59 2024 +0100
+
+    test_all: mark linkbox fs/sync test TestSyncOverlapWithFilter as ignore
+    
+    This gives the error
+    
+    > Update second step failed: Linkbox error 500: The file name needs to include a suffix, such as xxx.mp4
+    
+    As linkbox can't have files starting with "." and we are trying to save a file called ".ignore".
+
+commit 9a02c040284d30ccf90b1257680e0b5117e10d0f
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Sep 7 13:59:14 2024 +0200
+
+    jottacloud: fix setting of metadata on server side move - fixes #7900
+
+commit 918185273f25ef70792d022d55b8e153de6d348d
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Apr 20 14:57:19 2024 +0200
+
+    docs: group the different options affecting lsjson output
+
+commit 3f2074901ace9ef376199d5c486bd8d212a94873
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 16:59:06 2024 +0100
+
+    fichier: fix server side move - fixes #7856
+    
+    The server side move had a combination of bugs
+    - Fichier changed the API disallowing a move to the same name
+    - Rclone was using the wrong object for some operations
+
+commit 648afc7df43d14a81a0d664f7babef268d079e90
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 16:20:51 2024 +0100
+
+    fichier: Fix detection of Flood Detected error
+
+commit 16e0245a8e06b32266550636992aa2c7f05d695f
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jun 20 17:00:41 2024 +0100
+
+    rc: add vfs/queue-set-expiry to adjust expiry of items in the VFS queue
+
+commit 59acb9dfa95115072ff8dc1d8c7e0d332ed093da
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jun 20 15:34:26 2024 +0100
+
+    rc: add vfs/queue to show the status of the upload queue
+
+commit bfec15950450f68173548879ba83c3641518475a
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jun 20 15:20:47 2024 +0100
+
+    vfs: keep a record of the file size in the writeback queue
+
+commit 842396c8a0a870c3210d9860480d0921fdac60c0
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 17:29:30 2024 +0100
+
+    build: fix gocritic change missed in merge
+    
+    The original problem was introduced here
+    
+    bcdfad3c83720c11 build: update logging statements to make json log work #6038
+    
+    And this was fixed non-optimally here
+    
+    f1a84d171e04505c build: fix build after update
+
+commit 5f9a201b451684d719ab52625a96df3f4d615ac7
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 17:33:16 2024 +0100
+
+    Add Oleg Kunitsyn to contributors
+
+commit 22583d0a5f232eac7c8586c9fbcfa98a225fd486
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 17:33:16 2024 +0100
+
+    Add fsantagostinobietti to contributors
+
+commit f1466a429cd22e5a0d27db6f9324ce0844dbb91d
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 17:33:16 2024 +0100
+
+    Add Mathieu Moreau to contributors
+
+commit e3b09211b82eb9e6effb290024e9efbebfff7a69
+Author: Florian Klink <flokli@flokli.de>
+Date:   Mon May 13 21:13:10 2024 +0200
+
+    lib/sd-activation: wrap coreos/go-systemd
+    
+    It fails to build on plan9, which is part of the rclone CI matrix, and
+    the PR fixing it upstream doesn't seem to be getting traction.
+    
+    Stub it on our side, we can still remove this once it gets merged.
+
+commit 156feff9f2fbe5e199b795c99ff543a65d6622b8
+Author: Florian Klink <flokli@flokli.de>
+Date:   Thu Apr 25 00:14:42 2024 +0300
+
+    sftp: support listening on passed FDs
+
+commit b29a22095f6e4d796a64b1351fcf27b3bdb40fd8
+Author: Florian Klink <flokli@flokli.de>
+Date:   Wed Apr 24 15:34:27 2024 +0300
+
+    http: fix addr CLI arg help text
+    
+    This was missing the fact rclone also supports listening on Unix Domain
+    Sockets.
+
+commit 861c01caf51b91130a0d02907f4e0ddf84c2edd1
+Author: Florian Klink <flokli@flokli.de>
+Date:   Wed Apr 24 15:37:07 2024 +0300
+
+    http: support listening on passed FDs
+    
+    Instead of the listening addresses specified above, rclone will listen to all
+    FDs passed by the service manager, if any (and ignore any arguments passed by
+    `--{{ .Prefix }}addr`.
+    
+    This allows rclone to be a socket-activated service. It can be configured as described in
+    https://www.freedesktop.org/software/systemd/man/latest/systemd.socket.html
+    
+    It's possible to test this interactively through `systemd-socket-activate`,
+    firing of a request in a second terminal:
+    
+    ```
+    ❯ systemd-socket-activate -l 8088 -l 8089 --fdname=foo:bar -- ./rclone serve webdav :local:test/
+    Listening on [::]:8088 as 3.
+    Listening on [::]:8089 as 4.
+    Communication attempt on fd 3.
+    Execing ./rclone (./rclone serve webdav :local:test/)
+    2024/04/24 18:14:42 NOTICE: Local file system at /home/flokli/dev/flokli/rclone/test: WebDav Server started on [sd-listen:bar-0/ sd-listen:foo-0/]
+    ```
+
+commit f1a84d171e04505cd44f90c92700e8bb90e19fc8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 17:18:46 2024 +0100
+
+    build: fix build after update
+    
+    This adds an import missed in
+    
+    bcdfad3c83720c11 build: update logging statements to make json log work #6038
+
+commit bcdfad3c83720c1115c53c685bc694dc11cdac97
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sun Aug 18 16:58:35 2024 +0200
+
+    build: update logging statements to make json log work - fixes #6038
+    
+    This changes log statements from log to fs package, which is required for --use-json-log
+    to properly make log output in JSON format. The recently added custom linting rule,
+    handled by ruleguard via gocritic via golangci-lint, warns about these and suggests
+    the alternative. Fixing was therefore basically running "golangci-lint run --fix",
+    although some manual fixup of mainly imports are necessary following that.
+
+commit 88b0757288c092cebddf2f12761b009ebc09c9da
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sun Aug 18 15:54:15 2024 +0200
+
+    build: update custom linting rule for log to suggest new non-format functions
+
+commit 33d6c3f92f98a24ad654ddf2241af9cf2e9d6fe0
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sun Aug 18 15:53:07 2024 +0200
+
+    fs: add non-format variants of log functions to avoid non-constant format string warnings
+
+commit 752809309da9526858d3ea6469191c92e9076862
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Jun 7 13:32:01 2024 +0200
+
+    fs: add log Printf, Fatalf and Panicf
+
+commit 4a54cc134f84b1745bc1b8c66a5ca314984b7a70
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Jun 7 12:42:52 2024 +0200
+
+    fs: refactor base log method name for improved consistency
+
+commit dfc2c98bbfc798a225cf30c6ba9e018309b52960
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Jun 7 12:37:20 2024 +0200
+
+    fs: refactor log statements to use common helper
+
+commit 604d6bcb9ce5bdb7db818c1bc0fb5c3f923834de
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Jun 1 12:25:42 2024 +0200
+
+    build: enable custom linting rules with ruleguard via gocritic
+
+commit d15704ef9f22b224244c6b5e0fe2f1ffa759e83e
+Author: Oleg Kunitsyn <114359669+hiddenmarten@users.noreply.github.com>
+Date:   Fri Sep 6 16:00:36 2024 +0200
+
+    rcserver: implement prometheus metrics on a dedicated port - fixes #7940
+
+commit 26bc9826e569be6f56ec6289c0122c52d0611e7f
+Author: fsantagostinobietti <6057026+fsantagostinobietti@users.noreply.github.com>
+Date:   Thu Aug 29 11:29:22 2024 +0200
+
+    swift: add total/free space info in about command.
+    
+    With the enhancement in version v2.0.3 of ncw/swift library, we can now get Total and Free space info from remotes that support this feature (ex. Blomp storage)
+
+commit 2a28b0eaf0f53da1378ab985bcc2cc3a66cc000f
+Author: Mathieu Moreau <mrx23dot@users.noreply.github.com>
+Date:   Fri Sep 6 12:28:29 2024 +0100
+
+    docs: filtering: added Byte unit for min/max-size parameters.
+
+commit 2d1c2b1f76f44b4db5369bacdd4e5f76feecc128
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Sep 5 11:52:15 2024 +0100
+
+    config encryption: set, remove and check to manage config file encryption #7859
+
+commit ffb2e2a6decac4e66409c18d28c211ca91ca4447
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 23 17:13:28 2024 +0100
+
+    config: use --password-command to set config file password if supplied
+    
+    Before this change, rclone ignored the --password-command on the
+    rclone config setting except when decrypting an existing config file.
+    
+    This change allows for offloading the password storage/generation into
+    external hardware key or other protected password storage.
+    
+    Fixes #7859
+
+commit c9c283533ce1d16e90b5d2717585b9af377d2b86
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 23 12:36:04 2024 +0100
+
+    config: factor --password-command code into its own function #7859
+
+commit 71799d7efdd34ef71bfb490ae57437373a81c521
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 10:34:10 2024 +0100
+
+    Add yuval-cloudinary to contributors
+
+commit 8f4fdf6cc8e7c2f117944c358281aca139a26b38
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Sep 6 10:34:10 2024 +0100
+
+    Add nipil to contributors
+
+commit 91b11f9eac51b58e03bd1954e258e4a5c575f92e
+Author: yuval-cloudinary <46710068+yuval-cloudinary@users.noreply.github.com>
+Date:   Thu Sep 5 03:01:12 2024 +0300
+
+    documentation: add cheatsheet for configuration encryption
+
+commit b49927fbd035851446d5f183652e144757c8ec9e
+Author: nipil <nipil@users.noreply.github.com>
+Date:   Wed Sep 4 09:51:40 2024 +0200
+
+    docs: more secure two-step signature and hash validation
+
+commit 1a8b7662e793f5960634dfafc569da4c7bc81356
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Aug 26 10:35:28 2024 +0100
+
+    serve nfs: unify the nfs library logging with rclone's logging better
+    
+    Before this we ignored the logging levels and logged everything as
+    debug. This will obey the rclone logging flags and log at the correct
+    level.
+
+commit 6ba3e2485399a918c6d6243851fc0fbe157bfdbc
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 20 18:01:46 2024 +0100
+
+    serve nfs: fix incorrect user id and group id exported to NFS #7973
+    
+    Before this change all exports were exported as root and the --uid and
+    --gid flags of the VFS were ignored.
+    
+    This fixes the issue by exporting the UID and GID correctly which
+    default to the current user and group unless set explicitly.
+
+commit 802a938bd1c5544865e8b0a411c2dc21944b26a6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 27 09:06:36 2024 +0100
+
+    zoho: fix inefficiencies uploading with new API to avoid throttling
+    
+    Before this fix, rclone queried the uploaded object to find its size
+    and modtime after upload as the API did not return these items.
+    
+    Zoho have subsequently modified the API to return these items so
+    rclone uses them to avoid an API call.
+    
+    This should help with rclone being throttled by Zoho.
+    
+    See: https://forum.rclone.org/t/second-followup-on-the-older-topic-rclone-invokes-more-number-of-workdrive-s-files-listing-api-calls-which-exceeds-the-throttling-limit/45697/20
+
+commit 9deb3e8adf7b12c3fad17000dfce7cd9b6ad9d02
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Sep 4 10:45:12 2024 +0100
+
+    Add crystalstall to contributors
+
+commit 296281a6ebc27d503ef8f7b38a41f9d645d2ad65
+Author: crystalstall <crystalruby@qq.com>
+Date:   Tue Sep 3 00:20:08 2024 +0800
+
+    docs: fix some function names in comments
+    
+    Signed-off-by: crystalstall <crystalruby@qq.com>
+
+commit 711478554eebbb1f71405311e11c1a9655a72262
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Sep 2 10:59:23 2024 +0200
+
+    lib/file: use builtin MkdirAll with go1.22 instead of our own custom version for windows
+    
+    Starting with go1.22 the standard os.MkdirAll has improved its handling of volume names,
+    and as part of that it now stops recursing into parent directory if it is a volume name
+    (see: https://github.com/golang/go/commit/cd589c8a73415afbf94a8976f20cbed9d4061ba6).
+    This is similar to what was our main change and reason for creating a custom version. When
+    building with go1.22 or newer we can therefore stop using our custom version, with the
+    advantage that we automatically get current and future relevant improvements from golang.
+    To support building with go1.21 the existing custom version is still kept, and therefore
+    also our wrapper function file.MkdirAll - but it now just calls os.MkdirAll with go1.22
+    or newer on Windows.
+    
+    See #5401, #6420 and acf1e2df84a350b7a86d7672d749dfb1ba090a44 for details about the
+    creation of our custom version of MkdirAll.
+
+commit 906aef91fa862efea61a025dca777532a5a5bc00
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Sep 2 12:34:35 2024 +0200
+
+    docs: document that paths using volume guids are supported
+
+commit 6b58cd0870f9853fe0738983c4bde6b96a053660
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Aug 31 08:32:55 2024 +0100
+
+    s3: fix accounting for mulpart transfers after migration to SDKv2 #4989
+
+commit af9f8ced805509c3efd264fc5be2a82ea1a000f2
+Author: Sebastian Bünger <buengese@protonmail.com>
+Date:   Thu Aug 29 19:25:08 2024 +0200
+
+    yandex: implement custom user agent to help with upload speeds
+
+commit c63f1865f36058e126d40496eb9e2a7e48e3a9ce
+Author: Georg Welzel <gwelzel@mailbox.org>
+Date:   Sat Jul 13 13:35:47 2024 -0700
+
+    operations: copy: generate stable partial suffix
+
+commit 1bb89bc818fbf4b686e5f661fbb3fac6e5e0ffe6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:25:49 2024 +0100
+
+    docs: add missing sftp providers to README and main docs page - fixes #8038
+
+commit a3655037509350a5c5c48bd5ca1107c95df139fb
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 27 16:49:42 2024 +0100
+
+    nfsmount: fix stale handle problem after converting options to new style
+    
+    This problem was caused by the defaults not being set for the options
+    after the conversion to the new config system in
+    
+    28ba4b832d009133 serve nfs: convert options to new style
+    
+    This makes the nfs serve options globally available so nfsmount can
+    use them directly.
+    
+    Fixes #8029
+
+commit 3bb6d0a42bb982ca370bf634c2a4be7a14ecab9c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Aug 26 18:29:32 2024 +0100
+
+    docs: mark flags.md as auto generated so contributors don't edit it
+
+commit f65755b3a3fa0291adffaa123074d14638858d41
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:03:13 2024 +0100
+
+    Add Pawel Palucha to contributors
+
+commit 33c5f3593573b90c813a639a18fbbd6589d1b7be
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:03:13 2024 +0100
+
+    Add John Oxley to contributors
+
+commit 4367b999c99cbda565b819119ce3ca19c56c61c8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:03:13 2024 +0100
+
+    Add Georg Welzel to contributors
+
+commit b57e6213aaa70e8b3f730cdc55fcb042958533a6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:03:13 2024 +0100
+
+    Add Péter Bozsó to contributors
+
+commit cd90ba4337944987279b09fa692c1114e4106f13
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 28 07:03:13 2024 +0100
+
+    Add Sam Harrison to contributors
+
+commit 0e5eb7a9bba7e887c684fd6b98f4b2a03e2bc2a0
+Author: Pawel Palucha <pawel.palucha@aetion.com>
+Date:   Sat Aug 24 21:22:17 2024 +0200
+
+    s3: allow restoring from intelligent-tiering storage class
+
+commit 956c2963fd1d7352e58913b4bb6282310c1c5f1e
+Author: nielash <nielronash@gmail.com>
+Date:   Fri Aug 23 11:42:36 2024 -0400
+
+    bisync: don't convert modtime precision in listings - fixes #8025
+    
+    Before this change, bisync proactively converted modtime precision when greater
+    than what the destination backend supported.
+    
+    This dates back to a time before bisync considered the modifyWindow for same-side
+    comparisons. Back then, it was problematic to save a listing with 12:54:49.7 for
+    a backend that can't handle that precision, as on the next run the backend would
+    report the time as 12:54:50 and bisync would think the file had changed. So the
+    truncation was a workaround to anticipate this and proactively record the time
+    with the precision we expect to receive next time.
+    
+    However, this caused problems for backends (such as dropbox) that round instead
+    of truncating as bisync expected.
+    
+    After this change, bisync preserves the original precision in the listing
+    (without conversion), even when greater than what the backend supports, to avoid
+    rounding error. On the next run, bisync will compare it to the rounded time
+    reported by the backend, and if it's within the modifyWindow, it will treat them
+    as equivalent.
+
+commit 146562975b4ab4500f632387ab21a1aa118206ad
+Author: John Oxley <john.oxley@gmail.com>
+Date:   Fri Aug 23 03:03:27 2024 -0700
+
+    build: rename Unknwon/goconfig to unknwon/goconfig
+    
+    Before this change we used the repo with an initial uppercase `U`. However it is now canonically spelled with a lower case `u`.
+    
+    This package is too old to have a go.mod but the README clearly states the desired capitalization.
+    
+    In https://github.com/unknwon/goconfig/commit/4b0d4b818a95f1242556e08cbf9912d169cbade7 the
+    recommended capitalization was changed to lower case.
+    
+    Co-authored-by: John Oxley <joxley@meta.com>
+
+commit 4c1cb0622e39a2a91edcab28ebea95c77f186b9d
+Author: Georg Welzel <gwelzel@mailbox.org>
+Date:   Sat Jun 8 19:07:01 2024 -0700
+
+    backend: pcloud: Implement OpenWriterAt feature
+
+commit 258092f9c637ab2649c5ca67b468bef8a0efb333
+Author: Georg Welzel <gwelzel@mailbox.org>
+Date:   Sat Jun 8 14:47:32 2024 -0700
+
+    backend: pcloud: implement SetModTime - Fixes #7896
+
+commit be448c9e1359ef7e61517575c93870d3c0ed3662
+Author: Sam Harrison <sam.harrison@files.com>
+Date:   Fri Aug 16 14:53:16 2024 -0500
+
+    filescom: don't make an extra fetch call on each item in a list response
+
+commit 4e708e59f2e21c9751e7023925071a2689a73d0f
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Aug 17 18:01:30 2024 +0200
+
+    local: fix incorrect conversion between integer types
+
+commit c8366dfef337ab266a812370069ae8fe2ef4e46f
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Aug 17 15:53:09 2024 +0200
+
+    local: fix incorrect conversion between integer types
+
+commit 1e14523b82ccad1b71047fa491ace6efb6e68da0
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Aug 16 11:14:57 2024 +0200
+
+    docs: make tardigrade page auto redirect to storj page
+
+commit da25305ba0279abfdaad71ad031d36c447500f2b
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Aug 16 12:05:43 2024 +0200
+
+    docs: update backend config samples
+
+commit e439121ab2767c1ef94229c9df8cc7563ae70ec5
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 21:10:41 2024 +0200
+
+    config: fix size computation for allocation may overflow
+
+commit 37c12732f9dbe1cb2a6fb5d8b27aca47fcb51109
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:31:26 2024 +0200
+
+    lib: fix incorrect conversion between integer types
+
+commit 4c488e7517a670171d25d59583a0f37442327ca2
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:29:24 2024 +0200
+
+    serve docker: fix incorrect conversion between integer types
+
+commit 7261f47bd241ba152c8b83263cdd2c7fbeb7d63e
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:23:57 2024 +0200
+
+    local: fix incorrect conversion between integer types
+
+commit 1db8b20fbc38fb95402c2a0e9c3dfc5e65691005
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:20:10 2024 +0200
+
+    s3: fix incorrect conversion between integer types
+
+commit a87d8967fc2e90f5d7fd65683bfba30308940f09
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:15:10 2024 +0200
+
+    s3: fix potentially unsafe quoting issue
+
+commit 4804f1f1e9d1672483873ea4aefc5969c079aed7
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 20:14:58 2024 +0200
+
+    dropbox: fix potentially unsafe quoting issue
+
+commit d1c84f9115fc7a782003e3c3f00216e5caf90605
+Author: Eng Zer Jun <engzerjun@gmail.com>
+Date:   Sat Aug 17 16:55:21 2024 +0800
+
+    refactor: replace min/max helpers with built-in min/max
+    
+    We upgraded our minimum Go version in commit ca24447090. We can now use
+    the built-in `min` and `max` functions directly.
+    
+    Reference: https://go.dev/ref/spec#Min_and_max
+    Signed-off-by: Eng Zer Jun <engzerjun@gmail.com>
+
+commit e0b08883cb7a43657673face50834cde574704ae
+Author: JT Olio <jt@olio.lol>
+Date:   Fri Aug 16 14:54:04 2024 -0400
+
+    go.mod: update storj.io/uplink to latest release
+    
+    this has a couple of bug fixes and small enhancements.
+    
+    we are working on reducing the size of this library, but this
+    version bump does not yet have those improvements.
+
+commit a0af72c27aa4ad02be4b777cf5d4147904ebd809
+Author: Péter Bozsó <3806723+peterbozso@users.noreply.github.com>
+Date:   Fri Aug 16 14:02:37 2024 +0000
+
+    docs: update ssh tunnel example
+
+commit 28d6985764868c428555746fb81aa91a9a4c5465
+Author: Péter Bozsó <3806723+peterbozso@users.noreply.github.com>
+Date:   Fri Aug 16 14:00:11 2024 +0000
+
+    docs: update rclone authorize section
+
+commit f2ce9a95572b5853064b166cc627f0d4291f8181
+Author: Péter Bozsó <3806723+peterbozso@users.noreply.github.com>
+Date:   Fri Aug 16 15:50:02 2024 +0200
+
+    docs: fix command highlight
+
+commit 95151eac828666e49a87765fe386b40cae1d4b33
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Aug 16 11:06:38 2024 +0200
+
+    docs: fix alignment of some of the icons in the storage system dropdown
+
+commit bd9bf4eb1c246b2274b4e21010d46d9e2216d9f5
+Author: Sam Harrison <sam.harrison@files.com>
+Date:   Thu Aug 15 11:46:21 2024 -0500
+
+    docs: mark filescom as supporting link sharing
+
+commit 705c72d2939a875978d77badad2b56f7e6eb6ca0
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Jun 1 11:46:31 2024 +0200
+
+    build: enable gocritic linter
+    
+    Running with default set of checks, except disabling the following
+    - appendAssign: append result not assigned to the same slice (diagnostics check, many false positives)
+    - captLocal: using capitalized names for local variables (style check, too opinionated)
+    - commentFormatting: not having a space between `//` and comment text (style check, too opinionated)
+    - exitAfterDefer: log.Fatalln will exit, and `defer func(){...}(...)` will not run (diagnostics check, to be revisited)
+    - ifElseChain: rewrite if-else to switch statement (style check, many occurrences and a bit opinionated, to be revisited)
+    - singleCaseSwitch: should rewrite switch statement to if statement (style check, many occurrences and a bit opinionated, to be revisited)
+
+commit 330c6702ebfa35d01f8a56da0094928f941f70aa
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Jun 1 11:43:49 2024 +0200
+
+    build: ignore remaining gocritic lint issues
+
+commit 4d787ae87ff3037dd7e19f67e3493ce28f7af669
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 16:11:45 2024 +0200
+
+    build: fix gocritic lint issue unlambda
+
+commit 86e9a56d7389150bc5a6cbee9f91757d1830ee3d
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 16:10:19 2024 +0200
+
+    build: fix gocritic lint issue dupbranchbody
+
+commit 64e8013c1b1076c269f789188c004eb34121c852
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 16:06:48 2024 +0200
+
+    build: fix gocritic lint issue sloppylen
+
+commit 33bff6fe713d9893011cbc66e652710927f923f3
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 15:25:27 2024 +0200
+
+    build: fix gocritic lint issue wrapperfunc
+
+commit e82b5b11af748f620e4d6609ab93bf14c3123555
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 15:18:56 2024 +0200
+
+    build: fix gocritic lint issue elseif
+
+commit 4454ed9d3bc64d6946842e75a8f49b71347dea28
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 15:14:40 2024 +0200
+
+    build: fix gocritic lint issue underef
+
+commit bad82073788cc23ab031f1e3ecb5b2c5add334c5
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 15:10:29 2024 +0200
+
+    build: fix gocritic lint issue valswap
+
+commit c6d3714e738287f2368056c90e1c6107f72aa479
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 14:37:21 2024 +0200
+
+    build: fix gocritic lint issue assignop
+
+commit 59501fcdb6f8ee628975cd9d8c8ddeba47a0e6ae
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri May 31 14:33:10 2024 +0200
+
+    build: fix gocritic lint issue unslice
+
+commit afd199d75614a4b049bb84459c3d352402df80aa
+Author: Florian Klink <flokli@flokli.de>
+Date:   Thu Aug 15 23:31:21 2024 +0300
+
+    dlna: document external subtitle feature
+
+commit 00e073df1ee3d5f173efa470c8c31ef9345bc8d9
+Author: Florian Klink <flokli@flokli.de>
+Date:   Wed Dec 20 12:00:08 2023 +0200
+
+    dlna: set more correct mime type
+    
+    The code currently hardcodes `text/srt` for all subtitles.
+    
+    `text/srt` is wrong, it seems `application/x-subrip` is the official
+    extension coming from the official mime database, at least (and still
+    works with the Samsung TV I tested with). Also add that one to `fs/
+    mimetype.go`.
+    
+    Compared to previous iterations of this PR, I dropped tests ensuring
+    certain mime types are present - as detection still seems to be fairly
+    platform-specific.
+
+commit 2e007f89c705d4f8cb176989929d70e5415afef8
+Author: Florian Klink <flokli@flokli.de>
+Date:   Fri Nov 24 20:44:29 2023 +0200
+
+    dlna: don't swallow video.{idx,sub}
+    
+    .idx and .sub subtitle files only work if both are present, but the code
+    was overwriting the first-inserted element to subtitlesByName, as it was
+    keyed by the basename without extension.
+    
+    Make subtitlesByName point to a slice of nodes instead.
+
+commit edd93476947e66067b8a8557063f6fb5b15e7c3b
+Author: Florian Klink <flokli@flokli.de>
+Date:   Fri Nov 24 20:46:21 2023 +0200
+
+    dlna: add cds_test.go
+    
+    This tests the mediaWithResources function in various scenarios.
+
+commit 1fad49ee35f1600bf00d7d8edfa4b9274fcb7a3e
+Author: Florian Klink <flokli@flokli.de>
+Date:   Fri Nov 24 15:23:14 2023 +0200
+
+    dlna: also look at "Subs" subdirectory
+    
+    Apparently it seems pretty common for subtitles to be put in a
+    subdirectory called "Subs", rather than in the same directory as the
+    media file itself.
+    
+    This covers that usecase, by checking the returned listing for a
+    directory called "Subs" to exist.
+    
+    If it does, its child nodes are added to the list before they're being
+    passed to mediaWithResources, allowing these subtitles to be discovered
+    automatically.
+
+commit 182b2a641737ebdea97a5022a8bd8491af9e3662
+Author: Sam Harrison <sam.harrison@files.com>
+Date:   Thu Aug 15 11:15:07 2024 -0500
+
+    chore: add childish-sambino as filescom maintainer
+
+commit da9faf1ffea2c13be9258b30d0f3c3ab0f310015
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Aug 10 17:41:12 2024 +0200
+
+    Make filtering rules for help and listremotes more lenient
+
+commit 303358eeda16cbaba6da841823c4f46edb857e28
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 22:40:57 2024 +0200
+
+    help: cleanup template syntax (consistent whitespace)
+
+commit 62233b49934ec37fabd1d6c006ed4410d81c2e20
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 21:45:42 2024 +0200
+
+    help: avoid empty additional help topics header
+
+commit 498abcc062ac8b229c5ea840a60f01a1e5876085
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Aug 10 16:50:20 2024 +0200
+
+    help: make help command output less distracting
+
+commit 482bfae8faf6481cd8db2cac23a0abe91626b7c1
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 18:17:46 2024 +0200
+
+    docs: consistent newline of first line in command output
+
+commit ae9960a4ede7a18e3c91b25ead99212c717a6604
+Author: Sam Harrison <sam.harrison@files.com>
+Date:   Tue Jul 23 10:41:40 2024 -0500
+
+    filescom: add Files.com backend
+
+commit 089c168fb9e87fe3090da1b3c1d12b998fb7e318
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Aug 15 16:23:21 2024 +0100
+
+    fstests: attempt to fix flaky serve s3 test
+    
+    Sometimes (particularly on macOS amd64) the serve s3 test fails with
+    TestIntegration/FsMkdir/FsPutError where it wasn't expecting to get an
+    object but it did.
+    
+    This is likely caused by a race between the serve s3 goroutine
+    deleting the half uploaded file and the fstests code looking for it to
+    not exist.
+    
+    This fix treats it like any other eventual consistency problem and
+    retries the check using the test framework.
+
+commit 6f515ded8ff4e19d29ae9b13b85f9a7e57c77287
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 17:25:22 2024 +0200
+
+    docs: move the link to global flags page to the main options header
+
+commit 91c6faff7165955cd0d59222e5fde127e1f270d9
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 17:20:02 2024 +0200
+
+    docs: make command group options subsections of main options
+
+commit 874616a73e95060bf875997ee0569896d9718450
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 17:13:01 2024 +0200
+
+    docs: stop shouting the SEE ALSO header
+
+commit 458d93ea7eccc9360377ece6a053b8426831cb0b
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 16:55:49 2024 +0200
+
+    docs: fix the rclone root command header levels
+
+commit 513653910cc1f3dc43c59ca02c13d4ffb474da6a
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Mon Aug 12 16:46:38 2024 +0200
+
+    docs: make the see also section header consistent and listed in toc of command pages
+
+commit bd5199910b484fcc68742a180c9ec27ee9168d6f
+Author: nielash <nielronash@gmail.com>
+Date:   Tue Aug 13 02:58:54 2024 -0400
+
+    local: --local-no-clone flag to disable cloning for server-side copies
+    
+    This flag allows users to disable the reflink cloning feature and instead force
+    "deep" copies, for certain use cases where data redundancy is preferable. It is
+    functionally equivalent to using `--disable Copy` on local.
+
+commit f6d836eefd8dbd4e55d0594b90176d907de52a0a
+Author: nielash <nielronash@gmail.com>
+Date:   Wed Jul 24 19:30:53 2024 -0400
+
+    local: support setting custom --metadata during server-side Copy
+
+commit 87ec26001f399cd1fe728a98d78c1b6ec4f0d322
+Author: nielash <nielronash@gmail.com>
+Date:   Thu Dec 28 12:30:47 2023 -0500
+
+    local: add server-side copy with xattrs on macOS (part-fix #1710)
+    
+    Before this change, macOS-specific metadata was not preserved by rclone, even for
+    local-to-local transfers (it does not use the "user." prefix, nor is Mac metadata
+    limited to xattrs.) Additionally, rclone did not take advantage of APFS's native
+    "cloning" functionality for fast and deduplicated transfers.
+    
+    After this change, local (on macOS only) supports "server-side copy" similarly to
+    other remotes, and achieves this by using (when possible) macOS's native APFS
+    "cloning", which is the same underlying mechanism deployed when a user
+    duplicates a file via the Finder UI. This has several advantages over the
+    previous behavior:
+    
+    - It is extremely fast (even large files can be cloned instantly)
+    - It is very efficient in terms of storage, as it automatically deduplicates when
+    possible (i.e. so that having two identical files does not consume more storage
+    than having just one.) (The concept is similar to a "hard link", but subsequent
+    modifications will not affect the original file.)
+    - It preserves Mac-specific metadata to the maximum degree, including not only
+    xattrs but also metadata not easily settable by other methods, including Finder
+    and Spotlight params.
+    
+    When server-side "clone" is not available (for example, on non-APFS volumes), it
+    falls back to server-side "copy" (still preserving metadata but using more disk
+    storage.) It is only used when both remotes are local (and not wrapped by other
+    remotes, such as crypt.) The behavior of local on non-mac systems is unchanged.
+
+commit 3e12612aae0483fab4f54f7d092f88953e02974a
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Thu Aug 15 14:58:45 2024 +0200
+
+    docs: add automatic alias redirects for command pages
+
+commit aee2480fc4489fd74673ec99ddcaa22b78359e5b
+Author: Florian Klink <flokli@flokli.de>
+Date:   Thu Aug 15 11:42:12 2024 +0300
+
+    cmd/rc: add --unix-socket option
+    
+    This adds an additional flag --unix-socket, and if supplied connects
+    to the unix socket given.
+    
+        rclone rcd --rc-addr unix:///tmp/my.socket
+        rclone rc --unix-socket /tmp/my.socket core/stats
+
+commit 3ffa47ea166805c3f93803f44c9a71d4453d7ddb
+Author: Florian Klink <flokli@flokli.de>
+Date:   Fri May 24 11:45:10 2024 +0200
+
+    webdav: add --webdav-unix-socket-path to connect to a unix socket
+    
+    This adds a new optional parameter to the backend, to specify a path
+    to a unix domain socket to connect to, instead the specified URL.
+    
+    The URL itself is still used for the rest of the HTTP client, allowing
+    host and subpath to stay intact.
+    
+    This allows using rclone with the webdav backend to connect to a WebDAV
+    server provided at a Unix Domain socket:
+    
+        rclone serve webdav --addr unix:///tmp/my.socket remote:path
+        rclone --webdav-unix-socket /tmp/my.socket --webdav-url http://localhost lsf :webdav:
+
+commit 70e8ad456fcc627f57c001aa82ac925bd9fb47a8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 16:15:21 2024 +0100
+
+    serve nfs: implement on disk cache for file handles
+
+commit 55b9b3e33a1c98740a6e5994ec093b2b553d7458
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 11:18:39 2024 +0100
+
+    serve nfs: factor caching to its own file
+
+commit ce7dfa075c9286bf73d579f81d6f40f3fd1a01ec
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 11:07:19 2024 +0100
+
+    serve nfs: update github.com/willscott/go-nfs to latest
+    
+    This fixes various cache invalidation bugs
+
+commit a697d274556b40affa2c9c37791c7ef064441557
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 10:19:25 2024 +0100
+
+    serve nfs: store billy FS in the Handler
+
+commit cae22a7562f18a9bbcf07ca312f690631e2eb86f
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 08:10:37 2024 +0100
+
+    serve nfs: mask unimplemented error from chmod
+
+commit 877321c2fb84b287c44f9465434f3af4f0eb1e35
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 08:09:53 2024 +0100
+
+    serve nfs: add tracing to filesystem calls
+
+commit 574378e871cd8d83aa40f270482148c0821846ca
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 16:32:09 2024 +0100
+
+    serve nfs: rename types and methods which should be internal
+
+commit 50d42babd8ab34e5d630d2ba234c3536dd5af1b6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 09:20:43 2024 +0100
+
+    nfsmount: require --vfs-cache-mode writes or above in tests
+    
+    These tests fail for --vfs-cache-mode minimal on Linux for the same
+    reason they don't work properly with --vfs-cache-mode off
+
+commit 13ea77dd71bb7c8ff727f1f5375ab7a32b354a32
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 13:08:33 2024 +0100
+
+    nfsmount: allow tests to run on any unix where sudo mount/umount works
+
+commit 62b76b631cabf0c73b394d44871bbb9bddb571c3
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 13:08:05 2024 +0100
+
+    nfsmount: make the --sudo flag work for umount as well as mount
+
+commit 96f92b7364fab30015c05b0e079c0c5c0d521d59
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 13:06:52 2024 +0100
+
+    nfsmount: add tcp option to NFS mount options to fix mounting under Linux
+
+commit 7c02a63884f73c16c1f3815ec008fc6f8360f9d6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 25 17:14:26 2024 +0100
+
+    build: install NFS client libraries to allow nfsmount tests to run
+
+commit 67d4394a37d8f76d2da70a9350598857defffad7
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 15:37:41 2024 +0100
+
+    vfstest: fix crash if open failed
+
+commit c1a98768bc6fc169da803474656e5ed860e22c63
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 25 16:53:19 2024 +0100
+
+    Implement Gofile backend - fixes #4632
+
+commit bac9abebfb100221633d058e07bef4620ab402f6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 25 08:55:46 2024 +0100
+
+    lib/encoder: add Exclamation mark encoding
+
+commit 27b281ef69945ae482ac036cbaa72da33170b27a
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Mar 12 16:57:16 2024 +0000
+
+    chunkedreader: add --vfs-read-chunk-streams to parallel read chunks
+    
+    This converts the ChunkedReader into an interface and provides two
+    implementations one sequential and one parallel.
+    
+    This can be used to improve the performance of the VFS on high
+    bandwidth or high latency links.
+    
+    Fixes #4760
+
+commit 10270a4354c0cad853937ab7015ed5f619a6e196
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jun 18 12:12:26 2024 +0100
+
+    accounting: fix race detected by the race detector
+
+commit d08b49d723b714f8d39fc2694e5bb0da23791c7e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Mar 13 16:32:45 2024 +0000
+
+    pool: Add ability to wait for a write to RW
+
+commit cb2d2d72a0eed259d7a9addc3986a7ef6e4dde91
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Mar 13 11:59:17 2024 +0000
+
+    pool: Make RW thread safe so can read and write at the same time
+
+commit e686e34f89efaf7ae7def595477277f5855f50bd
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Mar 13 16:34:42 2024 +0000
+
+    multipart: make pool buffer size public
+
+commit 5f663503315ac22b284071de589982b22a463fbf
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 21:12:56 2024 +0100
+
+    Add Fornax to contributors
+
+commit e1d935b85454acae87f37c9dece06d2d557f7c29
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 18:26:25 2024 +0100
+
+    build: use go1.23 for the linter
+    
+    This reverts commit 485aa90d139358c6f3f46fde03cef89fc666ae98.
+    
+    As the upstream problem is now fixed by golangci-lint v1.60.1
+
+commit 61b27cda8083ee20e0a5b47eabe35e2032b84c2c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 18:19:36 2024 +0100
+
+    build: fix govet lint errors with golangci-lint v1.60.1
+    
+    There were a lot of instances of this lint error
+    
+        printf: non-constant format string in call to github.com/rclone/rclone/fs.Logf (govet)
+    
+    Which were fixed by re-arranging the arguments and adding "%s".
+    
+    There were quite a few genuine bugs which were found too.
+
+commit 83613634f93e66b8db3ee06d3e832760a2a30e27
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 18:19:36 2024 +0100
+
+    build: bisync: fix govet lint errors with golangci-lint v1.60.1
+    
+    There were a lot of instances of this lint error
+    
+        printf: non-constant format string in call to github.com/rclone/rclone/fs.Logf (govet)
+    
+    Most of these could not easily be fixed so had nolint lines added.
+    
+    This should probably be done in a neater way perhaps by making
+    LogColorf/ErrorColorf functions.
+
+commit 1c80cbd13a81d42aee8886e4c48bdb5e7f23069a
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 17:48:24 2024 +0100
+
+    build: fix staticcheck lint errors with golangci-lint v1.60.1
+
+commit 9d5315a944c883751b54edf52c7b4ff5d3e4f4c1
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 14 17:46:12 2024 +0100
+
+    build: fix gosimple lint errors with golangci-lint v1.60.1
+
+commit 8d1d096c112ff26967496fd166697515fdf4b7b9
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Aug 12 20:23:19 2024 +0100
+
+    drive: fix copying Google Docs to a backend which only supports SHA1
+    
+    When copying Google Docs to Backblaze B2 errors like this would happen
+    
+        ERROR : test.docx: Failed to calculate src hash: hash type not supported
+        ERROR : test.docx: corrupted on transfer: sha1 hashes differ src
+    
+    This was due to an oversight in
+    
+    8fd66daab671bb98 drive: add support of SHA-1 and SHA-256 checksum
+    
+    Which omitted to change the base object (which includes Google Docs) so
+    that it supported SHA-1 and SHA-256.
+
+commit 4b922d86d7949db044f6fe06ae41c89140c8bb27
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Aug 12 17:16:25 2024 +0100
+
+    drive: update docs on creating admin service accounts
+
+commit 3b3625037c4bca776b2b04d4fbaeaa825df50ae9
+Author: Fornax <wimbrand96@gmail.com>
+Date:   Mon Aug 12 14:35:44 2024 +0200
+
+    Add pixeldrain backend
+    
+    This commit adds support for pixeldrain's experimental filesystem API.
+
+commit bfa3278f3058aa9efea30c45ed97fbed601a9d78
+Author: kapitainsky <dariuszb@me.com>
+Date:   Sat Aug 10 18:52:32 2024 +0200
+
+    docs: add comment how to reduce rclone binary size (#8000)
+    
+    See #7998
+
+commit e334366345440af8c8392d47e662a8bc3607a4a4
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Aug 9 12:09:32 2024 +0200
+
+    Make listremotes long output backwards compatible - fixes #7995
+    
+    The format was changed to include the source attribute in #7404, but that is now
+    reverted and the source information is only shown in json output.
+
+commit 642d4082acf8396f557671df66fee7685c2613b6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Aug 9 12:12:44 2024 +0100
+
+    test_backend_sizes.py calculates space in the binary each backend uses #7998
+
+commit 024ff6ed1508998c8496a0f2a64ec44795c7dc98
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Nov 4 15:49:15 2023 +0100
+
+    listremotes: added options for filtering, ordering and json output
+
+commit d6b0743cf42119c74b02d049b61ffdf91942e4fc
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Nov 4 15:34:23 2023 +0100
+
+    config: make getting config values more consistent
+
+commit e4749cf0d0e597c38315339fd14562f6b7d94757
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Nov 4 02:48:42 2023 +0100
+
+    config: make listing of remotes more consistent
+
+commit 8d2907d8f5bd2ce7d6ddc53b645c491048a413fe
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Sat Nov 4 11:16:06 2023 +0100
+
+    config: avoid remote with empty name from environment
+
+commit 1720d3e11cd8be727a535aa09be2284f3a4019d3
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Nov 3 23:35:48 2023 +0100
+
+    help: global flags help command extended filtering
+
+commit c6352231e43c32bf139cea64d69a4528ef93dedb
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Nov 3 20:46:39 2023 +0100
+
+    help: global flags help command now takes glob filter
+
+commit 731947f3cabe9c08a02ab8188d1fc83ffaa74a88
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Fri Nov 3 20:45:37 2023 +0100
+
+    filter: add options for glob to regexp without anchors and special path rules
+
+commit 16d642825d699f892742d0adf04758b5b1b061fd
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Wed Jan 31 17:55:15 2024 +0100
+
+    docs: remove old genautocomplete command docs and add as alias from the newer completion command
+
+commit 50aebcf403201063cf05853844bdd99923723356
+Author: albertony <12441419+albertony@users.noreply.github.com>
+Date:   Wed Jan 31 17:43:20 2024 +0100
+
+    docs: replace references to genautocomplete with the new name completion
+
+commit c8555d1b16244a931290fa5ca1e8ac6e7c559eb1
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 7 16:34:26 2024 +0100
+
+    serve s3: update to AWS SDKv2 by updating github.com/rclone/gofakes3
+    
+    This is the last dependency for the SDKv1 and this commit removes it
+    from go.mod also.
+
+commit 3ec0ff5d8f626ac148bf98cd40ab0a39059450e2
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Aug 7 10:14:58 2024 +0100
+
+    s3: fix SSE-C after SDKv2 change
+    
+    The new SDK apparently keeds the customer key to be base64 encoded
+    where the old one did that for you automatically.
+    
+    See: https://github.com/aws/aws-sdk-go-v2/issues/2736
+    See: https://forum.rclone.org/t/new-s3-backend-help-testing-needed/47139/3
+
+commit 746516511d7bdd25d2a32e1850512a45ab02acc0
+Author: wiserain <mail275@gmail.com>
+Date:   Tue Aug 6 02:52:27 2024 +0900
+
+     pikpak: update to using AWS SDK v2 #4989
+
+commit 8aef1de695268ba874da08d4016bb3cd9eca988b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 6 11:04:40 2024 +0100
+
+    s3: fix Cloudflare R2 integration tests after SDKv2 update #4989
+    
+    Cloudflare will normally automatically decompress files with
+    `Content-Encoding: gzip` when downloaded. This is not what AWS S3 does
+    and it breaks the integration tests.
+    
+    This fudges the integration tests to upload the test file with
+    `Cache-Control: no-transform` on Cloudflare R2 and puts a note in the
+    docs about this problem.
+
+commit cb611b833072b7dbb75ad2b911c9a8c995f9e353
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 6 10:33:17 2024 +0100
+
+    s3: add --s3-sdk-log-mode to control SDK debugging
+
+commit 66ae050a8b53807cd3094a6b64b46ba74c7182c6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Aug 5 15:48:29 2024 +0100
+
+    s3: fix GCS provider after SDKv2 update #4989
+    
+    This also adds GCS via S3 to the integration tester.
+
+commit fd9049c83d9ef181170d18467b16f35fc5f11599
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Aug 3 11:35:32 2024 +0100
+
+    s3: update to using AWS SDK v2 - fixes #4989
+    
+    SDK v2 conversion
+    
+    Changes
+    
+      - `--s3-sts-endpoint` is no longer supported
+      - `--s3-use-unsigned-payload` to control use of trailer checksums (needed for non AWS)
+
+commit a1f52bcf50dd20b18249b189348bdbcb6d86f431
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Aug 6 11:50:21 2024 +0100
+
+    fstest: implement method to skip ChunkedCopy tests
+
+commit 04704505833faad46edafa568c92aafdfb3a3ab0
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Aug 4 12:17:34 2024 +0100
+
+    build: disable wasm/js build due to go bug
+    
+    Rclone is too big for js/wasm until
+    https://github.com/golang/go/issues/64856 is fixed
+
+commit 1901bae4ebcbc4cdd82f6bb1862d0479f3fa386e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Aug 1 17:48:39 2024 +0100
+
+    Add @dmcardle as gitannex maintainer
+
+commit 9866d1c636d00469667a29df41b8c09a05f38fc4
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 30 09:51:30 2024 +0100
+
+    docs: s3: add section on using too much memory #7974
+
+commit c5c7bcdd456266070644ecbba8adfaeb5b15d5b6
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 30 09:41:54 2024 +0100
+
+    docs: link the workaround for big directory syncs in the FAQ #7974
+
+commit d5c7b55ba5fa8e2c25b2191347becdbd7585ed6c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Aug 1 16:32:42 2024 +0100
+
+    Add David Seifert to contributors
+
+commit feafbfca52b5aa89a1ea0a4c8db2987d355e053a
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Aug 1 16:32:42 2024 +0100
+
+    Add Will Miles to contributors
+
+commit abe01179ae1387b710d5cce1c0afd57caa8296f3
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Aug 1 16:32:42 2024 +0100
+
+    Add Ernie Hershey to contributors
+
+commit 612c717ea0eed3f646095ed57620fd05b2a2c20b
+Author: David Seifert <16636962+SoapGentoo@users.noreply.github.com>
+Date:   Tue Jul 30 11:19:47 2024 +0200
+
+    docs: rc: fix correct _path to _root in on the fly backend docs
+
+commit f26d2c6ba86854bd1e65ebfd460a98b96db6a9e7
+Author: Saleh Dindar <salh@fb.com>
+Date:   Tue Oct 24 22:01:42 2023 -0700
+
+    fs/http: reload client certificates on expiry
+    
+    In corporate environments, client certificates have short life times
+    for added security, and they get renewed automatically. This means
+    that client certificate can expire in the middle of long running
+    command such as `mount`.
+    
+    This commit attempts to reload the client certificates 30s before they
+    expire.
+    
+    This will be active for all backends which use HTTP.
+
+commit dcecb0ede469bfc2dfd60ab3d1dc17e628305d5f
+Author: Will Miles <wmiles@sgl.com>
+Date:   Mon Jan 22 14:26:54 2024 -0500
+
+    docs: clarify hasher operation
+    
+    Add a line to the "other operations" block to indicate that the hasher overlay will apply auto-size and other checks for all commands.
+
+commit 47588a7fd07a0dedd7045b8766afcd429ff57dfd
+Author: Ernie Hershey <github@ernie.org>
+Date:   Sun May 26 13:17:20 2024 -0400
+
+    docs: fix typo in batcher docs for dropbox and googlephotos
+
+commit ba381f8721d556282f5c0d9369da420cfaea7f16
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 24 10:52:05 2024 +0100
+
+    b2: update versions documentation - fixes #7878
+
+commit 8f0ddcca4efbb5fcbdc0b19545d0f4fdc87fe41c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 23 11:34:08 2024 +0100
+
+    s3: document need to set force_path_style for buckets with invalid DNS names
+    
+    Fixes #6110
+
+commit 404ef80025715ffaf55171b48152d5115dbbe521
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 23 11:29:07 2024 +0100
+
+    ncdu: document that excludes are not shown - fixes #6087
+
+commit 13fa58336838a6a2f5467d12c9bd2bbb46db0049
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 23 10:07:44 2024 +0100
+
+    sftp: clarify the docs for key_pem - fixes #7921
+
+commit e111ffba9e55baab86f6d0e9ec0b8cfe2d8871b4
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Jul 21 10:26:10 2024 +0100
+
+    serve ftp: fix failed startup due to config changes
+    
+    See: https://forum.rclone.org/t/failed-to-ftp-failed-to-parse-host-port/46959
+
+commit 30ba7542ffb311900d3342bb3d4c916ac7ac4fb1
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 22 14:48:41 2024 +0100
+
+    docs: add Route4Me as a sponsor
+
+commit 31fabb34023a8a7ceabba7290da347eab388a3f1
+Author: wiserain <mail275@gmail.com>
+Date:   Sat Jul 20 21:50:08 2024 +0900
+
+    pikpak: correct file transfer progress for uploads by hash
+    
+    Pikpak can accelerate file uploads by leveraging existing content
+    in its storage (identified by a custom hash called gcid).
+    Previously, file transfer statistics were incorrect for uploads
+    without outbound traffic as the input stream remained unchanged.
+    
+    This commit addresses the issue by:
+    
+    * Removing unnecessary unwrapping/wrapping of accountings
+    before/after gcid calculation, leading immediate AccountRead() on buffering.
+    * Correctly tracking file transfer statistics for uploads
+    with no incoming/outgoing traffic by marking them as Server Side Copies.
+    
+    This change ensures correct statistics tracking and improves overall user experience.
+
+commit b3edc9d360c6a721e484b96ca8be4ba0454f18b4
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jul 20 12:10:42 2024 +0100
+
+    fs: fix --use-json-log and -vv after config reorganization
+
+commit 04f35fc3ac1d97b0c297dd6f9c2975a6a57b1b72
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jul 20 12:48:57 2024 +0100
+
+    Add Tobias Markus to contributors
+
+commit 8e5dd79e4db55157febcbf85689962dfbb28ca6a
+Author: Tobias Markus <tobbi.bugs@googlemail.com>
+Date:   Sat Jul 20 12:29:34 2024 +0200
+
+    ulozto: fix upload of > 2GB files on 32 bit platforms - fixes #7960
+
+commit b809e71d6f9a7371600e7adc8322cf77bdcb3e40
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jul 19 11:16:51 2024 +0100
+
+    lib/mmap: fix lint error on deprecated reflect.SliceHeader
+    
+    reflect.SliceHeader is deprecated, however the replacement gives a go
+    vet warning so this disables the lint warning in one use of
+    reflect.SliceHeader and replaces it in the other.
+
+commit d149d1ec3ec3977f272483143861e62c44b48f36
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jul 19 09:48:22 2024 +0100
+
+    lib/http: fix tests after go1.23 update
+    
+    go1.22 output the Content-Length on a bad Range request on a file but
+    go1.23 doesn't - adapt the tests accordingly.
+
+commit 3b51ad24b257d4512cf25ffa0faeb6aa5e91080f
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jul 19 09:43:51 2024 +0100
+
+    rc: fix tests after go1.23 upgrade
+    
+    go1.23 adds a doctype to the HTML output when serving file listings.
+    This adapts the tests for that.
+
+commit 485aa90d139358c6f3f46fde03cef89fc666ae98
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 18:08:12 2024 +0100
+
+    build: use go1.22 for the linter to fix excess memory usage
+    
+    golangci-lint seems to have a bug which uses excess memory under go1.23
+    
+    See: https://github.com/golangci/golangci-lint/issues/4874
+
+commit 8958d064568a379f794228195c52da85aae7c353
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 17:06:58 2024 +0100
+
+    build: update all dependencies
+
+commit ca244470902fff32aaab1963da5144b6f5804645
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 16:57:24 2024 +0100
+
+    build: update to go1.23rc1 and make go1.21 the minimum required version
+
+commit d008381e592d50fe5a9b000b3ebcebdc473f7433
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jul 20 10:54:36 2024 +0100
+
+    Add AThePeanut4 to contributors
+
+commit 14629c66f93e473420f022dc4448137368544f19
+Author: AThePeanut4 <49614525+AThePeanut4@users.noreply.github.com>
+Date:   Mon Jul 15 22:41:51 2024 +0200
+
+    systemd: prevent unmount rc command from sending a STOPPING=1 sd-notify message
+    
+    This prevents an `rclone rcd` server from prematurely going into the
+    'deactivating' state, which was causing systemd to kill it with a
+    SIGABRT after the stop timeout.
+    
+    Fixes #7540
+
+commit 4824837eedcfc06108676273376591cf9ff37bbf
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 17 15:46:19 2024 +0100
+
+    azureblob: allow anonymous access for public resources
+    
+    See: https://forum.rclone.org/t/azure-blob-public-resources/46882
+
+commit 5287a9b5fa8ba0aec87f8375f6c9ae93e3a41078
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 11:13:18 2024 +0100
+
+    Add Ke Wang to contributors
+
+commit f2ce1767f0bbfb065d516985b0017f823f4d88d3
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 11:13:18 2024 +0100
+
+    Add itsHenry to contributors
+
+commit 7f048ac901410ca10157baee07b220cd42ea81ff
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 11:13:18 2024 +0100
+
+    Add Tomasz Melcer to contributors
+
+commit b0d0e0b26730f8664d400d76a681a982d42cd2e8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 11:13:18 2024 +0100
+
+    Add Paul Collins to contributors
+
+commit f5eef420a476762476e3830f1cf2b4fce07878c1
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 18 11:13:18 2024 +0100
+
+    Add Russ Bubley to contributors
+
+commit 9de485f949b818e2b6dd0384a834e47c26d035fa
+Author: Sawjan Gurung <saw.jan.grg3e@gmail.com>
+Date:   Wed Jul 17 19:59:08 2024 +0545
+
+    serve s3: implement `--auth-proxy`
+    
+    This implements --auth-proxy for serve s3. In addition it:
+    
+    * add listbuckets tests with and without authProxy
+    * use auth proxy test framework
+    * servetest: implement workaround for #7454
+    * update github.com/rclone/gofakes3 to fix race condition
+
+commit d4b29fef92110f1b12f32d41658c61ae8f52e4ef
+Author: Kyle Reynolds <kylereynoldsdev@gmail.com>
+Date:   Wed Jul 17 04:04:01 2024 -0600
+
+    fs: Allow semicolons as well as spaces in --bwlimit timetable parsing - fixes #7595
+
+commit 471531eb6a58894ac1e302a064d4ff136634d295
+Author: wiserain <mail275@gmail.com>
+Date:   Wed Jul 17 12:20:09 2024 +0900
+
+    pikpak: optimize upload by pre-fetching gcid from API
+    
+    This commit optimizes the PikPak upload process by pre-fetching the Global
+    Content Identifier (gcid) from the API server before calculating it locally.
+    
+    Previously, a gcid required for uploads was calculated locally. This process was
+    resource-intensive and time-consuming. By first checking for a cached gcid
+    on the server, we can potentially avoid the local calculation entirely.
+    This significantly improves upload speed especially for large files.
+
+commit afd2663057ea1ec9eebd3a637790fb554b216481
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 16 14:06:37 2024 +0100
+
+    rc: add option blocks parameter to options/get and options/info
+
+commit 97d6a004838702609147a3d8b6b10aaa8fed2b1d
+Author: Ke Wang <me@ke.wang>
+Date:   Mon Jul 15 19:09:15 2024 +0800
+
+    chore(deps): update github.com/rclone/gofakes3
+
+commit 5ddedae4318ad80ebe01d9ac4d2fa038512d51b7
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 15 12:18:14 2024 +0100
+
+    fstest: fix compile after merge
+    
+    After merging this commit
+    
+    56caab2033a1983b b2: Include custom upload headers in large file info
+    
+    The compile failed as a change had been missed. Should have rebased
+    before merging!
+
+commit e1b7bf77010352e70df58daacfc9b786437a2db8
+Author: URenko <18209292+URenko@users.noreply.github.com>
+Date:   Thu May 9 18:50:08 2024 +0000
+
+    local: fix encoding of root path
+    fix #7824
+    Statements like rclone copy <somewhere> . will spontaneously miss
+    if . expands to a path with a Full Width replacement character.
+    This is due to the incorrect order in which
+    relative paths and decoding were handled in the original implementation.
+
+commit 2a615f46816f9ac7973a9658be067afed657dc10
+Author: URenko <18209292+URenko@users.noreply.github.com>
+Date:   Mon Apr 22 13:36:38 2024 +0000
+
+    vfs: fix cache encoding with special characters - #7760
+    
+    The vfs use the hardcoded OS encoding when creating temp file,
+    but decode it with encoding for the local filesystem (--local-encoding)
+    when copying it to remote.
+    This caused failures when the filenames contained special characters.
+    The hardcoded OS encoding is now used uniformly.
+
+commit e041796bfe503b31f852a4b387a9abf1bd2e7567
+Author: URenko <18209292+URenko@users.noreply.github.com>
+Date:   Mon Apr 22 13:35:18 2024 +0000
+
+    docs: correct description of encoding None and add Raw.
+
+commit 1b9217bc78318f3db386908f08fe83b22ae8578a
+Author: URenko <18209292+URenko@users.noreply.github.com>
+Date:   Mon Apr 22 13:21:13 2024 +0000
+
+    lib/encoder: add EncodeRaw
+
+commit 846c1aeed05f261848a459d9c0bc9ee8803c439e
+Author: wiserain <mail275@gmail.com>
+Date:   Mon Jul 1 17:52:05 2024 +0900
+
+    pikpak: non-buffered hash calculation for local source files
+
+commit 56caab2033a1983bcc39a35eb305e28a75d6af75
+Author: Pat Patterson <pat@backblaze.com>
+Date:   Tue Apr 9 14:13:33 2024 -0700
+
+    b2: Include custom upload headers in large file info - fixes #7744
+
+commit 495a5759d335cce2fde4073ea5918048df7eca93
+Author: itsHenry <2671230065@qq.com>
+Date:   Wed Jul 10 14:40:28 2024 +0000
+
+    chore(deps): update github.com/rclone/gofakes3
+
+commit d9bd6f35f298479ce75a0e6bcb48d3aec8a0352b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jul 13 15:36:54 2024 +0100
+
+    fs/test: fix erratic test
+
+commit 532a0818f72380ced8ca8b4e323c3f48aa8e9373
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jul 12 15:12:05 2024 +0100
+
+    fs: make sure we load the options defaults to start with
+
+commit 91558ce6aacad57edd7a6ec77d9857b18e1e80be
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jul 12 12:40:12 2024 +0100
+
+    fs: fix the defaults overriding the actual config
+    
+    After re-organising the config it became apparent that there was a bug
+    in the config system which hadn't manifested until now.
+    
+    This was the default config overriding the main config and was fixed
+    by noting when the defaults had actually changed.
+
+commit 8fbb25909165b3a795ef0cc740046d39276f9e0b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 10 18:24:13 2024 +0100
+
+    rc: add options/info call to enumerate options
+    
+    This also makes some fields in the Options block optional - these are
+    documented in rc.md
+
+commit 4d2bc190cc5f75b19cfb8d90dc35fb60ba3f8f04
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 9 18:42:01 2024 +0100
+
+    fs: convert main options to new config system
+    
+    There are some flags which haven't been converted which could be
+    converted in the future.
+
+commit c2bf300dd8e1ebff0966ed2af7f572b7888ad62d
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 11 12:32:19 2024 +0100
+
+    accounting: fix creating of global stats ignoring the config
+    
+    Before this change the global stats were created before the global
+    config which meant they ignored the global config completely.
+
+commit c954c397d9c7b9c363cd4bc4570c2239f44e9277
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 4 17:29:50 2024 +0100
+
+    filter: convert options to new style
+
+commit 25c637968850017452f6723a678c9e3d81369a1b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 4 11:30:04 2024 +0100
+
+    filter: rename Opt to Options for consistency
+
+commit ce1859cd823dd78fecb9f976a33ba9b69f0beae2
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 4 10:47:05 2024 +0100
+
+    rc: convert options to new style
+
+commit cf25ae69adb0024f015a8c6313e4549fe2bd2671
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 16:22:48 2024 +0100
+
+    lib/http: convert options to new style
+    
+    There are still users of the old style options which haven't been
+    converted yet.
+
+commit dce8317042498aef5f28a59adc069119e45765fb
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jul 4 09:41:32 2024 +0100
+
+    log: convert options to new style
+
+commit eff24976335557aee24b9e1481421059c5dda52e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 19:29:54 2024 +0100
+
+    serve sftp: convert options to new style
+
+commit 28ba4b832d009133d51d7dc742040f07b590c8b0
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 19:20:43 2024 +0100
+
+    serve nfs: convert options to new style
+
+commit 58da1a165cc33b719a397a54a7099b12a3df48e7
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 19:14:56 2024 +0100
+
+    serve ftp: convert options to new style
+
+commit eec95a164dbca76a7a07579f466590dce7a0f325
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 18:14:48 2024 +0100
+
+    serve dlna: convert options to new style
+
+commit 44cd2e07ca585983f1acd37507b8ce72001158ab
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 2 10:39:48 2024 +0100
+
+    cmd/mountlib: convert mount options to new style
+
+commit a28287e96d2dfb3eb2a8ff003fa7a23eaf43aee3
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 11:34:29 2024 +0100
+
+    vfs: convert vfs options to new style
+    
+    This also
+    - move in use options (Opt) from vfsflags to vfscommon
+    - change os.FileMode to vfscommon.FileMode in parameters
+    - rework vfscommon.FileMode and add tests
+
+commit fc1d8dafd5e61178267b6e04512dd630fc33fd9e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 2 17:31:51 2024 +0100
+
+    vfs: convert time.Duration option to fs.Duration
+
+commit 2c57fe9826ddc915663489787bdd09499e05ff2b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 2 10:26:15 2024 +0100
+
+    cmd/mountlib: convert time.Duration option to fs.Duration
+
+commit 7c51b10d15b9d308203c2b7173b3a2f904e67c75
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 16:20:33 2024 +0100
+
+    configstruct: skip items with `config:"-"`
+
+commit 3280b6b83c778419e0d682313d4b8015cb790ea9
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 10:27:53 2024 +0100
+
+    configstruct: allow parsing of []string encoded as JSON
+
+commit 1a77a2f92b8df82e2fe5da8f7caed927ea31765f
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 09:45:29 2024 +0100
+
+    configstruct: make nested config structs work
+
+commit c156716d0154c58ef49c2a2c6793b064de506cca
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 21:19:40 2024 +0100
+
+    configstruct: fix parsing of invalid booleans in the config
+    
+    Apparently fmt.Sscanln doesn't parse bool's properly and this isn't
+    likely to be fixed by the Go team who regard sscanf as a mistake.
+    
+    This only uses sscan for integers and uses the correct routine for
+    everything else.
+    
+    This also implements parsing time.Duration
+    
+    See: https://github.com/golang/go/issues/43306
+
+commit 0d9d0eef4cefa346dea57dc95368fecbcb225a03
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 10:47:23 2024 +0100
+
+    fs: check the names and types of the options blocks are correct
+
+commit 2e653f81287179e38acce46b4cbc70a7c2706db2
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 8 12:14:28 2024 +0100
+
+    fs: make Flagger and FlaggerNP interfaces public so we can test flags elsewhere
+
+commit e79273f9c984c026ac933da329327b2568efe7d8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jul 3 17:22:47 2024 +0100
+
+    fs: add Options registry and rework rc to use it
+
+commit 8e10fe71f76b5ceea38761b26d1e849247deb275
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 2 10:37:58 2024 +0100
+
+    fs: allow []string to work in Options
+
+commit c6ab37a59f3975165f98d25bb29d7a9b3d7481a7
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 1 18:09:58 2024 +0100
+
+    flags: factor AddFlagsFromOptions from cmd
+    
+    This is in preparation for generalising the backend config
+
+commit 671a15f65f4f170d2672a6d32faad4c3ccb14b97
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 2 10:38:54 2024 +0100
+
+    fs: add Groups and FieldName to Option
+
+commit 8d72698d5aba8288183e092ed48560cd11d5eb11
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jul 1 18:06:49 2024 +0100
+
+    fs: refactor fs.ConfigMap to take a prefix and Options rather than an fs.RegInfo
+    
+    This is in preparation for generalising the backend config system
+
+commit 6e853c82d8dc499bba2d20fa649e7d0aaaf95cef
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jul 9 23:40:32 2024 +0100
+
+    sftp: ignore errors when closing the connection pool
+    
+    There is no need to report errors when draining the connection pool -
+    they are useless at this point.
+    
+    See: https://forum.rclone.org/t/rclone-fails-to-close-unused-tcp-connections-due-to-use-of-closed-network-connection/46735
+
+commit 27267547b903fe5e72aaa71cc1f45456661d0422
+Author: Tomasz Melcer <liori@exroot.org>
+Date:   Tue Jul 9 11:23:11 2024 +0200
+
+    sftp: use uint32 for mtime
+    
+    The SFTP protocol (and the golang sftp package) internally uses uint32 unix
+    time for expressing mtime. Hence it is a waste of memory to store it as 24-byte
+    time.Time data structure in long-lived data structures. So despite that the
+    golang sftp package uses time.Time as external interface, we can re-encode the
+    value back to the original format and save memory.
+    
+    Co-authored-by: Tomasz Melcer <tomasz@melcer.pl>
+
+commit cdcf0e5cb8b6b08ebc3a06eb3eb02d28c01d9aa2
+Author: wiserain <mail275@gmail.com>
+Date:   Mon Jul 8 18:16:00 2024 +0900
+
+    pikpak: optimize file move by removing unnecessary `readMetaData()` call
+    
+    Previously, the code relied on calling `readMetaData()` after every file move operation.
+    This introduced an unnecessary API call and potentially impacted performance.
+    
+    This change removes the redundant `readMetaData()` call, improving efficiency.
+
+commit 65077700141bbf65f2a44d2e16c1248bc334625f
+Author: wiserain <mail275@gmail.com>
+Date:   Mon Jul 8 10:37:42 2024 +0900
+
+    pikpak: fix error with `copyto` command
+    
+    Fixes an issue where copied files could not be renamed when using the
+    `copyto` command. This occurred because the object ID was empty
+    before calling `readMetaData`. The fix preemptively calls `readMetaData`
+    to ensure an object ID is available before attempting the rename operation.
+
+commit bd5799c079c0d85b0d6214556a8985b8091e25f8
+Author: Paul Collins <paul.collins@canonical.com>
+Date:   Fri Apr 9 11:07:49 2021 +1200
+
+    swift: add workarounds for bad listings in Ceph RGW
+    
+    Ceph's Swift API emulation does not fully confirm to the API spec.
+    As a result, it sometimes returns fewer items in a container than
+    the requested limit, which according to the spec should means
+    that there are no more objects left in the container.  (Note that
+    python-swiftclient always fetches unless the current page is empty.)
+    
+    This commit adds a pair of new Swift backend settings to handle this.
+    
+    Set `fetch_until_empty_page` to true to always fetch another
+    page of the container listing unless there are no items left.
+    
+    Alternatively, set `partial_page_fetch_threshold` to an integer
+    percentage.  In this case rclone will fetch a new page only when
+    the current page is within this percentage of the limit.
+    
+    Swift API reference: https://docs.openstack.org/swift/latest/api/pagination.html
+    
+    PR against ncw/swift with research and discussion: https://github.com/ncw/swift/pull/167
+    
+    Fixes #7924
+
+commit c834eb7dcb2fbafefa647e169f7b884dc178de4e
+Author: Russ Bubley <russ.bubley@googlemail.com>
+Date:   Fri Jun 28 10:42:52 2024 +0100
+
+    sftp: fix docs on connections not to refer to concurrency
+
+commit 754e53dbcc87425ff88dbf95d1b516139c58df0c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 10:24:34 2024 +0100
+
+    docs: remove warp as silver sponsor
+
+commit 5511fa441a57a0c662558d92bfa7bf0eda4f1b66
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jun 19 20:06:40 2024 +0100
+
+    onedrive: fix nil pointer error when uploading small files
+    
+    Before this fix when uploading a single part file, if the
+    o.fetchAndUpdateMetadata() call failed rclone would call
+    o.setMetaData() with a nil info which caused a crash.
+    
+    This fixes the problem by returning the error from
+    o.fetchAndUpdateMetadata() explicitly.
+    
+    See: https://forum.rclone.org/t/serve-webdav-is-crashing-fatal-error-sync-unlock-of-unlocked-mutex/46300
+
+commit 4ed4483bbc49b8b72f9bb0d3034d4e94c1f82125
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Thu Jun 6 09:39:00 2024 +0100
+
+    vfs: fix fatal error: sync: unlock of unlocked mutex in panics
+    
+    Before this change a panic could be overwritten with the message
+    
+        fatal error: sync: unlock of unlocked mutex
+    
+    This was because we temporarily unlocked the mutex, but failed to lock
+    it again if there was a panic.
+    
+    This is code is never the cause of an error but it masks the
+    underlying error by overwriting the panic cause.
+    
+    See: https://forum.rclone.org/t/serve-webdav-is-crashing-fatal-error-sync-unlock-of-unlocked-mutex/46300
+
+commit 0e85ba5080c6589e7c6d0147637757489fc5c6a5
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 09:30:48 2024 +0100
+
+    Add Filipe Herculano to contributors
+
+commit e5095a7d7b5f175206d4b2f4aff1de3f7f055ed2
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jun 24 09:30:48 2024 +0100
+
+    Add Thearas to contributors
+
+commit 300851e8bfe3b587a51c89dff6e84fb57929350f
+Author: wiserain <mail275@gmail.com>
+Date:   Thu Jun 20 00:57:21 2024 +0900
+
+    pikpak: implement custom hash to replace wrong sha1
+    
+    This improves PikPak's file integrity verification by implementing a custom
+    hash function named gcid and replacing the previously used SHA-1 hash.
+
+commit cbccad9491f4206be1ba71cc7b2d03995eb35cde
+Author: wiserain <mail275@gmail.com>
+Date:   Thu Jun 20 00:07:05 2024 +0900
+
+    pikpak: improves data consistency by ensuring async tasks complete
+    
+    Similar to uploads implemented in commit ce5024bf3317dbbe2072abda15036e2d8507d3fd,
+    this change ensures most asynchronous file operations (copy, move, delete,
+    purge, and cleanup) complete before proceeding with subsequent actions.
+    This reduces the risk of data inconsistencies and improves overall reliability.
+
+commit 9f1a7cfa67a8a1031a63f9d0712d90625bf422d2
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon Jun 17 22:56:03 2024 +0000
+
+    build(deps): bump docker/build-push-action from 5 to 6
+    
+    Bumps [docker/build-push-action](https://github.com/docker/build-push-action) from 5 to 6.
+    - [Release notes](https://github.com/docker/build-push-action/releases)
+    - [Commits](https://github.com/docker/build-push-action/compare/v5...v6)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: docker/build-push-action
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+commit d84a4c9ac11657e65977fd5db780158d9d549c30
+Author: Filipe Herculano <fifo_@live.com>
+Date:   Sat Jun 15 12:40:28 2024 -0400
+
+    s3: fix incorrect region for Magalu provider
+
+commit 1c9da8c96a30dadac311e44d354036a7b36b60d0
+Author: Thearas <thearas850@gmail.com>
+Date:   Thu Jun 13 11:38:18 2024 +0800
+
+    docs: recommend `no_check_bucket = true` for Alibaba - fixes #7889
+    
+    Change-Id: Ib6246e416ce67dddc3cb69350de69129a8826ce3
+
+commit af9c5fef93a9056a4702bfeda4f08b28321f3f8d
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jun 15 13:08:20 2024 +0100
+
+    docs: tidy .gitignore for docs
+
+commit 7060777d1dadb8225e331e5b6216af3795930519
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jun 15 12:59:49 2024 +0100
+
+    docs: fix hugo warning: found no layout file for "html" for kind "term"
+    
+    Hugo has been making this warning for a while
+    
+    WARN found no layout file for "html" for kind "term": You should
+    create a template file which matches Hugo Layouts Lookup Rules for
+    this combination.
+    
+    This turned out to be the addition of the `groups:` keyword to the
+    command frontmatter. Hugo is doing something with this keyword though
+    this isn't documented in the frontmatter documentation.
+    
+    The fix was removing the `groups:` keyword from the frontmatter since
+    it was never used by hugo.
+
+commit 0197e7f4e55e11c2974ab6f246aa89e147a83c1e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jun 15 12:37:43 2024 +0100
+
+    docs: remove slug and url from command pages since they are no longer needed
+
+commit c1c9e209f3dd535a6a8c61846a7b1845bf53cc0a
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Jun 15 12:29:37 2024 +0100
+
+    docs: fix hugo warning: found no layout file for "html" for kind "section"
+    
+    Hugo has been making this warning for a while
+    
+    WARN found no layout file for "html" for kind "section": You should
+    create a template file which matches Hugo Layouts Lookup Rules for
+    this combination.
+    
+    It turned out to be
+    - the arrangement of the oracle object storage docs and sub page
+    - the fact that a section template was missing
+
+commit fd182af8668da35b80c1c4f2e8ccf986c3ee8e88
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jun 14 11:43:09 2024 +0100
+
+    serve dlna: fix panic: invalid argument to Int63n
+    
+    This updates the upstream github.com/anacrolix/dms to master to fix
+    the problem.
+    
+    Fixes #7911
+
+commit 4ea629446fe25f3ad0da0e145341cba00bf27e7b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Jun 14 17:54:27 2024 +0100
+
+    Start v1.68.0-DEV development
