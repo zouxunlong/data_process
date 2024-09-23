@@ -1,3 +1,5 @@
+qstat -Qf
+
 
 #!/bin/bash
 for node in $(pbsnodes -l all); do
