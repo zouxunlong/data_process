@@ -29,16 +29,16 @@ def map_fn(example):
 def convert(split, num_proc):
     ds=load_from_disk(split)
     ds=ds.map(map_fn, num_proc=num_proc, batch_size=1, writer_batch_size=1, features=ds.features)
-    if not os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_opus_bytes")):
-        ds.save_to_disk(split.replace("datasets_multimodal", "datasets_multimodal_opus_bytes"), num_proc=4)
+    if not os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_opus")):
+        ds.save_to_disk(split.replace("datasets_multimodal", "datasets_multimodal_opus"), num_proc=4)
 
-def main(dir, reverse, num_proc=192):
+def main(dir, reverse, num_proc=28):
     splits=get_all_split(dir)
     splits.sort(reverse=reverse)
     pprint(splits)
     for split in splits:
         print("=====start {}==========".format(split), flush=True)
-        if os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_opus_bytes")):
+        if os.path.exists(split.replace("datasets_multimodal", "datasets_multimodal_opus")):
             print("skip {}".format(split), flush=True)
             continue
         convert(split, num_proc)

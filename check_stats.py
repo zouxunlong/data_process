@@ -3,6 +3,8 @@ from datasets import load_from_disk
 import fire
 import os
 
+import pandas as pd
+
 
 def get_all_split(ds_path):
     directories = []
@@ -13,7 +15,7 @@ def get_all_split(ds_path):
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 192):
+def check_data(hf_folder: str, num_worker: int = 32):
 
     def map_fn(example):
         return {"audio_length": len(example["context"]["audio"]["array"])/16000}
@@ -55,6 +57,27 @@ def check_data(hf_folder: str, num_worker: int = 192):
     with open(os.path.join(hf_folder, 'ds_stats.json'), 'w') as f:
         json.dump(stats, f, ensure_ascii=False, indent=1)
     print('complete all', flush=True)
+
+
+
+    ds_stats = json.load(open(os.path.join(hf_folder, 'ds_stats.json')))
+    dfList=[]
+    for key, value in ds_stats.items():
+        datasets_multimodal, other_prepared, TASK, DATASET_SPLIT= key.split("/")[:5]
+        if other_prepared=="other_prepared":
+            split= ".".join(key.split("/")[8:])
+        else:
+            split= other_prepared
+        num_of_samples= value['num_of_samples']
+        total_audio_hours= value['total_audio_hours']
+        max_audio_seconds= value['max_audio_seconds']
+        min_audio_seconds= value['min_audio_seconds']
+        path= f"/{datasets_multimodal}/{other_prepared}/{TASK}/{DATASET_SPLIT}"
+
+        dfList.append([other_prepared, TASK, DATASET_SPLIT, split, total_audio_hours, max_audio_seconds, min_audio_seconds, num_of_samples, path])
+    df_new =  pd.DataFrame(dfList)
+    df_new.to_excel(f'{hf_folder}.xlsx', index=False, header=False)
+
 
 
 if __name__ == "__main__":
