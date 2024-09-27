@@ -25,4 +25,5 @@ with open("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/ta.jso
                     
                     
 ds=Dataset.from_json("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/ta.jsonl")
-ds.save_to_disk("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/newslink_ta.hf", num_proc=5)
+
+ds.save_to_disk("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/ta.hf", num_proc=5)
