@@ -20,7 +20,6 @@ class Utils:
 
     punc2sent_len = {'.':5, '?':5, '!':5, '。':5, '？':5, '！':5, ';':10, '；':10, ':':20, '：':20, ',':50, '，':50}
     end_set=set(['”',')',']','}','』','」','》','）','】','｝','〕','﹚','.','?','!', '。','？','！','’',';','；',':','：'])
-    # punc = ['.', '?', '!', ';', ':', ',', '(', ')', '"', '\'', '...', '+', '*', '&', '%', '$', '@', '#', '£', '€', '_', '<', '≤', '≠', '≥', '>', '[', ']', '-', '~', '=', '^', '{', '}', '‘', '’', '\\', '/', '“']
     punc = '.?!;:,()"\'...+*&%$@#£€_<≤≠≥>[]-~=^{}‘’\\/“'
 
 
@@ -105,10 +104,11 @@ def split_sents(L, ):
     outs = split_utt(L)
     lines=[' '.join(its)+' ' for its in outs]
     print(len(lines), flush=True)
-    with open("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/ta.txt", 'a', encoding='utf8') as file_out:
+    with open("/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/ta.txt", 'a', encoding='utf8') as file_out:
         for line in lines:
             file_out.write(line+'\n')
-
+        file_out.write('\n')
+        
 
 def main(file):
     lines=open(file).readlines()
@@ -118,7 +118,7 @@ def main(file):
 
 if __name__=="__main__":
     from datasets import load_from_disk
-    ds=load_from_disk("/home/xunlong/xunlong_working_repo/_data_in_processing/mt_data/newslink_ta.hf")
+    ds=load_from_disk("/mnt/data/all_datasets/xunlong_working_repo/_data_in_processing/mt_data/ta.hf")
     for sample in ds:
         split_sents(" ".join(sample['text'].split('\n')))
 
