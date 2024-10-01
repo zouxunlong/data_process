@@ -80,7 +80,7 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(intput_dir, output_dir="mds_test"):
+def main(intput_dir="/mnt/data/all_datasets/datasets_hf_bytes/datasets_multimodal/train", output_dir="/mnt/data/all_datasets/datasets_mosaic_bytes"):
     
     start_time = time.time()
     num_pro    = 16

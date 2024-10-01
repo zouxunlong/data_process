@@ -76,4 +76,5 @@ def check_data(hf_folder: str, num_worker: int = 16):
 
 
 if __name__ == "__main__":
-    fire.Fire(check_data)
+    fire.Fire(check_data("/mnt/data/all_datasets/datasets_hf_array"))
+    fire.Fire(check_data("/mnt/data/all_datasets/datasets_hf_bytes"))

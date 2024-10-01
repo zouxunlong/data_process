@@ -24,6 +24,6 @@ def json2excel(json_file):
 
 if __name__ == "__main__":
 
-    json2excel("/mnt/data/all_datasets/datasets_multimodal/ds_stats.json")
+    json2excel("/mnt/data/all_datasets/datasets_hf_array/datasets_multimodal/ds_stats.json")
 
     
