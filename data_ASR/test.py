@@ -314,27 +314,17 @@ def count_samples(dir):
 
 
 def replace_instructions(split):
-    # ds = load_from_disk(split)
-    # batch_size=len(ds)//4+1
-    # for i in range(4):
-    #     sub_ds = ds.select(range(i*batch_size, min((i+1)*batch_size, len(ds))))
-    #     sub_ds = sub_ds.map(lambda batch: {"instruction": [{"text": random.choice(instructions_asr), "audio": None} for i in range(len(batch["instruction"]))]}, batched=True, batch_size=10, writer_batch_size=10, num_proc=4)
-    #     sub_ds.save_to_disk("./tmp/subset{}".format(i), num_proc=4)
+    ds = load_from_disk(split)
+    batch_size=len(ds)//4+1
+    for i in range(4):
+        sub_ds=ds.select(range(i*batch_size, (i+1)*batch_size))
+        sub_ds = sub_ds.map(lambda batch: {"instruction": [{"text": random.choice(instructions_asr), "audio": None} for i in range(len(batch["instruction"]))]}, batched=True, batch_size=10, writer_batch_size=10, num_proc=4)
+        sub_ds.save_to_disk("./tmp/subset{}".format(i), num_proc=4)
     ds=concatenate_datasets([load_from_disk("./tmp/subset{}".format(i)) for i in range(4)])
     ds.save_to_disk(split.replace("/ASR/", "/ASR_new/"), num_proc=4)
 
 
 if __name__ == "__main__":
 
-    print(os.getpid(), flush=True)
-
-    splits=get_all_split("/mnt/data/all_datasets/datasets_hf_array")
-        
-    for split in splits:
-
-        if "/ASR/" in split and not os.path.exists(split.replace("/ASR/", "/ASR_new/")):
-            print("start", split, flush=True)
-            replace_instructions(split)
-            print("complete", split, flush=True)
-    
-    print("complete all", flush=True)
+    ds = load_from_disk("/mnt/data/all_datasets/datasets_hf_array/datasets_multimodal/other_prepared/AC/AudioCaps_AC_v2.validation")
+    print(ds.select(range(10,220)), flush=True)
