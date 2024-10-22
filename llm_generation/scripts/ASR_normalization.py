@@ -35,8 +35,8 @@ def map_fn(sample):
     prompt_sample = TEMPLATE.format(context=text)
 
     chat_response = client.chat.completions.create(
-        model="hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
-        messages=[{"role": "user", "content": prompt_sample},]
+        model    = "hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
+        messages = [{"role": "user", "content": prompt_sample},]
         )
 
     transcription=chat_response.choices[0].message.content
