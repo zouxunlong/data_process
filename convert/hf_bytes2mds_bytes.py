@@ -80,7 +80,7 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(intput_dir="/mnt/data/all_datasets/datasets_hf_bytes/datasets_multimodal/train", output_dir="/mnt/data/all_datasets/datasets_mosaic_bytes"):
+def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_multimodal", output_dir="/scratch/users/astar/ares/zoux/datasets/datasets_mosaic_bytes/datasets_multimodal"):
     
     start_time = time.time()
     num_pro    = 16
@@ -90,7 +90,7 @@ def main(intput_dir="/mnt/data/all_datasets/datasets_hf_bytes/datasets_multimoda
     
 
     for dataset_path in dataset_path_all:
-        dataset_output_path = os.path.join(output_dir, *dataset_path.split("/")[-4:])
+        dataset_output_path = dataset_path.replace(intput_dir, output_dir)
         
         if os.path.exists(dataset_output_path):
             print(f"Skipping {dataset_output_path}", flush=True)
