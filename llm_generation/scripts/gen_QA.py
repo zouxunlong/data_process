@@ -18,7 +18,7 @@ def map_fn(batch):
     # Question generation
     for i, sample in enumerate(batch["answer"]):
         context = sample["text"]
-        QUESTION_TEMPLATE = """\
+        QUESTION_TEMPLATE = """
             [Speech Transcription]
             {context}
 

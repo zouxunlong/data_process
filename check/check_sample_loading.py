@@ -20,7 +20,7 @@ def filter_fn(batch):
     return [True]
 
 
-def do_check(ds_path, num_proc=192):
+def do_check(ds_path, num_proc=32):
     print(f"start checking {ds_path}", flush=True)
     ds = load_from_disk(ds_path)
     N = len(ds)

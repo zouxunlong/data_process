@@ -1,7 +1,7 @@
 
 import random
 import fire
-from datasets import load_from_disk, Value, concatenate_datasets
+from datasets import load_from_disk, Value
 from openai import OpenAI
 from glob import glob
 import os

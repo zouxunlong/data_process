@@ -1,15 +1,7 @@
-from datasets import load_from_disk
+from datasets import load_from_disk, concatenate_datasets
 
 
-def check(sample):
-    return len(sample["context"]["audio"]["array"])>1000
-
-
-ds = load_from_disk("/mnt/data/all_datasets/ASR_normalized/test/ASR/gigaspeech_ASR_v2")
-print(len(ds), flush=True)
-print(ds[20003], flush=True)
-# ds=ds.select(range(20000, 25619)).filter(lambda x: check(x), batch_size=1, writer_batch_size=1)
-# print(len(ds), flush=True)
-
-
+ds = concatenate_datasets([load_from_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/train/DS/IMDA_PART6_30_DS_v4_{i}") for i in range(10)])
+ds.save_to_disk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/train/DS/IMDA_PART6_30_DS_v4", num_proc=4)
+print(f"Done")
 

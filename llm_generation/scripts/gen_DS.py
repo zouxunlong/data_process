@@ -1,8 +1,6 @@
 
-from glob import glob
 import os
-import fire
-from datasets import load_from_disk, Value
+from datasets import load_from_disk
 import random
 from openai import OpenAI
 import random
@@ -41,7 +39,7 @@ def map_fn(sample):
     )
 
     # Dialog summarization
-    text = sample['answer']['text']
+    transcription = sample['answer']['text']
 
     TEMPLATE = """\
         [Speech Transcription]
@@ -56,84 +54,64 @@ def map_fn(sample):
         Summary: (Provide a concise summary of the dialogue here.)
         """
 
-    format_sample = TEMPLATE.format(context=text)
+    format_sample = TEMPLATE.format(context=transcription)
 
     chat_response = client.chat.completions.create(
         model="hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4",
         messages=[{"role": "user", "content": format_sample}]
     )
 
-    llm_output = chat_response.choices[0].message.content
+    output = chat_response.choices[0].message.content
 
-    if "Summary:" in llm_output:
-        llm_output = llm_output.split('Summary:')[1].strip()
+    if "Summary:" in output:
+        summary = output.split('Summary:')[1].strip()
     else:
-        llm_output = "Template not matched."
+        summary = "No match found!!!!"
 
-    instruction = {'text': random.choice(
-        candidate_instructions), 'audio': None, }
-    answer = {'text': llm_output, 'audio': None, }
-
-    new_sample = {
-        'instruction': instruction,
-        'answer': answer,
-        'other_attributes': {'transcription': sample['answer']['text']}
-    }
-
-    return new_sample
+    sample["instruction"]["text"] = random.choice(candidate_instructions)
+    sample["answer"]["text"] = summary
+    sample["other_attributes"]["transcription"] = transcription
+    breakpoint()
+    return sample
 
 
-def filter_fn(example):
-    return example['answer']['text'].strip() not in ['Template not matched.', '']
+for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal/test/ASR',
+                  '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal/train/ASR']:
+
+    for DATASET_NAME in [
+        'IMDA_PART3_30_ASR_v4',
+        'IMDA_PART4_30_ASR_v4',
+        'IMDA_PART5_30_ASR_v4',
+
+        'IMDA_PART3_60_ASR_v4',
+        'IMDA_PART4_60_ASR_v4',
+        'IMDA_PART5_60_ASR_v4',
+
+        'IMDA_PART3_120_ASR_v4',
+        'IMDA_PART4_120_ASR_v4',
+        'IMDA_PART5_120_ASR_v4',
+    ]:
+
+        data = load_from_disk(os.path.join(ROOT_PATH, DATASET_NAME))
+
+        data = data.filter(lambda x: len(x['answer']['text'].strip().split()) > 8,
+                           batch_size        = 1,
+                           writer_batch_size = 1,
+                           num_proc          = 224
+                           )
+    
+        data = data.map(map_fn,
+                        num_proc=224,
+                        batch_size=1,
+                        writer_batch_size=1,
+                        )
+
+        data = data.filter(lambda x: x['answer']['text'].strip() not in ['No match found!!!!', ''],
+                            num_proc=224,
+                            batch_size=1,
+                            writer_batch_size=1,
+                            )
+
+        data.save_to_disk(os.path.join(ROOT_PATH.replace("/ASR", "/DS"), DATASET_NAME.replace("_ASR_","_DS_")), num_proc=2)
 
 
-def ds_generation(split, num_proc=32):
-
-    ds = load_from_disk(split)
-
-    features = ds.features
-    features['other_attributes'] = {"transcription": Value(dtype='string')}
-
-    ds = ds.filter(
-        lambda x: len(x['answer']['text'].strip().split()) > 8,
-        batch_size        = 1,
-        writer_batch_size = 1,
-        num_proc          = num_proc,
-        desc              = "filter",
-    )
-
-    ds = ds.map(
-        map_fn,
-        features          = features,
-        batched           = False,
-        batch_size        = 1,
-        writer_batch_size = 1,
-        num_proc          = num_proc,
-        desc              = "DS Generation",
-    )
-
-    ds = ds.filter(
-        filter_fn,
-        batch_size=1,
-        writer_batch_size=1,
-        num_proc=num_proc,
-        desc="filter",
-    )
-
-    ds.save_to_disk(split.replace("ASR", "DS"), num_proc=4)
-
-
-def main(pattern):
-    splits = glob(pattern)
-    splits.sort()
-    for split in splits:
-        if os.path.exists(split.replace("ASR", "DS")):
-            print("complete {}".format(split), flush=True)
-            continue
-        print("start {}".format(split), flush=True)
-        ds_generation(split)
-        print("complete {}".format(split), flush=True)
-
-
-if __name__ == '__main__':
-    fire.Fire(main)

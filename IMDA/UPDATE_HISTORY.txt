@@ -1,0 +1,13 @@
+Updates:
+
+V1.0	22 Nov 2018: First Version of National Speech Corpus (Singapore English)
+V1.1	16 Apr 2019: First Version of Lexicon (Singapore English)
+V2.0	16 Sep 2019: Added Conversational Data (Part 3) and updated Lexicon
+V2.01	23 Oct 2019: Added more data to Part 1, updated Part 3 transcripts, updated Lexicon
+V2.02	18 Nov 2019: Improved Part 3 Transcripts
+V2.03   09 Jan 2020: Improved Part 3 Transcripts, Corrected formatting errors of transcripts
+V2.04   03 Mar 2020: Improved Part 3 Transcripts, Corrected formatting errors of transcripts
+V2.05   22 Oct 2020: Added Conversational Data (Part 4). Improved Part 3 Transcripts, Corrected formatting errors of transcripts.
+V2.06   15 April 2021: Part 4 removed and moved to a separate folder. Link provided. 
+V2.07	31 May 2021: Parts 5 and 6 added
+V2.08	17 June 2021: Corrected inconsistencies in file namings. 

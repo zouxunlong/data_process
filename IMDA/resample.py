@@ -5,11 +5,6 @@ import librosa
 import soundfile as sf
 
 
-def get_key(path):
-    elements = path.split("/")[-1].replace("-", "_").split("_")
-    return elements[1]+"_"+elements[-1]
-
-
 def resample(audio_file):
 
     array, sr = sf.read(audio_file)
@@ -20,9 +15,10 @@ def resample(audio_file):
         array = librosa.resample(array, orig_sr=sr, target_sr=16000, res_type="kaiser_best")
         sf.write(audio_file, array, 16000)
 
-        print("resampled {}".format(audio_file.split("/")[-1]), flush=True)
+        print("complete resample {}".format(audio_file.split("/")[-1]), flush=True)
 
     else:
+        print("no need to resample {}".format(audio_file.split("/")[-1]), flush=True)
         return
 
 
@@ -45,7 +41,7 @@ if __name__ == "__main__":
     import time
     print(os.getpid(), flush=True)
     start=time.time()
-    re_sampling()
+    resample("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART5/_error/app_4118_6236_phnd_deb-3.wav")
     print("complete", flush=True)
     print("------take {} seconds---".format(time.time()-start), flush=True)
 

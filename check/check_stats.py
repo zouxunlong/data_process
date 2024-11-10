@@ -2,7 +2,6 @@ import json
 from datasets import load_from_disk
 import fire
 import os
-
 import pandas as pd
 
 
@@ -11,11 +10,11 @@ def get_all_split(ds_path):
     for dirpath, dirs, files in os.walk(ds_path):
         if len(dirs) == 0:
             directories.append(dirpath)
-    directories.sort()
+    directories.sort(reverse=True)
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 16):
+def check_data(hf_folder: str, num_worker: int = 224):
 
     def map_fn(example):
         return {"audio_length": len(example["context"]["audio"]["array"])/16000}
@@ -76,5 +75,4 @@ def check_data(hf_folder: str, num_worker: int = 16):
 
 
 if __name__ == "__main__":
-    fire.Fire(check_data("/mnt/data/all_datasets/datasets_hf_array"))
-    fire.Fire(check_data("/mnt/data/all_datasets/datasets_hf_bytes"))
+    fire.Fire(check_data)
