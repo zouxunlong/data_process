@@ -39,21 +39,21 @@ def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task):
 def convert_to_mds(args) -> None:
     dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro = args
 
-    dataset                      = load_from_disk(dataset_path)
+    dataset                      = load_from_disk(dataset_path).select(range(start_sample_idx, end_sample_idx))
     features                     = dataset.features
-    features['context']['audio'] = Audio(sampling_rate=16000, mono=True, decode=False, id=None)
+    features['context']['audio'] = Audio(sampling_rate=16000, decode=False)
     dataset                      = dataset.cast(features=features, num_proc=num_pro)
 
 
     # A dictionary of input fields to an Encoder/Decoder type
     columns = {
-        "context_text": "str",
-        "context_audio": "bytes",
-        "instruction_text": "str",
+        "context_text"     : "str",
+        "context_audio"    : "bytes",
+        "instruction_text" : "str",
         "instruction_audio": "bytes",
-        "answer_text": "str",
-        "answer_audio": "bytes",
-        "task": "str"
+        "answer_text"      : "str",
+        "answer_audio"     : "bytes",
+        "task"             : "str"
     }
 
     with MDSWriter(
@@ -63,33 +63,34 @@ def convert_to_mds(args) -> None:
         size_limit=1024*1024*500,
     ) as out:
 
-        for sample in tqdm(dataset.select(range(start_sample_idx, end_sample_idx))):
+        for sample in tqdm(dataset):
             try:
                 out.write(
                     {
-                        "context_text": get_text(sample["context"]["text"]),
-                        "context_audio": get_bytes(sample["context"]["audio"]),
-                        "instruction_text": get_text(sample["instruction"]["text"]),
+                        "context_text"     : get_text(sample["context"]["text"]),
+                        "context_audio"    : get_bytes(sample["context"]["audio"]),
+                        "instruction_text" : get_text(sample["instruction"]["text"]),
                         "instruction_audio": get_bytes(sample["instruction"]["audio"]),
-                        "answer_text": get_text(sample["answer"]["text"]),
-                        "answer_audio": get_bytes(sample["answer"]["audio"]),
-                        "task":task
+                        "answer_text"      : get_text(sample["answer"]["text"]),
+                        "answer_audio"     : get_bytes(sample["answer"]["audio"]),
+                        "task"             : task
                     }
                 )
             except:
                 pass
 
 
-def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_multimodal", output_dir="/scratch/users/astar/ares/zoux/datasets/datasets_mosaic_bytes/datasets_multimodal"):
-    
+def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes", output_dir="/scratch/users/astar/ares/zoux/datasets/datasets_mosaic_bytes"):
+
     start_time = time.time()
     num_pro    = 16
 
-    dataset_path_all  = get_all_split(intput_dir)
-    dataset_path_all.sort(reverse=True)
+    dataset_paths  = get_all_split(intput_dir)
+    dataset_paths = [path for path in dataset_paths if path.split('/')[-3] in ["test", "train"]]
+    dataset_paths.sort(reverse=True)
     
 
-    for dataset_path in dataset_path_all:
+    for dataset_path in dataset_paths:
         dataset_output_path = dataset_path.replace(intput_dir, output_dir)
         
         if os.path.exists(dataset_output_path):
@@ -99,15 +100,14 @@ def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/d
         print('Converting {}'.format(dataset_path), flush=True)
         os.makedirs(dataset_output_path, exist_ok=True)
     
-        dataset                      = load_from_disk(dataset_path)
-        dataset_length               = len(dataset)
+        dataset        = load_from_disk(dataset_path)
+        dataset_length = len(dataset)
 
-
-        task                         = dataset_path.split('/')[-2]
-        arg_tuples                   = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
+        task       = dataset_path.split('/')[-2]
+        arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
 
         with Pool(processes=num_pro) as pool:
-            for count in pool.imap(convert_to_mds, arg_tuples):
+            for count in pool.imap_unordered(convert_to_mds, arg_tuples):
                 pass 
         merge_index(dataset_output_path, keep_local=True)
 
