@@ -60,13 +60,13 @@ def check_data(hf_folder: str, num_worker: int = 224):
     ds_stats = json.load(open(os.path.join(hf_folder, 'ds_stats.json')))
     dfList=[]
     for key, value in ds_stats.items():
-        _, mnt, data, all_datasets, datasets_hf_bytes, datasets_multimodal, other_prepared, TASK, DATASET_SPLIT= key.split("/")
+        _, mnt, data, all_datasets, datasets, datasets_hf_bytes, datasets_multimodal, other_prepared, TASK, DATASET_SPLIT= key.split("/")
 
         num_of_samples= value['num_of_samples']
         total_audio_hours= value['total_audio_hours']
         max_audio_seconds= value['max_audio_seconds']
         min_audio_seconds= value['min_audio_seconds']
-        path= f"/{mnt}/{data}/{all_datasets}/{datasets_hf_bytes}/{datasets_multimodal}/{other_prepared}/{TASK}/{DATASET_SPLIT}"
+        path= f"/{mnt}/{data}/{all_datasets}/{datasets}/{datasets_hf_bytes}/{datasets_multimodal}/{other_prepared}/{TASK}/{DATASET_SPLIT}"
 
         dfList.append([other_prepared, TASK, DATASET_SPLIT, total_audio_hours, max_audio_seconds, min_audio_seconds, num_of_samples, path])
     df_new =  pd.DataFrame(dfList)
