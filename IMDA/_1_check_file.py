@@ -1,5 +1,6 @@
 from collections import defaultdict
-import os,json
+import os
+import json
 import re
 import textgrid
 from fire import Fire
@@ -7,6 +8,7 @@ import logging
 import soundfile as sf
 from tqdm import tqdm
 from multiprocessing import Pool
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
@@ -21,11 +23,12 @@ def check_part3_filename():
         r'^\d{4}\.wav$'
     ]
 
-    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3"):
+    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3"):
         for file in files:
+            if "NFA_output" in root:
+                continue
             if not any([re.fullmatch(pattern, file) for pattern in patterns]):
                 logging.error(file)
-
 
 def check_part4_filename():
 
@@ -37,24 +40,27 @@ def check_part4_filename():
         r'^\d{4}\.wav$'
     ]
 
-    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART4"):
+    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"):
         for file in files:
+            if "NFA_output" in root:
+                continue
             if not any([re.fullmatch(pattern, file) for pattern in patterns]):
                 logging.error(file)
-
 
 def check_part5_filename():
 
     patterns = [
         r'^app_\d{4}_\d{4}_phnd_deb-(1|2|3)\.(wav|TextGrid)$',
         r'^app_\d{4}_\d{4}_phnd_(fin|neg|pos)\.(wav|TextGrid)$',
+        r'^\d{4}_(neg|pos|fin|deb-1|deb-2|deb-3)\.wav$'
     ]
 
-    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART5"):
+    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5"):
         for file in files:
+            if "NFA_output" in root:
+                continue
             if not any([re.fullmatch(pattern, file) for pattern in patterns]):
                 logging.error(file)
-
 
 def check_part6_filename():
 
@@ -65,23 +71,14 @@ def check_part6_filename():
         r'^app_\d{4}_\d{4}_phnd_cc-(bnk|ins|tel)\.TextGrid$',
         r'^app_\d{4}_\d{4}_phnd_cc-(hdb|moe|msf)\.wav$',
         r'^app_\d{4}_\d{4}_phnd_cc-(hdb|moe|msf)\.TextGrid$',
+        r'^\d{4}_(hot|hol|res|msf|moe|tel|ins|bnk|hdb)\.wav$'
     ]
 
-    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6"):
+    for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"):
         for file in files:
-            if re.fullmatch(patterns[0], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_1/Audio", file))
-            elif re.fullmatch(patterns[1], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_1/Scripts", file))
-            elif re.fullmatch(patterns[2], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_2/Audio", file))
-            elif re.fullmatch(patterns[3], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_2/Scripts", file))
-            elif re.fullmatch(patterns[4], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_3/Audio", file))
-            elif re.fullmatch(patterns[5], file):
-                os.rename(os.path.join(root, file), os.path.join("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/Call_Centre_Design_3/Scripts", file))
-            else:
+            if "NFA_output" in root:
+                continue
+            if not any([re.fullmatch(pattern, file) for pattern in patterns]):
                 logging.error(file)
 
 
@@ -93,162 +90,223 @@ def get_length(file):
         except Exception as e:
             logging.error(f"Error in {file}")
             logging.error(e)
-            open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/erorr_files.log", "a", encoding="utf-8").write(file+"\n")
-            duration=0
+            open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/erorr_files.log",
+                 "a", encoding="utf-8").write(file+"\n")
+            duration = 0
 
     elif file.endswith(".wav"):
         array, sr = sf.read(file)
-        duration=len(array)/sr
+        duration = len(array)/sr
     else:
-        duration=0
-    return {os.path.basename(file):duration}
+        duration = 0
+    return {os.path.basename(file): duration}
 
 
 def get_part3_time(workers=200):
     with Pool(processes=workers) as pool:
-        duration_dict=defaultdict(dict)
-        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3"):
-            dir= os.path.basename(root)
-            params=[(os.path.join(root, file)) for file in files]
-            results=list(tqdm(pool.imap(get_length, params), total=len(params)))
+        duration_dict = defaultdict(dict)
+        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3"):
+            dir = os.path.basename(root)
+            params = [(os.path.join(root, file)) for file in files]
+            results = list(
+                tqdm(pool.imap(get_length, params), total=len(params)))
             for result in results:
                 duration_dict[dir].update(result)
-        json.dump(duration_dict, 
-                open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/duration_dict.json", "w"),
-                ensure_ascii=False, indent=4)
-
+        json.dump(duration_dict,
+                  open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/duration_dict.json", "w"),
+                  ensure_ascii=False, indent=4)
 
 def get_part4_time(workers=200):
     with Pool(processes=workers) as pool:
-        duration_dict=defaultdict(dict)
-        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART4"):
-            dir= os.path.basename(root)
-            params=[(os.path.join(root, file)) for file in files]
-            results=list(tqdm(pool.imap(get_length, params), total=len(params)))
+        duration_dict = defaultdict(dict)
+        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"):
+            dir = os.path.basename(root)
+            params = [(os.path.join(root, file)) for file in files]
+            results = list(
+                tqdm(pool.imap(get_length, params), total=len(params)))
             for result in results:
                 duration_dict[dir].update(result)
-        json.dump(duration_dict, 
-                open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART4/duration_dict.json", "w"),
-                ensure_ascii=False, indent=4)
-
+        json.dump(duration_dict,
+                  open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/duration_dict.json", "w"),
+                  ensure_ascii=False, indent=4)
 
 def get_part5_time(workers=200):
     with Pool(processes=workers) as pool:
-        duration_dict=defaultdict(dict)
-        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART5"):
-            dir= os.path.basename(root)
-            params=[(os.path.join(root, file)) for file in files]
-            results=list(tqdm(pool.imap(get_length, params), total=len(params)))
+        duration_dict = defaultdict(dict)
+        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5"):
+            dir = os.path.basename(root)
+            params = [(os.path.join(root, file)) for file in files]
+            results = list(
+                tqdm(pool.imap(get_length, params), total=len(params)))
             for result in results:
                 duration_dict[dir].update(result)
-        json.dump(duration_dict, 
-                open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART5/duration_dict.json", "w"),
-                ensure_ascii=False, indent=4)
-
+        json.dump(duration_dict,
+                  open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/duration_dict.json", "w"),
+                  ensure_ascii=False, indent=4)
 
 def get_part6_time(workers=200):
     with Pool(processes=workers) as pool:
-        duration_dict=defaultdict(dict)
-        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6"):
-            dir= os.path.basename(root)
-            params=[(os.path.join(root, file)) for file in files]
-            results=list(tqdm(pool.imap(get_length, params), total=len(params)))
+        duration_dict = defaultdict(dict)
+        for root, dirs, files in os.walk("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"):
+            dir = os.path.basename(root)
+            params = [(os.path.join(root, file)) for file in files]
+            results = list(
+                tqdm(pool.imap(get_length, params), total=len(params)))
             for result in results:
                 duration_dict[dir].update(result)
-        json.dump(duration_dict, 
-                open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/duration_dict.json", "w"),
-                ensure_ascii=False, indent=4)
+        json.dump(duration_dict,
+                  open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/duration_dict.json", "w"),
+                  ensure_ascii=False, indent=4)
 
 
 def check_part3_time():
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
-    total_same=0
-    error_same=0
-    for wav, wav_time in duration_dict["Audio_Same_BoundaryMic"].items():
-        total_same+=1
-        script_time1=duration_dict["Scripts_Same"][wav.split(".")[0]+"-1"+".TextGrid"]
-        script_time2=duration_dict["Scripts_Same"][wav.split(".")[0]+"-2"+".TextGrid"]
-        if abs(wav_time-script_time1)>0.1 or abs(wav_time-script_time2)>0.1:
-            logging.error(f"wav:{wav}, wav_time:{wav_time}, script_time1:{script_time1}, script_time2:{script_time2}")
-            error_same+=1
+    
+    errors        = []
+    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3"
+    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
+    
+    total_Same_BoundaryMic = 0
+    error_Same_BoundaryMic = 0
+    for script, script_time in duration_dict["Scripts_Same"].items():
+        total_Same_BoundaryMic += 1
+        wav_time = duration_dict["Audio_Same_BoundaryMic"][script.split("-")[0] + ".wav"]
+        if abs(script_time-wav_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts_Same", script)
+            wav_file = os.path.join(f"{root}/Audio_Same_BoundaryMic", script.split("-")[0] + ".wav")
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error_Same_BoundaryMic += 1
 
-    total_diff=0
-    error_diff=0
+    total_Same_CloseMic = 0
+    error_Same_CloseMic = 0
+    for script, script_time in duration_dict["Scripts_Same"].items():
+        total_Same_CloseMic += 1
+        wav_time = duration_dict["Audio_Same_CloseMic"][script.replace(".TextGrid", ".wav")]
+        if abs(script_time-wav_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts_Same", script)
+            wav_file = os.path.join(f"{root}/Audio_Same_CloseMic", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error_Same_CloseMic += 1
+
+    total_Separate_StandingMic = 0
+    error_Separate_StandingMic = 0
     for script, script_time in duration_dict["Scripts_Separate"].items():
-        total_diff+=1
-        if script.split("_")[1] in [key.split(".")[0] for key in duration_dict["Audio_separate_mixed"].keys()]:
-            wav_time=duration_dict["Audio_separate_mixed"][script.split("_")[1]+".wav"]
-        else:
-            wav_time=duration_dict["Audio_Separate_StandingMic"][script.split(".")[0]+".wav"]
-        if abs(script_time-wav_time)>0.1:
-            logging.error(f"script: {script}, script_time: {script_time}, StandingMic: {wav_time}")
-            error_diff+=1
-    logging.error(f"PART3:")
-    logging.error(f"same_room: {total_same}, error: {error_same}")
-    logging.error(f"diff_rrom: {total_diff}, error: {error_diff}")
+        total_Separate_StandingMic += 1
+        wav_time = duration_dict["Audio_Separate_StandingMic"][script.replace(".TextGrid", ".wav")]
+        if abs(script_time-wav_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts_Separate", script)
+            wav_file = os.path.join(f"{root}/Audio_Separate_StandingMic", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error_Separate_StandingMic += 1
 
+    total_Separate_IVR = 0
+    error_Separate_IVR = 0
+    for script, script_time in duration_dict["Scripts_Separate"].items():
+        total_Separate_IVR += 1
+        wav_time = duration_dict["Audio_Separate_IVR"][script.replace(".TextGrid", ".wav")]
+        if abs(script_time-wav_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts_Separate", script)
+            wav_file = os.path.join(f"{root}/Audio_Separate_IVR", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error_Separate_IVR += 1
+
+    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+        for err in errors:
+            f.write(json.dumps(err, ensure_ascii=False)+"\n")
+
+    logging.error(f"PART3:")
+    logging.error(f"total_Same_BoundaryMic:     {total_Same_BoundaryMic}, error_Same_BoundaryMic:     {error_Same_BoundaryMic}")
+    logging.error(f"total_Same_CloseMic:        {total_Same_CloseMic}, error_Same_CloseMic:        {error_Same_CloseMic}")
+    logging.error(f"total_Separate_StandingMic: {total_Separate_StandingMic}, error_Separate_StandingMic: {error_Separate_StandingMic}")
+    logging.error(f"total_Separate_IVR:         {total_Separate_IVR}, error_Separate_IVR:         {error_Separate_IVR}")
 
 def check_part4_time():
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART4/duration_dict.json", "r", encoding="utf-8"))
-    total=0
-    error=0
+    
+    errors        = []
+    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"
+    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
+
+    total = 0
+    error = 0
     for script, script_time in duration_dict["Scripts"].items():
-        total+=1
-        wav_time=duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        if abs(wav_time-script_time)>0.1:
-            # logging.error(f"script: {script}, script_time/wav_time:{script_time}/{wav_time}")
-            error+=1
+        total += 1
+        wav_time = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+        if abs(wav_time-script_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts", script)
+            wav_file = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error += 1
+
+    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+        for err in errors:
+            f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART4:")
     logging.error(f"total: {total}, error: {error}")
 
-
 def check_part5_time():
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART5/duration_dict.json", "r", encoding="utf-8"))
-    total=0
-    error=0
+
+    errors        = []
+    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5"
+    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
+
+    total = 0
+    error = 0
     for script, script_time in duration_dict["Scripts"].items():
-        total+=1
-        wav_time=duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        if abs(wav_time-script_time)>0.1:
-            # logging.error(f"script:{script}, script_time/wav_time:{script_time}/{wav_time}")
-            error+=1
+        total += 1
+        wav_time = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+        if abs(wav_time-script_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts", script)
+            wav_file = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error += 1
+
+    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+        for err in errors:
+            f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART5:")
     logging.error(f"total: {total}, error: {error}")
 
-
 def check_part6_time():
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART6/duration_dict.json", "r", encoding="utf-8"))
-    total=0
-    error=0
+
+    errors        = []
+    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
+    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
+
+    total = 0
+    error = 0
     for script, script_time in duration_dict["Scripts"].items():
-        total+=1
-        wav_time=duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        if abs(wav_time-script_time)>0.1:
-            # logging.error(f"script:{script}, script_time/wav_time:{script_time}/{wav_time}")
-            error+=1
+        total += 1
+        wav_time = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+        if abs(wav_time-script_time) > 0.1:
+            script_file = os.path.join(f"{root}/Scripts", script)
+            wav_file = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
+            error += 1
+
+    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+        for err in errors:
+            f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART6:")
     logging.error(f"total: {total}, error: {error}")
 
 
 def try_fix():
-    lines=open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/erorr_files.log", "r", encoding="utf-8").readlines()
+    lines = open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/erorr_files.log",
+                 "r", encoding="utf-8").readlines()
     for line in lines:
-        file=line.strip()
+        file = line.strip()
         transcriptions = textgrid.TextGrid.fromFile(file)
         print(file)
 
 
 def main():
-    get_part3_time()
-    get_part4_time()
-    get_part5_time()
     get_part6_time()
 
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     logging.error(f"Script executed starts")
     Fire(main)
     logging.error(f"Script executed ends")

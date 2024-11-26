@@ -6,7 +6,6 @@
 
 export HF_ENDPOINT=https://hf-mirror.com
 export HF_HOME=~/scratch/huggingface
-
 export CUDA_VISIBLE_DEVICES=0
 
 

@@ -76,14 +76,13 @@ def mix_part3():
     def get_key(path):
         return path.split("/")[-1].split("_")[1]
 
-    root_out="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/Audio_separate_mixed"
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
+    root_out      = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Separate_mixed"
+    duration_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
 
-
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/Audio_Separate_StandingMic"
+    root      = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Separate_StandingMic"
     wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
     wav_files.sort()
-    
+
     for key, value in groupby(wav_files, key=get_key):
         if os.path.exists(os.path.join(root_out, f"{key}.wav")):
             continue
@@ -98,10 +97,10 @@ def mix_part3():
         if abs(wav_time1-wav_time2)<0.1:
             logging.info(f"{int(wav_time1)}:{int(script_time1)}, {int(wav_time2)}:{int(script_time2)}")
             mix_wav([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav"))
+        else:
+            logging.error(f"StandingMic {key} || audio_file1:{int(wav_time1)}:{int(script_time1)}, audio_file2: {int(wav_time2)}:{int(script_time2)}")
 
-
-
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/Audio_Separate_IVR"
+    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Separate_IVR"
     wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
     wav_files.sort()
 
@@ -119,6 +118,8 @@ def mix_part3():
         if abs(wav_time1-wav_time2)<0.1:
             logging.info(f"{int(wav_time1)}:{int(script_time1)}, {int(wav_time2)}:{int(script_time2)}")
             mix_wav([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav"))
+        else:
+            logging.error(f"IVR {key} || audio_file1:{int(wav_time1)}:{int(script_time1)}, audio_file2: {int(wav_time2)}:{int(script_time2)}")
 
 
 def mix_part4():
@@ -219,12 +220,12 @@ def mix_part6():
 def main():
     logging.info(f"Start part3")
     mix_part3()
-    logging.info(f"Start part4")
-    mix_part4()
-    logging.info(f"Start part5")
-    mix_part5()
-    logging.info(f"Start part6")
-    mix_part6()
+    # logging.info(f"Start part4")
+    # mix_part4()
+    # logging.info(f"Start part5")
+    # mix_part5()
+    # logging.info(f"Start part6")
+    # mix_part6()
 
 
 if __name__=="__main__":

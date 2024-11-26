@@ -16,9 +16,8 @@ instructions_asr = [
 
 def normalize_sentence(sentence):
     sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
-    sentence = re.sub('(^|\s)<[a-zA-Z0-9]*>($|\s)', " ", sentence)
+    sentence = re.sub('(^|\s)<[a-zA-Z0-9/]*>($|\s)', " ", sentence)
     sentence = re.sub('(^|\s)(\(ppb\)|\(ppc\)|\(ppl\)|\(ppo\))($|\s)', " ", sentence)
-    sentence = re.sub('(^|\s)<[A-Z0-9]*/>($|\s)', " ", sentence)
     sentence = " ".join(re.sub('_', "", sentence).split()).strip()
     return sentence
 
@@ -214,10 +213,10 @@ def chunk(split, chunk_limit, workers=112):
 def main(
     chunk_limit,
     splits=[
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART3",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART4",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART5",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART6"
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART3",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART4",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART5",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART6"
     ]):
     for split in splits:
         chunk(split=split, chunk_limit=chunk_limit)

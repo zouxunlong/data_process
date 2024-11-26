@@ -73,11 +73,17 @@ def split_test(split):
     print("start {}".format(split), flush=True)
     partition = split.split("/")[-1]
     ds        = load_from_disk(split)
+    print(ds, flush=True)
+    breakpoint()
+
 
     transcriptions          = ds.unique("transcription")
+    print(f"unique transcriptions: {len(transcriptions)}", flush=True)
+    
     selected_transcriptions = random.sample(transcriptions, 1000)
 
     ds_test=ds.filter(lambda x: [transcription in selected_transcriptions for transcription in x["transcription"]], batched=True, batch_size=1000, writer_batch_size=1000, num_proc=112)
+
     num_dict=defaultdict(int)
     ids2remove=[]
     for i, trans in enumerate(ds_test["transcription"]):
@@ -87,16 +93,16 @@ def split_test(split):
             ids2remove.append(i)
     ds_test=ds_test.select([i for i in range(len(ds_test)) if i not in ids2remove])
     ds_test=map2schema(ds_test)
-    ds_test.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF_ASR/test/{partition}")
+    ds_test.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/{partition}")
 
     ds_train=ds.filter(lambda x: [transcription not in selected_transcriptions for transcription in x["transcription"]], batched=True, batch_size=1000, writer_batch_size=1000, num_proc=112)
     ds_train=map2schema(ds_train)
-    ds_train.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF_ASR/train/{partition}")
+    ds_train.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/{partition}")
 
 
 def main(splits=[
-    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART1",
-    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART2"
+    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART1",
+    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART2"
 ]):
     for split in splits:
         split_test(split)

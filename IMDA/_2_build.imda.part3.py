@@ -6,13 +6,12 @@ import fire
 import textgrid
 import os
 from glob import glob
-
 from tqdm import tqdm
 
 
 def get_item(args):
     conversation_id, audio_file, script_file1, script_file2, speaker_metadata_1, speaker_metadata_2, setting, partition = args
-    
+
     textgrid_1 = textgrid.TextGrid.fromFile(script_file1)
     transcription_1 = [{"start": interval.minTime, "end": interval.maxTime,"sentence": interval.mark, } for interval in textgrid_1[0]]
     textgrid_2 = textgrid.TextGrid.fromFile(script_file2)
@@ -44,7 +43,6 @@ def main(workers=20):
 
     wav_same = glob(os.path.join(root, 'Audio_Same_BoundaryMic', '*.wav'), recursive=True)
     wav_separate = glob(os.path.join(root, 'Audio_Separate_mixed',  '*.wav'), recursive=True)
-
 
     params = []
     for wav in sorted(wav_same):
@@ -78,7 +76,6 @@ def main(workers=20):
                            speaker_metadata_dict["separate_room"][scripts_names[1][15:23]],
                            "separate_room",
                            "PART3"))
-
 
     with Pool(processes=workers) as pool:
 

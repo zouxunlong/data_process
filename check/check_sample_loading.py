@@ -29,7 +29,7 @@ def do_check(ds_path, num_proc=32):
         ds_filtered.save_to_disk(f"{ds_path}_filtered", num_proc=4)
         shutil.rmtree(ds_path)
         os.rename(f"{ds_path}_filtered", ds_path)
-        print(f"complete checking {ds_path} {N-len(ds_filtered)}error found and filtered", flush=True)
+        print(f"=========================================== {ds_path} {N-len(ds_filtered)} error found and filtered", flush=True)
     else:
         print(f"complete checking {ds_path}", flush=True)
 
