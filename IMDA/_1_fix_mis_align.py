@@ -132,7 +132,8 @@ def generate_txt_png(args):
     return json.dumps(item, ensure_ascii=False)
 
 
-for part in ["PART6", "PART5", "PART4", "PART3"]:
+# for part in ["PART6", "PART5", "PART4", "PART3"]:
+for part in ["PART4"]:
 
     print(f"start {part}", flush=True)
     lines = open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions.jsonl").readlines()

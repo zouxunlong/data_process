@@ -130,22 +130,21 @@ def generate_txt_png(args):
 
 
 
-for part in ["PART6", "PART5", "PART4", "PART3"]:
+# for part in ["PART6", "PART5", "PART4", "PART3"]:
+for part in ["PART4"]:
 
     print(f"start {part}", flush=True)
     lines = open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions.jsonl").readlines()
-    for line in lines:
-        if "app_0219_3438_phnd_cc-hot" in line:        
-            generate_txt_png((part, json.loads(line)))
-    # with Pool(processes=32) as pool:
-    #     params = [(part, json.loads(line)) for line in lines]
-    #     results = list(tqdm(pool.imap_unordered(generate_txt_png, params), total=len(params)))
 
-    # with open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions_and_shift.jsonl", "w", encoding="utf-8") as f:
-    #     for result in results:
-    #         f.write(result+"\n")
+    with Pool(processes=32) as pool:
+        params = [(part, json.loads(line)) for line in lines]
+        results = list(tqdm(pool.imap_unordered(generate_txt_png, params), total=len(params)))
 
-    # print(f"complete {part}", flush=True)
+    with open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions_and_shift.jsonl", "w", encoding="utf-8") as f:
+        for result in results:
+            f.write(result+"\n")
+
+    print(f"complete {part}", flush=True)
 
 
 

@@ -128,7 +128,7 @@ def fetch_speaker_metadata_part4():
 
     speaker_dict = {}
     
-    df = pd.read_excel("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/Part_4_Speaker_Metadata.xlsx", dtype=str)
+    df = pd.read_excel("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/Part_4_Speaker_Metadata.xlsx", dtype=str)
     for i, values in enumerate(tqdm(df.fillna('Unknown').loc[0:].values)):
         session_id               = values[0].strip().capitalize()
         speaker_id               = values[1].strip().capitalize()
@@ -157,7 +157,7 @@ def fetch_speaker_metadata_part4():
             "partner_relationship": partner_relationship,
         }
     logging.info('PART4 Num of speakers = {}'.format(len(speaker_dict)))
-    json.dump(speaker_dict, open("speaker_metadata_part4.json", "w"), ensure_ascii=False, indent=4)
+    json.dump(speaker_dict, open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/speaker_metadata_part4.json", "w"), ensure_ascii=False, indent=4)
     return speaker_dict
 
 
@@ -246,11 +246,8 @@ def fetch_speaker_metadata_part5():
 
 def main():
 
-    fetch_speaker_metadata_part1()
-    fetch_speaker_metadata_part2()
-    fetch_speaker_metadata_part3()
     fetch_speaker_metadata_part4()
-    fetch_speaker_metadata_part5()
+
 
 
 if __name__=="__main__":

@@ -17,7 +17,6 @@ def map_fn(example):
     fname=tempfile.NamedTemporaryFile(suffix=".opus").name
     sf.write(fname, audio_array, 16000, format='OGG', subtype='OPUS')
     example["context"]["audio"]={"bytes": open(fname, "rb").read()}
-
     return example
 
 def convert(split, num_proc, dir):

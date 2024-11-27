@@ -20,7 +20,6 @@ def normalize_sentence(sentence):
 root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw"
 for part in ["PART3", "PART4", "PART5", "PART6"]:
 
-
    lines = open(f"{root}/{part}/erorr_files.jsonl").readlines()
 
    manifests = []
@@ -34,12 +33,6 @@ for part in ["PART3", "PART4", "PART5", "PART6"]:
       if text:
          manifests.append({"audio_filepath": item["wav_file"], "text": text})
          manifests_with_transcriptions.append({"audio_filepath": item["wav_file"], "text": text, "transcriptions": transcriptions})
-
-
-   # if os.path.exists(f"{root}/{part}/NFA_output/ctm/segments"):
-   #    file_to_filer=[file.replace(".ctm", ".wav") for file in os.listdir(f"{root}/{part}/NFA_output/ctm/segments") if file.endswith(".ctm") and not file.endswith("_compared.ctm")]
-   # else:
-   #    file_to_filer=[]
       
    file_to_filer=[]
 

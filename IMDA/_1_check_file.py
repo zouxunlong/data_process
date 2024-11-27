@@ -302,8 +302,7 @@ def try_fix():
 
 
 def main():
-    get_part6_time()
-
+    check_part4_time()
 
 
 if __name__ == "__main__":
