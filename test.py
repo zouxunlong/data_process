@@ -16,15 +16,14 @@ import os
 #             break
 #     print(f"{dir}: {len(instructions)}", flush=True)
 
-dirs=os.listdir("/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_multimodal/train/ASR")
+dirs=os.listdir("/mnt/data/all_datasets/backup/ASR_new")
 for dir in dirs:
-    # ds=load_from_disk(f"/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_multimodal/train/ASR/{dir}").select(range(5))
-    ds=load_from_disk(f"/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_multimodal/train/ASR/common_voice_17_en_ASR_v3").select(range(5))
-    for item in ds:
-        print(f"================{dir}=================", flush=True)
-        print(item["instruction"]["text"], flush=True)
-        print(item["answer"]["text"], flush=True)
-    print("===============================================================", flush=True)
-    print("===============================================================", flush=True)
-    break
+    os.rename
+
+
+
+# IMDA_PART4_ASR_v4
+# IMDA_PART5_ASR_v4
+# IMDA_PART3_ASR_v4
+# IMDA_PART6_ASR_v4
 
