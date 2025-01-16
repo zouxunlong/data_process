@@ -160,67 +160,44 @@ def get_part6_time(workers=200):
 
 
 def check_part3_time():
-    
+
     errors        = []
     root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3"
     duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
-    
-    total_Same_BoundaryMic = 0
-    error_Same_BoundaryMic = 0
+
+    total_Same = 0
+    error_Same = 0
     for script, script_time in duration_dict["Scripts_Same"].items():
-        total_Same_BoundaryMic += 1
-        wav_time = duration_dict["Audio_Same_BoundaryMic"][script.split("-")[0] + ".wav"]
+        total_Same += 1
+        wav_time = duration_dict["Audio_Same"][script.split("-")[0] + ".wav"]
         if abs(script_time-wav_time) > 0.1:
             script_file = os.path.join(f"{root}/Scripts_Same", script)
-            wav_file = os.path.join(f"{root}/Audio_Same_BoundaryMic", script.split("-")[0] + ".wav")
+            wav_file = os.path.join(f"{root}/Audio_Same", script.split("-")[0] + ".wav")
             errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
-            error_Same_BoundaryMic += 1
+            error_Same += 1
 
-    total_Same_CloseMic = 0
-    error_Same_CloseMic = 0
-    for script, script_time in duration_dict["Scripts_Same"].items():
-        total_Same_CloseMic += 1
-        wav_time = duration_dict["Audio_Same_CloseMic"][script.replace(".TextGrid", ".wav")]
-        if abs(script_time-wav_time) > 0.1:
-            script_file = os.path.join(f"{root}/Scripts_Same", script)
-            wav_file = os.path.join(f"{root}/Audio_Same_CloseMic", script.replace(".TextGrid", ".wav"))
-            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
-            error_Same_CloseMic += 1
-
-    total_Separate_StandingMic = 0
-    error_Separate_StandingMic = 0
+    total_Separate = 0
+    error_Separate = 0
     for script, script_time in duration_dict["Scripts_Separate"].items():
-        total_Separate_StandingMic += 1
-        wav_time = duration_dict["Audio_Separate_StandingMic"][script.replace(".TextGrid", ".wav")]
+        total_Separate += 1
+        wav_time = duration_dict["Audio_Separate"][script.replace(".TextGrid", ".wav")]
         if abs(script_time-wav_time) > 0.1:
             script_file = os.path.join(f"{root}/Scripts_Separate", script)
-            wav_file = os.path.join(f"{root}/Audio_Separate_StandingMic", script.replace(".TextGrid", ".wav"))
+            wav_file = os.path.join(f"{root}/Audio_Separate", script.replace(".TextGrid", ".wav"))
             errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
-            error_Separate_StandingMic += 1
+            error_Separate += 1
 
-    total_Separate_IVR = 0
-    error_Separate_IVR = 0
-    for script, script_time in duration_dict["Scripts_Separate"].items():
-        total_Separate_IVR += 1
-        wav_time = duration_dict["Audio_Separate_IVR"][script.replace(".TextGrid", ".wav")]
-        if abs(script_time-wav_time) > 0.1:
-            script_file = os.path.join(f"{root}/Scripts_Separate", script)
-            wav_file = os.path.join(f"{root}/Audio_Separate_IVR", script.replace(".TextGrid", ".wav"))
-            errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
-            error_Separate_IVR += 1
-
-    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+    with open(f"{root}/mis_match.jsonl", "w", encoding="utf-8") as f:
         for err in errors:
             f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART3:")
-    logging.error(f"total_Same_BoundaryMic:     {total_Same_BoundaryMic}, error_Same_BoundaryMic:     {error_Same_BoundaryMic}")
-    logging.error(f"total_Same_CloseMic:        {total_Same_CloseMic}, error_Same_CloseMic:        {error_Same_CloseMic}")
-    logging.error(f"total_Separate_StandingMic: {total_Separate_StandingMic}, error_Separate_StandingMic: {error_Separate_StandingMic}")
-    logging.error(f"total_Separate_IVR:         {total_Separate_IVR}, error_Separate_IVR:         {error_Separate_IVR}")
+    logging.error(f"total_Same:         {total_Same},   error_Same:     {error_Same}")
+    logging.error(f"total_Separate:     {total_Separate},   error_Separate:     {error_Separate}")
+
 
 def check_part4_time():
-    
+
     errors        = []
     root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"
     duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
@@ -228,20 +205,20 @@ def check_part4_time():
     total = 0
     error = 0
     for script, script_time in duration_dict["Scripts"].items():
-        total += 1
-        wav_time = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+        total    += 1
+        wav_time  = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
         if abs(wav_time-script_time) > 0.1:
             script_file = os.path.join(f"{root}/Scripts", script)
-            wav_file = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
             errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
             error += 1
 
-    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+    with open(f"{root}/mis_match.jsonl", "w", encoding="utf-8") as f:
         for err in errors:
             f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART4:")
-    logging.error(f"total: {total}, error: {error}")
+    logging.error(f"total:  {total},    error:  {error}")
 
 def check_part5_time():
 
@@ -260,12 +237,12 @@ def check_part5_time():
             errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
             error += 1
 
-    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+    with open(f"{root}/mis_match.jsonl", "w", encoding="utf-8") as f:
         for err in errors:
             f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART5:")
-    logging.error(f"total: {total}, error: {error}")
+    logging.error(f"total:  {total},    error:  {error}")
 
 def check_part6_time():
 
@@ -276,20 +253,20 @@ def check_part6_time():
     total = 0
     error = 0
     for script, script_time in duration_dict["Scripts"].items():
-        total += 1
-        wav_time = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+        total    += 1
+        wav_time  = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
         if abs(wav_time-script_time) > 0.1:
             script_file = os.path.join(f"{root}/Scripts", script)
-            wav_file = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
             errors.append({"script_time": script_time, "wav_time": wav_time, "script_file": script_file, "wav_file": wav_file})
             error += 1
 
-    with open(f"{root}/erorr_files.jsonl", "w", encoding="utf-8") as f:
+    with open(f"{root}/mis_match.jsonl", "w", encoding="utf-8") as f:
         for err in errors:
             f.write(json.dumps(err, ensure_ascii=False)+"\n")
 
     logging.error(f"PART6:")
-    logging.error(f"total: {total}, error: {error}")
+    logging.error(f"total:  {total},    error:  {error}")
 
 
 def try_fix():
@@ -302,7 +279,16 @@ def try_fix():
 
 
 def main():
+
+    get_part3_time()
+    get_part4_time()
+    get_part5_time()
+    get_part6_time()
+
+    check_part3_time()
     check_part4_time()
+    check_part5_time()
+    check_part6_time()
 
 
 if __name__ == "__main__":

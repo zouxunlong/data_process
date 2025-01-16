@@ -165,6 +165,7 @@ def fetch_speaker_metadata_part5():
 
     speaker_dict = {}
     df_dict = pd.read_excel("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/Part_5_Speaker_Metadata.xlsx", sheet_name=['Main', 'Finance', "Debate"], dtype=str)
+    
     for i, values in enumerate(tqdm(df_dict['Main'].fillna('Unknown').loc[0:].values)):
         speaker_id           = values[1].strip().capitalize()
         age                  = values[3].strip().capitalize()

@@ -1,12 +1,13 @@
 
 
-lines=open('/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/manifest.jsonl').readlines()
 
-batches = 48
+for part in ["PART3", "PART4", "PART5", "PART6"]:
 
-batch_size = len(lines) // batches+1
-
-for i in range(batches):
-    with open(f'/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/manifest_{i}.jsonl', 'w') as f:
-        f.writelines(lines[i*batch_size:(i+1)*batch_size])
+    lines=open(f'/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest.jsonl').readlines()
+    batches = 40
+    batch_size = len(lines) // batches + 1
+    for i in range(batches):
+        if i*batch_size < len(lines):
+            with open(f'/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_{i}.jsonl', 'w') as f:
+                f.writelines(lines[i*batch_size:(i+1)*batch_size])
 

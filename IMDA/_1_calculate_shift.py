@@ -61,38 +61,62 @@ def calculate_offset_without_outliers(diff, segments_filepath):
     data = np.array(filtered_numbers)
 
     # Use Gaussian KDE to estimate the density
-    kde = gaussian_kde(data, bw_method=0.1)
+    kde = gaussian_kde(data, bw_method=0.2)
     x = np.linspace(min(data), max(data), 1000)
     kde_values = kde(x)*50
 
     # Identify the most and second most dense regions
     peaks, _ = find_peaks(kde_values)
-    sorted_peaks = peaks[np.argsort(kde_values[peaks])][-2:]  # Get the indices of the two highest peaks
+    breakpoint()
+    sorted_peaks = peaks[np.argsort(kde_values[peaks])][-3:]  # Get the indices of the two highest peaks
+    breakpoint()
     first_peak = x[sorted_peaks[-1]]
+    breakpoint()
     if len(sorted_peaks) == 2:
         second_peak = x[sorted_peaks[-2]]
+        third_peak = second_peak
+    if len(sorted_peaks) == 3:
+        second_peak = x[sorted_peaks[-2]]
+        third_peak = x[sorted_peaks[-3]]
     else:
         second_peak = first_peak
+        third_peak = first_peak
+    breakpoint()
+    
+    # span=abs(first_peak-second_peak)/3
+    # first_peak_amount   = len([num for num in filtered_numbers if first_peak-span <= num <= first_peak+span])
+    # second_peak_amount  = len([num for num in filtered_numbers if second_peak-span <= num <= second_peak+span])
+    # if first_peak_amount > second_peak_amount * 3 or abs(first_peak-second_peak) < 1:
+    #     numbers = [num for num in filtered_numbers if first_peak-0.3 <= num <= first_peak+0.3]
+    #     if numbers:
+    #         only_peak = np.mean([num for num in filtered_numbers if first_peak-0.3 <= num <= first_peak+0.3])
+    #     else:
+    #         only_peak = first_peak
+    #     first_peak  = only_peak
+    #     second_peak = only_peak
 
-    first_peak_amount   = len([num for num in filtered_numbers if first_peak-1 <= num <= first_peak+1])
-    first_peak_portion  = first_peak_amount / len(filtered_numbers)
-    if first_peak_portion > 0.84:
-        only_peak   = np.mean([num for num in filtered_numbers if first_peak-0.5 <= num <= first_peak+0.5])
-        first_peak  = only_peak
-        second_peak = only_peak
 
     # Plot the KDE and cluster centers
     plt.hist(filtered_numbers, bins=100)
-    # plt.plot(x, kde_values, color='r')
-    plt.axvline(first_peak, color='b', linestyle='dashed', linewidth=2, label='Most Dense Region')
-    plt.axvline(second_peak, color='purple', linestyle='dotted', linewidth=2, label='Most Dense Region')
+    plt.plot(x, kde_values, color='r')
+    plt.axvline(first_peak, color='b', linestyle='dashed', linewidth=4, label='Most Dense Region')
+    plt.axvline(second_peak, color='r', linestyle='dotted', linewidth=4, label='Second Dense Region')
+    plt.axvline(third_peak, color='g', linestyle='dotted', linewidth=4, label='Third Dense Region')
     plt.savefig(segments_filepath.replace(".ctm", ".png")) 
     # plt.savefig("/scratch/users/astar/ares/zoux/workspaces/data_process/test.png") 
     plt.clf()
 
+
+
+    plt.plot(filtered_numbers, label='diff')
+    plt.ylim(bottom=min(-10, min(filtered_numbers)), top=max(10, max(filtered_numbers)))
+    plt.savefig(segments_filepath.replace(".ctm", "_diff.png"))
+    plt.clf()
+
     transition_index_in_filtered_numbers = find_transition_position(filtered_numbers)
-    transition_index_in_numbers    = filtered_2_number_indexes[transition_index_in_filtered_numbers]
-    transition_index_in_transcriptions    = diff["index"][transition_index_in_numbers]
+    transition_index_in_numbers          = filtered_2_number_indexes[transition_index_in_filtered_numbers]
+    transition_index_in_transcriptions   = diff["index"][transition_index_in_numbers]
+
     return max(first_peak, second_peak), min(first_peak, second_peak), transition_index_in_transcriptions
 
 
@@ -109,21 +133,20 @@ def generate_txt_png(args):
 
     diff = {"index":[], "offset":[]} 
     with open(segments_filepath.replace(".ctm", ".txt"), "w") as f:
-    # with open("/scratch/users/astar/ares/zoux/workspaces/data_process/test.txt", "w") as f:
         for i, segment in enumerate(segments):
-            segment      = segment.strip().split()
-            start        = float(segment[2])
-            end          = start+float(segment[3])
-            sentence     = segment[4].replace("<space>", " ")
-            offset_start = transcriptions[i]["start"]-start
-            offset_end   = transcriptions[i]["end"]-end
-            offset = (offset_start + offset_end)/2
-            f.write("{:.2f} || {:.2f} || {:.2f} || {} || {}\n".format(offset_start, offset_end, offset, transcriptions[i]["sentence"], sentence))
+            segment        = segment.strip().split()
+            start          = float(segment[2])
+            end            = start+float(segment[3])
+            sentence       = segment[4].replace("<space>", " ")
+            offset_start   = transcriptions[i]["start"]-start
+            offset_end     = transcriptions[i]["end"]-end
+            offset_average = (offset_start + offset_end)/2
+            f.write("{:.2f} || {:.2f} || {:.2f} || {} || {}\n".format(offset_start, offset_end, offset_average, transcriptions[i]["sentence"], sentence))
             if len(sentence.split()) < 2:
                 continue
 
             diff["index"].append(i)
-            diff["offset"].append(offset)
+            diff["offset"].append(offset_start)
         center1, center2, transition_index_in_transcriptions = calculate_offset_without_outliers(diff, segments_filepath)
         f.write("{:.2f} || {:.2f} || {}\n".format(center1, center2, transition_index_in_transcriptions))
     item["center1"] = center1
@@ -137,21 +160,15 @@ for part in ["PART4"]:
 
     print(f"start {part}", flush=True)
     lines = open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions.jsonl").readlines()
+    results=[generate_txt_png((part, json.loads(lines[0])))]
 
-    with Pool(processes=32) as pool:
-        params = [(part, json.loads(line)) for line in lines]
-        results = list(tqdm(pool.imap_unordered(generate_txt_png, params), total=len(params)))
+    # with Pool(processes=32) as pool:
+    #     params = [(part, json.loads(line)) for line in lines]
+    #     results = list(tqdm(pool.imap_unordered(generate_txt_png, params), total=len(params)))
 
     with open(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/manifest_with_transcriptions_and_shift.jsonl", "w", encoding="utf-8") as f:
         for result in results:
             f.write(result+"\n")
 
     print(f"complete {part}", flush=True)
-
-
-
-
-
-
-
 
