@@ -6,15 +6,14 @@ import fire
 import textgrid
 import os
 from glob import glob
-
 from tqdm import tqdm
 
 
 def get_item(args):
-    audio_file, script_file, conversation_id, speaker_metadata, setting, partition, shift = args
+    audio_file, script_file, conversation_id, speaker_metadata, setting, partition = args
 
-    transcription = textgrid.TextGrid.fromFile(script_file)
-    transcription = [{"start": interval.minTime-shift, "end": interval.maxTime-shift, "sentence": interval.mark, } for interval in transcription[0]]
+    transcription_textgrid = textgrid.TextGrid.fromFile(script_file)
+    transcription          = [{"start": interval.minTime, "end": interval.maxTime, "sentence": interval.mark, } for interval in transcription_textgrid[0]]
 
     data = {
         "audio"          : audio_file,
@@ -35,63 +34,36 @@ def build_ds(dict_list):
 def main(workers=20):
 
     root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
-    duration_dict         = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
-    err_shift_dict        = json.load(open(f"{root}/shift.jsonl", "r", encoding="utf-8"))
+
 
     params = []
 
-    scripts = glob(os.path.join(root, 'Scripts',  '*.TextGrid'), recursive=True)
+    wav_files = glob(os.path.join(root, 'Audio',  '*.wav'), recursive=True)
+    for wav_file in sorted(wav_files):
 
-    for script_file in sorted(scripts):
-        script_filename  = os.path.basename(script_file)
-        wav_filename     = script_filename.replace(".TextGrid", ".wav")
-        wav_file         = os.path.join(root, 'Audio',  wav_filename)
-        conversation_id  = wav_filename.split("_")[1]
-        speaker_id       = wav_filename.split("_")[2]
-        wav_time         = duration_dict["Audio"][wav_filename]
-        script_time      = duration_dict["Scripts"][script_filename]
-        setting          = wav_filename.split(".")[0].split("-")[-1]
+        txt_file = wav_file.replace("/Audio/", "/txt_all/").replace(".wav", ".txt")
+        mse      = float(open(txt_file).readlines()[-1].split(" || ")[-1].strip())
+        if mse > 1:
+            print(wav_file)
+            continue
+        
+        wav_filename    = os.path.basename(wav_file)
+        script_file     = wav_file.replace("/Audio/", "/Scripts/").replace(".wav", ".TextGrid")
+        conversation_id = wav_filename.split("_")[1]
+        speaker_id      = wav_filename.split("_")[2]
+        setting         = wav_filename.split(".")[0].split("-")[-1]
 
         speaker_metadata = {"speaker_id": speaker_id}
 
-        if abs(wav_time-script_time) <= 0.1:
-            params.append((wav_file,
-                           script_file,
-                           conversation_id,
-                           speaker_metadata,
-                           setting,
-                           "PART6",
-                           0))
-        elif err_shift_dict[wav_file]["shift1"] == err_shift_dict[wav_file]["shift2"]:
-            shift = err_shift_dict[wav_file]["shift1"]
-            params.append((wav_file,
-                           script_file,
-                           conversation_id,
-                           speaker_metadata,
-                           setting,
-                           "PART6",
-                           shift))
-
-    scripts_checked = glob(os.path.join(root, 'checked',  '*.TextGrid'), recursive=True)
-
-    for script_file in sorted(scripts_checked):
-        script_filename  = os.path.basename(script_file)
-        wav_filename     = script_filename.replace(".TextGrid", ".wav")
-        wav_file         = os.path.join(root, 'checked',  wav_filename)
-        conversation_id  = wav_filename.split("_")[1]
-        speaker_id       = wav_filename.split("_")[2]
-        wav_time         = duration_dict["checked"][wav_filename]
-        script_time      = duration_dict["checked"][script_filename]
-        speaker_metadata = {"speaker_id": speaker_id}
-        setting          = wav_filename.split(".")[0].split("-")[-1]
+        if os.path.exists(wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")):
+            script_file = wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")
 
         params.append((wav_file,
                        script_file,
                        conversation_id,
                        speaker_metadata,
                        setting,
-                       "PART6",
-                       0))
+                       "PART6"))
 
 
     with Pool(processes=workers) as pool:
@@ -99,12 +71,13 @@ def main(workers=20):
         dict_list = list(tqdm(pool.imap_unordered(get_item, params), total=len(params)))
         random.shuffle(dict_list)
 
-        batch_size = len(dict_list)                                                        // (workers*2) + 1
-        params     = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
-        dss        = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
+        batch_size = len(dict_list) // (workers*2) + 1
+        params = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
+
+        dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_mono_hf/PART6"
+    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

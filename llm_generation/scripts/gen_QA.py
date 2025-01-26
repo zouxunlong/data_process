@@ -56,6 +56,7 @@ def map_fn(batch):
 
     return batch
 
+
 def filter_fn(example):
     return example['answer']['text'].strip() not in ['Template not matched.', '']
 

@@ -20,11 +20,10 @@ def grep_script_map(file):
                 id= id.strip() 
                 if len(id) != 9:
                     id = id[-9:]
-            else:
-                transcription = line.strip()
+                transcription = script.strip()
                 id_script_map[id] = transcription
-    return id_script_map
 
+    return id_script_map
 
 def process_script_file(args):
     script_file, speaker_metadata_dict, root=args
@@ -48,7 +47,7 @@ def process_script_file(args):
         except KeyError:
             logging.info(f"Speaker {speaker} not found in metadata.")
             continue
-        
+
         dict_list.append({
             "audio"        : wav_file,
             "transcription": script,
@@ -60,19 +59,22 @@ def process_script_file(args):
         })
     return dict_list
 
+
 def build_ds(dict_list):
     ds=Dataset.from_list(dict_list).cast_column('audio', Audio(sampling_rate=16000))
     return ds
 
+
 def main(workers=20):
 
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART1"
+    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART1"
     speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/speaker_metadata_part1.json"))
 
     script_files = glob(os.path.join(root, '**', '*.TXT'), recursive=True)
     script_files.sort(key=lambda path: path.split("/")[-1])
 
     params=[(script_file, speaker_metadata_dict, root) for script_file in script_files]
+
     with Pool(processes=workers) as pool:
         results=list(tqdm(pool.imap_unordered(process_script_file, params), total=len(params)))
         dict_list = [item for sublist in results for item in sublist]
@@ -83,7 +85,7 @@ def main(workers=20):
         dss=list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds=concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART1"
+    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

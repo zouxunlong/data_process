@@ -247,7 +247,7 @@ def fetch_speaker_metadata_part5():
 
 def main():
 
-    fetch_speaker_metadata_part4()
+    fetch_speaker_metadata_part3()
 
 
 

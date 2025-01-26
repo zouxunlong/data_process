@@ -1,5 +1,4 @@
 import json
-import os
 import textgrid
 import unicodedata
 import re
@@ -19,10 +18,9 @@ def normalize_sentence(sentence):
 root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw"
 for part in ["PART3", "PART4", "PART5", "PART6"]:
 
-   lines = open(f"{root}/{part}/mis_match.jsonl").readlines()
+   lines = open(f"{root}/{part}/wav_script_pairs.jsonl").readlines()
 
    manifests = []
-   manifests_with_transcriptions = []
 
    for line in tqdm(lines):
       item = json.loads(line)
@@ -31,23 +29,11 @@ for part in ["PART3", "PART4", "PART5", "PART6"]:
       text = " | ".join([interval["sentence"] for interval in transcriptions])
       if text:
          manifests.append({"audio_filepath": item["wav_file"], 
-                           "text": text})
-         manifests_with_transcriptions.append({"audio_filepath": item["wav_file"], 
-                                               "text"          : text,
-                                               "transcriptions": transcriptions})
-
-   file_to_filer=[]
+                           "text": text,
+                           "transcriptions": transcriptions})
 
    with open(f"{root}/{part}/manifest.jsonl", "w", encoding="utf-8") as f:
       for manifest in manifests:
-         if os.path.basename(manifest["audio_filepath"]) in file_to_filer:
-            continue
          f.write(json.dumps(manifest, ensure_ascii=False)+"\n")
-
-   with open(f"{root}/{part}/manifest_with_transcriptions.jsonl", "w", encoding="utf-8") as f:
-      for manifest_with_transcription in manifests_with_transcriptions:
-         if os.path.basename(manifest_with_transcription["audio_filepath"]) in file_to_filer:
-            continue
-         f.write(json.dumps(manifest_with_transcription, ensure_ascii=False)+"\n")
 
    print(f"Done {part}", flush=True)

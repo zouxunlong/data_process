@@ -37,20 +37,20 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    root = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3"
+    root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3"
     speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/speaker_metadata_part3.json"))
-    duration_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
+    duration_dict         = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
 
-    wav_same = glob(os.path.join(root, 'Audio_Same_BoundaryMic', '*.wav'), recursive=True)
+    wav_same     = glob(os.path.join(root, 'Audio_Same_BoundaryMic', '*.wav'), recursive=True)
     wav_separate = glob(os.path.join(root, 'Audio_Separate_mixed',  '*.wav'), recursive=True)
 
     params = []
     for wav in sorted(wav_same):
-        wav_file = os.path.basename(wav)
+        wav_file        = os.path.basename(wav)
         conversation_id = wav_file.split(".")[0]
-        wav_time = duration_dict["Audio_Same_BoundaryMic"][wav_file]
-        script_time1 = duration_dict["Scripts_Same"][f"{conversation_id}-1.TextGrid"]
-        script_time2 = duration_dict["Scripts_Same"][f"{conversation_id}-2.TextGrid"]
+        wav_time        = duration_dict["Audio_Same_BoundaryMic"][wav_file]
+        script_time1    = duration_dict["Scripts_Same"][f"{conversation_id}-1.TextGrid"]
+        script_time2    = duration_dict["Scripts_Same"][f"{conversation_id}-2.TextGrid"]
         if abs(wav_time-script_time1) < 0.1 and abs(wav_time-script_time2) < 0.1:
             params.append((conversation_id, wav,
                             f"{root}/Scripts_Same/{conversation_id}-1.TextGrid",
@@ -61,13 +61,13 @@ def main(workers=20):
                             "PART3"))
 
     for wav in sorted(wav_separate):
-        wav_file = os.path.basename(wav)
+        wav_file        = os.path.basename(wav)
         conversation_id = wav_file.split(".")[0]
-        wav_time = duration_dict["Audio_Separate_mixed"][wav_file]
-        scripts_files = glob(os.path.join(root, 'Scripts_Separate', f'conf_{conversation_id}_{conversation_id}_*.TextGrid'), recursive=True)
-        scripts_names = [os.path.basename(script) for script in scripts_files]
-        script_time1 = duration_dict["Scripts_Separate"][scripts_names[0]]
-        script_time2 = duration_dict["Scripts_Separate"][scripts_names[1]]
+        wav_time        = duration_dict["Audio_Separate_mixed"][wav_file]
+        scripts_files   = glob(os.path.join(root, 'Scripts_Separate', f'conf_{conversation_id}_{conversation_id}_*.TextGrid'), recursive=True)
+        scripts_names   = [os.path.basename(script) for script in scripts_files]
+        script_time1    = duration_dict["Scripts_Separate"][scripts_names[0]]
+        script_time2    = duration_dict["Scripts_Separate"][scripts_names[1]]
         if abs(wav_time-script_time1) < 0.1 and abs(wav_time-script_time2) < 0.1:
             params.append((conversation_id, wav,
                            f"{root}/Scripts_Separate/{scripts_names[0]}",
@@ -79,15 +79,15 @@ def main(workers=20):
 
     with Pool(processes=workers) as pool:
 
-        results = list(tqdm(pool.imap_unordered(get_item, params), total=len(params)))
+        results   = list(tqdm(pool.imap_unordered(get_item, params), total=len(params)))
         dict_list = results
         random.shuffle(dict_list)
 
         batch_size = len(dict_list) // (workers*2) + 1
-        params = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
-        dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
+        params     = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
+        dss        = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
-    ds = concatenate_datasets(dss)
+    ds        = concatenate_datasets(dss)
     save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF/PART3"
     ds.save_to_disk(save_path, num_proc=workers)
 
