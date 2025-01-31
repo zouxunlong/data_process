@@ -77,7 +77,7 @@ def main(workers=20):
 
         batch_size = len(dict_list) // (workers*2) + 1
         params = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
-        
+
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)

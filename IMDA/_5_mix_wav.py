@@ -1,4 +1,3 @@
-from collections import defaultdict
 from glob import glob
 from itertools import groupby
 import os
@@ -10,15 +9,72 @@ import soundfile as sf
 from multiprocessing import Pool
 from tqdm import tqdm
 
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
-def get_key(path):
-    elements = path.split("/")[-1].replace("-", "_").split("_")
-    return elements[1]+"_"+elements[-1]
+
+
+def mix_wav_large(params_large):
+    input_files, output_file, same_time, part = params_large
+    print(output_file, flush=True)
+    f_out=f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/mix_shift.jsonl"
+
+    array1, sr1 = sf.read(input_files[0])
+    array2, sr2 = sf.read(input_files[1])
+
+    assert sr1 == sr2 == 16000, f"{input_files[0]}:{sr1}, {input_files[1]}:{sr2}"
+
+    if os.path.basename(output_file) in ["2685.wav", "2727.wav", "1103.wav"]:
+        length = min(len(array1), len(array2))
+        sf.write(output_file, array1[0:length] + array2[0:length], 16000)
+        open(f_out, "a").write(json.dumps({input_files[0]: 0}) + "\n")
+        open(f_out, "a").write(json.dumps({input_files[1]: 0}) + "\n")
+        return (input_files[0], input_files[1], 0, 0)
+
+    if os.path.basename(output_file) in ["0809.wav"]:
+        start1 = max(0, -8000)
+        end1   = min(len(array1), len(array2) - 8000)
+        start2 = max(0, 8000)
+        end2   = min(len(array1) + 8000, len(array2))
+        sf.write(output_file, array1[start1:end1] + array2[start2:end2], 16000)
+        open(f_out, "a").write(json.dumps({input_files[0]: 0}) + "\n")
+        open(f_out, "a").write(json.dumps({input_files[1]: 8000}) + "\n")
+        return (input_files[0], input_files[1], 0, 8000)
+
+    if same_time=="diff_time":
+        length_diff = len(array1) - len(array2)
+        max_agv_sum = 0
+
+        shift_range = range(min(-80000, -80000 + length_diff), max(80000, length_diff + 80000), 1600)
+
+        for shift in shift_range:
+            start1 = max(0, shift)
+            end1   = min(len(array1), len(array2) + shift)
+            start2 = max(0, -shift)
+            end2   = min(len(array1) - shift, len(array2))
+
+            mixed_array = array1[start1:end1] + array2[start2:end2]
+            shifted_avg_sum = np.mean(np.abs(mixed_array))
+
+            if shifted_avg_sum > max_agv_sum:
+                max_agv_sum         = shifted_avg_sum
+                optimal_shift       = shift
+                optimal_mixed_array = mixed_array
+
+        sf.write(output_file, optimal_mixed_array, 16000)
+        shift1 = max(0, optimal_shift)
+        shift2 = max(0, -optimal_shift)
+        open(f_out, "a").write(json.dumps({input_files[0]: shift1}) + "\n")
+        open(f_out, "a").write(json.dumps({input_files[1]: shift2}) + "\n")
+        return (input_files[0], input_files[1], shift1, shift2)
+
+
+
 
 
 def mix_wav(params):
-    input_files, output_file, same_time = params
+    input_files, output_file, same_time, part = params
+    f_out=f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/mix_shift.jsonl"
 
     array1, sr1 = sf.read(input_files[0])
     array2, sr2 = sf.read(input_files[1])
@@ -28,41 +84,71 @@ def mix_wav(params):
     if same_time=="same_time":
         length = min(len(array1), len(array2))
         sf.write(output_file, array1[0:length] + array2[0:length], 16000)
+        open(f_out, "a").write(json.dumps({input_files[0]: 0}) + "\n")
+        open(f_out, "a").write(json.dumps({input_files[1]: 0}) + "\n")
         return (input_files[0], input_files[1], 0, 0)
     if same_time=="diff_time":
         length_diff = len(array1) - len(array2)
         max_agv_sum = 0
 
-        for shift in range(min(-160000, -160000+length_diff), max(160000, length_diff + 160000), 320):
-            mixed_array        = array1[max(0, shift):min(len(array1), len(array2) + shift)] + array2[max(0, -shift):min(len(array1)-shift, len(array2))]
-            mixed_array_length = len(mixed_array)
+        shift_range = range(min(-80000, -80000 + length_diff), max(80000, length_diff + 80000), 800)
 
-            shifted_abs_sum = np.sum(np.absolute(mixed_array))
-            shifted_avg_sum = shifted_abs_sum / mixed_array_length
+        for shift in shift_range:
+            start1 = max(0, shift)
+            end1   = min(len(array1), len(array2) + shift)
+            start2 = max(0, -shift)
+            end2   = min(len(array1) - shift, len(array2))
+
+            mixed_array = array1[start1:end1] + array2[start2:end2]
+            shifted_avg_sum = np.mean(np.abs(mixed_array))
 
             if shifted_avg_sum > max_agv_sum:
                 max_agv_sum         = shifted_avg_sum
                 optimal_shift       = shift
                 optimal_mixed_array = mixed_array
+
         sf.write(output_file, optimal_mixed_array, 16000)
-        return (input_files[0], input_files[1], max(0, optimal_shift), max(0, -optimal_shift))
+        shift1 = max(0, optimal_shift)
+        shift2 = max(0, -optimal_shift)
+        open(f_out, "a").write(json.dumps({input_files[0]: shift1}) + "\n")
+        open(f_out, "a").write(json.dumps({input_files[1]: shift2}) + "\n")
+        return (input_files[0], input_files[1], shift1, shift2)
 
 
-def mix_part3():
+def get_key_part3(path):
+    return path.split("/")[-1].split("_")[1]
 
-    def get_key(path):
-        return path.split("/")[-1].split("_")[1]
+def get_key_part4(path):
+    return path.split("/")[-1].split("_")[1]
 
-    root_out      = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Separate_mixed"
-    duration_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/duration_dict.json", "r", encoding="utf-8"))
+def get_key_part5(path):
+    return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("_")[4].split(".")[0]
 
-    root      = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Separate"
-    wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
-    wav_files.sort()
+def get_key_part6(path):
+    return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("-")[-1].split(".")[0]
 
+
+
+def mix():
 
     params = []
-    for key, value in groupby(wav_files, key=get_key):
+    params_large = []
+
+    root = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw"
+
+    print("Start PART3", flush=True)
+
+    root_mix_part3 = f"{root}/PART3/Audio_Separate_mixed"
+    duration_dict  = json.load(open(f"{root}/PART3/duration_dict.json", "r", encoding="utf-8"))
+
+    root_part3 = f"{root}/PART3/Audio_Separate"
+    wav_files  = glob(os.path.join(root_part3, '*.wav'), recursive=True)
+    wav_files.sort(key=get_key_part3)
+
+
+    for key, value in groupby(wav_files, key=get_key_part3):
+        if os.path.exists(os.path.join(root_mix_part3, f"{key}.wav")):
+            continue
 
         try:
             audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
@@ -73,156 +159,137 @@ def mix_part3():
         wav_time1    = duration_dict["Audio_Separate"][audio_file1]
         wav_time2    = duration_dict["Audio_Separate"][audio_file2]
 
-        if wav_time1 == wav_time2:
-            params.append(([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav"), "same_time"))
+        if abs(wav_time1 - wav_time2)<0.02:
+            params.append(([os.path.join(root_part3, audio_file1), os.path.join(root_part3, audio_file2)], os.path.join(root_mix_part3, f"{key}.wav"), "same_time", "PART3"))
+        elif abs(wav_time1 - wav_time2)<200:
+            params.append(([os.path.join(root_part3, audio_file1), os.path.join(root_part3, audio_file2)], os.path.join(root_mix_part3, f"{key}.wav"), "diff_time", "PART3"))
         else:
-            params.append(([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav"), "diff_time"))
-
-    shift_dict = defaultdict(float)
-    with Pool(processes=32) as pool:
-        results = list(tqdm(pool.imap_unordered(mix_wav, params), total=len(params)))
-        for file1, file2, shift1, shift2 in results:
-            shift_dict[file1.replace(".wav", ".TextGrid")].update(shift1)
-            shift_dict[file2.replace(".wav", ".TextGrid")].update(shift2)
-        json.dump(shift_dict, open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/mix_shift.json", "w"), indent=4)
+            params_large.append(([os.path.join(root_part3, audio_file1), os.path.join(root_part3, audio_file2)], os.path.join(root_mix_part3, f"{key}.wav"), "diff_time", "PART3"))
 
 
-def mix_part4():
-
-    def get_key(path):
-        return path.split("/")[-1].split("_")[1]
-
-    root_out="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/Audio_mixed"
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/duration_dict.json", "r", encoding="utf-8"))
-
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4/Audio"
-    wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
-    wav_files.sort()
 
 
-    with Pool(processes=32) as pool:
-        params = []
-        keys=set()
+    print("Start PART4", flush=True)
+
+    root_mix_part4 = f"{root}/PART4/Audio_mixed"
+    duration_dict  = json.load(open(f"{root}/PART4/duration_dict.json", "r", encoding="utf-8"))
+
+    root_part4 = f"{root}/PART4/Audio"
+    wav_files  = glob(os.path.join(root_part4, '*.wav'), recursive=True)
+    wav_files.sort(key=get_key_part4)
+
+    for key, value in groupby(wav_files, key=get_key_part4):
+        if os.path.exists(os.path.join(root_mix_part4, f"{key}.wav")):
+            continue
         
-        for key, value in groupby(wav_files, key=get_key):
-            if key in keys or os.path.exists(os.path.join(root_out, f"{key}.wav")):
-                continue
+        try:
+            audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
+        except ValueError as e:
+            logging.error(f"Error: {key}")
+            continue
 
-            try:
-                audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
-            except ValueError as e:
-                logging.error(f"Error: {key}")
-                continue
+        wav_time1    = duration_dict["Audio"][audio_file1]
+        wav_time2    = duration_dict["Audio"][audio_file2]
 
-
-            wav_time1    = duration_dict["Audio"][audio_file1]
-            wav_time2    = duration_dict["Audio"][audio_file2]
-            script_time1 = duration_dict["Scripts"][audio_file1.split(".")[0]+".TextGrid"]
-            script_time2 = duration_dict["Scripts"][audio_file2.split(".")[0]+".TextGrid"]
-
-            if abs(wav_time1-wav_time2)<0.1:
-                params.append(([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav")))
-                keys.add(key)
-            else:
-                logging.error(f"unmatch length: {key} || audio_file1:{int(wav_time1)}:{int(script_time1)}, audio_file2: {int(wav_time2)}:{int(script_time2)}")
-
-        results = list(tqdm(pool.imap_unordered(mix_wav, params), total=len(params)))
-        print(len(keys), len(params), len(results), flush=True)
+        if abs(wav_time1 - wav_time2)<0.02:
+            params.append(([os.path.join(root_part4, audio_file1), os.path.join(root_part4, audio_file2)], os.path.join(root_mix_part4, f"{key}.wav"), "same_time", "PART4"))
+        elif abs(wav_time1 - wav_time2)<200:
+            params.append(([os.path.join(root_part4, audio_file1), os.path.join(root_part4, audio_file2)], os.path.join(root_mix_part4, f"{key}.wav"), "diff_time", "PART4"))
+        else:
+            params_large.append(([os.path.join(root_part4, audio_file1), os.path.join(root_part4, audio_file2)], os.path.join(root_mix_part4, f"{key}.wav"), "diff_time", "PART4"))
 
 
 
-def mix_part5():
 
-    def get_key(path):
-        return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("_")[4].split(".")[0]
+    print("Start PART5", flush=True)
 
-    root_out="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/Audio_mixed"
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/duration_dict.json", "r", encoding="utf-8"))
+    root_mix_part5 = f"{root}/PART5/Audio_mixed"
+    duration_dict  = json.load(open(f"{root}/PART5/duration_dict.json", "r", encoding="utf-8"))
 
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/Audio"
-    wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
-    wav_files.sort(key=get_key)
+    root_part5 = f"{root}/PART5/Audio"
+    wav_files  = glob(os.path.join(root_part5, '*.wav'), recursive=True)
+    wav_files.sort(key=get_key_part5)
 
-    with Pool(processes=32) as pool:
-        params = []
-        keys=set()
-        
-        for key, value in groupby(wav_files, key=get_key):
-            if key in keys or os.path.exists(os.path.join(root_out, f"{key}.wav")):
-                continue
+    for key, value in groupby(wav_files, key=get_key_part5):
+        if os.path.exists(os.path.join(root_mix_part5, f"{key}.wav")):
+            continue
 
-            try:
-                audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
-            except ValueError as e:
-                logging.error(f"Error: {key}")
-                continue
+        try:
+            audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
+        except ValueError as e:
+            logging.error(f"Error: {key}")
+            continue
 
-            wav_time1    = duration_dict["Audio"][audio_file1]
-            wav_time2    = duration_dict["Audio"][audio_file2]
-            script_time1 = duration_dict["Scripts"][audio_file1.split(".")[0]+".TextGrid"]
-            script_time2 = duration_dict["Scripts"][audio_file2.split(".")[0]+".TextGrid"]
+        wav_time1    = duration_dict["Audio"][audio_file1]
+        wav_time2    = duration_dict["Audio"][audio_file2]
 
-            if abs(wav_time1-wav_time2)<0.1:
-                params.append(([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav")))
-                keys.add(key)
-            else:
-                logging.error(f"unmatch length: {key} || audio_file1:{int(wav_time1)}:{int(script_time1)}, audio_file2: {int(wav_time2)}:{int(script_time2)}")
-
-        results = list(tqdm(pool.imap_unordered(mix_wav, params), total=len(params)))
-        print(len(keys), len(params), len(results), flush=True)
+        if abs(wav_time1 - wav_time2)<0.02:
+            params.append(([os.path.join(root_part5, audio_file1), os.path.join(root_part5, audio_file2)], os.path.join(root_mix_part5, f"{key}.wav"), "same_time", "PART5"))
+        elif abs(wav_time1 - wav_time2)<200:
+            params.append(([os.path.join(root_part5, audio_file1), os.path.join(root_part5, audio_file2)], os.path.join(root_mix_part5, f"{key}.wav"), "diff_time", "PART5"))
+        else:
+            params_large.append(([os.path.join(root_part5, audio_file1), os.path.join(root_part5, audio_file2)], os.path.join(root_mix_part5, f"{key}.wav"), "diff_time", "PART5"))
 
 
 
-def mix_part6():
 
-    def get_key(path):
-        return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("-")[-1].split(".")[0]
+    print("Start PART6", flush=True)
 
-    root_out="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/Audio_mixed"
-    duration_dict=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/duration_dict.json", "r", encoding="utf-8"))
+    root_mix_part6=f"{root}/PART6/Audio_mixed"
+    duration_dict=json.load(open(f"{root}/PART6/duration_dict.json", "r", encoding="utf-8"))
 
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/Audio"
-    wav_files = glob(os.path.join(root, '*.wav'), recursive=True)
-    wav_files.sort(key=get_key)
+    root_part6=f"{root}/PART6/Audio"
+    wav_files = glob(os.path.join(root_part6, '*.wav'), recursive=True)
+    wav_files.sort(key=get_key_part6)
     
-    with Pool(processes=32) as pool:
-        params = []
-        keys=set()
-        
-        for key, value in groupby(wav_files, key=get_key):
-            if key in keys or os.path.exists(os.path.join(root_out, f"{key}.wav")):
-                continue
+    for key, value in groupby(wav_files, key=get_key_part6):
+        if os.path.exists(os.path.join(root_mix_part6, f"{key}.wav")):
+            continue
 
-            try:
-                audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
-            except ValueError as e:
-                logging.error(f"Error: {key}")
-                continue
+        try:
+            audio_file1, audio_file2 = [os.path.basename(file) for file in list(value)]
+        except ValueError as e:
+            logging.error(f"Error: {key}")
+            continue
 
-            wav_time1    = duration_dict["Audio"][audio_file1]
-            wav_time2    = duration_dict["Audio"][audio_file2]
-            script_time1 = duration_dict["Scripts"][audio_file1.split(".")[0]+".TextGrid"]
-            script_time2 = duration_dict["Scripts"][audio_file2.split(".")[0]+".TextGrid"]
+        wav_time1    = duration_dict["Audio"][audio_file1]
+        wav_time2    = duration_dict["Audio"][audio_file2]
 
-            if abs(wav_time1-wav_time2)<0.1:
-                params.append(([os.path.join(root, audio_file1), os.path.join(root, audio_file2)], os.path.join(root_out, f"{key}.wav")))
-                keys.add(key)
-            else:
-                logging.error(f"unmatch length: {key} || audio_file1:{int(wav_time1)}:{int(script_time1)}, audio_file2: {int(wav_time2)}:{int(script_time2)}")
+        if abs(wav_time1 - wav_time2)<0.02:
+            params.append(([os.path.join(root_part6, audio_file1), os.path.join(root_part6, audio_file2)], os.path.join(root_mix_part6, f"{key}.wav"), "same_time", "PART6"))
+        elif abs(wav_time1 - wav_time2)<200:
+            params.append(([os.path.join(root_part6, audio_file1), os.path.join(root_part6, audio_file2)], os.path.join(root_mix_part6, f"{key}.wav"), "diff_time", "PART6"))
+        else:
+            params_large.append(([os.path.join(root_part6, audio_file1), os.path.join(root_part6, audio_file2)], os.path.join(root_mix_part6, f"{key}.wav"), "diff_time", "PART6"))
 
-        results = list(tqdm(pool.imap_unordered(mix_wav, params), total=len(params)))
-        print(len(keys), len(params), len(results), flush=True)
+
+
+
+    shift_dict = json.load(open(f"{root}/mix_shift.json", "r", encoding="utf-8"))
+    with Pool(processes=54) as pool:
+
+        # results = list(tqdm(pool.imap_unordered(mix_wav, params), total=len(params)))
+        # for file1, file2, shift1, shift2 in results:
+        #     shift_dict[file1]=shift1
+        #     shift_dict[file2]=shift2
+        # json.dump(shift_dict, open(f"{root}/mix_shift.json", "w"), indent=4)
+
+        results = list(tqdm(pool.imap_unordered(mix_wav_large, params_large), total=len(params_large)))
+        for file1, file2, shift1, shift2 in results:
+            shift_dict[file1]=shift1
+            shift_dict[file2]=shift2
+        json.dump(shift_dict, open(f"{root}/mix_shift.json", "w"), indent=4)
+
+
+
+
 
 
 def main():
-    logging.info(f"Start part3")
-    mix_part3()
-    # logging.info(f"Start part4")
-    # mix_part4()
-    # logging.info(f"Start part5")
-    # mix_part5()
-    # logging.info(f"Start part6")
-    # mix_part6()
+    logging.info(f"Start")
+    mix()
+    logging.info(f"Done")
+
 
 
 if __name__=="__main__":
