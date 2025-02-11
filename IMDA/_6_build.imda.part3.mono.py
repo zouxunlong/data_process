@@ -7,7 +7,8 @@ import textgrid
 import os
 from glob import glob
 from tqdm import tqdm
-
+import tempfile
+import soundfile as sf
 
 def get_item(args):
     audio_file, script_file, conversation_id, speaker_metadata, setting, partition = args
@@ -26,6 +27,14 @@ def get_item(args):
     return data
 
 
+def map_fn(example):
+    audio_array=example["audio"]["array"]
+    fname=tempfile.NamedTemporaryFile(suffix=".opus").name
+    sf.write(fname, audio_array, 16000, format='OGG', subtype='OPUS')
+    example["audio"]={"bytes": open(fname, "rb").read()}
+    return example
+
+
 def build_ds(dict_list):
     ds = Dataset.from_list(dict_list).cast_column('audio', Audio(sampling_rate=16000))
     return ds
@@ -40,11 +49,10 @@ def main(workers=20):
 
     wav_files_same = glob(os.path.join(root, 'Audio_Same_CloseMic',  '*.wav'), recursive=True)
     for wav_file in sorted(wav_files_same):
-
         txt_file = wav_file.replace("/Audio_Same_CloseMic/", "/txt_all/").replace(".wav", ".txt")
         mse      = float(open(txt_file).readlines()[-1].split(" || ")[-1].strip())
-        if mse > 1:
-            print(wav_file)
+        if mse > 2:
+            print("mse too large: ", wav_file, flush=True)
             continue
 
         wav_filename     = os.path.basename(wav_file)
@@ -53,8 +61,7 @@ def main(workers=20):
         speaker_id       = wav_filename.split(".")[0]
         speaker_metadata = speaker_metadata_dict[speaker_id]
 
-        if os.path.exists(wav_file.replace("/Audio_Same_CloseMic/", "/Scripts_fixed/").replace(".wav", ".TextGrid")):
-            script_file = wav_file.replace("/Audio_Same_CloseMic/", "/Scripts_fixed/").replace(".wav", ".TextGrid")
+        assert os.path.exists(script_file), script_file
 
         params.append((wav_file,
                        script_file,
@@ -64,22 +71,19 @@ def main(workers=20):
                        "PART3"))
 
 
-    wav_files_separate = glob(os.path.join(root, 'Audio_Separate',  '*.wav'), recursive=True)
+    wav_files_separate = glob(os.path.join(root, 'Audio',  '*.wav'), recursive=True)
     for wav_file in sorted(wav_files_separate): 
 
-        txt_file = wav_file.replace("/Audio_Separate/", "/txt_all/").replace(".wav", ".txt")
+        txt_file = wav_file.replace("/Audio/", "/txt_all/").replace(".wav", ".txt")
         mse      = float(open(txt_file).readlines()[-1].split(" || ")[-1].strip())
         if mse > 1:
             continue
 
         wav_filename     = os.path.basename(wav_file)
-        script_file      = wav_file.replace("/Audio_Separate/", "/Scripts_Separate/").replace(".wav", ".TextGrid")
+        script_file      = wav_file.replace("/Audio/", "/Scripts/").replace(".wav", ".TextGrid")
         conversation_id  = wav_filename.split("_")[1]
         speaker_id       = wav_filename.split(".")[0].split("_")[3]
         speaker_metadata = speaker_metadata_dict[speaker_id]
-
-        if os.path.exists(wav_file.replace("/Audio_Separate/", "/Scripts_fixed/").replace(".wav", ".TextGrid")):
-            script_file = wav_file.replace("/Audio_Separate/", "/Scripts_fixed/").replace(".wav", ".TextGrid")
 
         params.append((wav_file,
                        script_file,
@@ -96,11 +100,12 @@ def main(workers=20):
 
         batch_size = len(dict_list) // (workers*2) + 1
         params = [dict_list[i*batch_size:(i+1)*batch_size] for i in range(workers*2)]
-        
+
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3"
+    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3_bytes"
+    # ds=ds.map(map_fn, num_proc=1, batch_size=1, writer_batch_size=1, features=ds.features)
     ds.save_to_disk(save_path, num_proc=workers)
 
 

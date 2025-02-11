@@ -41,7 +41,6 @@ def generate_png(part, diff, png_filepath):
 
     filtered_data_average = remove_outliers(offset_average)
 
-    # Generate or load your sequence of numbers
     filtered_data_average = np.array(filtered_data_average)
     
     # Use Gaussian KDE to estimate the density
@@ -50,7 +49,7 @@ def generate_png(part, diff, png_filepath):
         x = np.linspace(min(filtered_data_average), max(filtered_data_average), 1000)
         kde_values = kde(x)*10
     except:
-        print(f"error: {part} {png_filepath}")
+        print(f"error: {part} {png_filepath}", flush=True)
         return 0, 0
 
     # Identify the most and second most dense regions
@@ -59,21 +58,21 @@ def generate_png(part, diff, png_filepath):
     first_peak = x[sorted_peaks[-1]]
 
 
-    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
 
-    # # Plot the KDE and cluster centers on the first subplot
-    # ax1.hist(filtered_data_average, bins=100)
-    # ax1.plot(x, kde_values, color='r')
-    # ax1.axvline(first_peak, color='b', linestyle='dashed', linewidth=4, label='Most Dense Region')
+    # Plot the KDE and cluster centers on the first subplot
+    ax1.hist(filtered_data_average, bins=100)
+    ax1.plot(x, kde_values, color='r')
+    ax1.axvline(first_peak, color='b', linestyle='dashed', linewidth=4, label='Most Dense Region')
 
-    # # Plot the average offset on the second subplot
-    # ax2.plot(filtered_data_average, label='avg_offset')
-    # ax2.set_ylim(bottom=min(-10, min(filtered_data_average)), top=max(10, max(filtered_data_average)))
+    # Plot the average offset on the second subplot
+    ax2.plot(filtered_data_average, label='avg_offset')
+    ax2.set_ylim(bottom=min(-10, min(filtered_data_average)), top=max(10, max(filtered_data_average)))
 
-    # # Save the figure with both subplots
-    # plt.savefig(png_filepath)
-    # plt.clf()
-    # plt.close()
+    # Save the figure with both subplots
+    plt.savefig(png_filepath)
+    plt.clf()
+    plt.close()
 
     mean_value     = np.mean(filtered_data_average)
     squared_errors = np.square(filtered_data_average - mean_value)
@@ -117,10 +116,9 @@ def generate_txt_png(args):
         first_peak, mse = generate_png(part, diff, png_filepath)
         f.write(f"{first_peak} || {mse}\n")
 
-    item["peak"] = first_peak
-    item["mse"] = mse
-
-    return json.dumps(item, ensure_ascii=False)
+    # item["peak"] = first_peak
+    # item["mse"] = mse
+    # return json.dumps(item, ensure_ascii=False)
 
 
 for part in ["PART3", "PART4", "PART5","PART6"]:

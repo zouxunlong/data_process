@@ -7,6 +7,9 @@ import json
 from multiprocessing import Pool
 from fire import Fire
 import logging
+import tempfile
+import soundfile as sf
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
@@ -59,15 +62,20 @@ def process_script_file(args):
         })
     return dict_list
 
+def map_fn(example):
+    audio_array=example["audio"]["array"]
+    fname=tempfile.NamedTemporaryFile(suffix=".opus").name
+    sf.write(fname, audio_array, 16000, format='OGG', subtype='OPUS')
+    example["audio"]={"bytes": open(fname, "rb").read()}
+    return example
 
 def build_ds(dict_list):
     ds=Dataset.from_list(dict_list).cast_column('audio', Audio(sampling_rate=16000))
     return ds
 
-
 def main(workers=20):
 
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART1"
+    root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART1"
     speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/speaker_metadata_part1.json"))
 
     script_files = glob(os.path.join(root, '**', '*.TXT'), recursive=True)
@@ -85,7 +93,8 @@ def main(workers=20):
         dss=list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds=concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1"
+    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1_bytes"
+    ds=ds.map(map_fn, num_proc=112, batch_size=1, writer_batch_size=1, features=ds.features)
     ds.save_to_disk(save_path, num_proc=workers)
 
 

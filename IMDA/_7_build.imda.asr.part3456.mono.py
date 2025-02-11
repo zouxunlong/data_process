@@ -16,8 +16,8 @@ instructions_asr = [
 
 
 def normalize_sentence(sentence):
-    sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
     sentence = unicodedata.normalize('NFKC', sentence)
+    sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
     sentence = re.sub('<[a-zA-Z0-9/\s]*>', " ", sentence)
     sentence = re.sub('\((ppc|ppb|ppl|ppo)\)', " ", sentence, flags=re.IGNORECASE)
     sentence = re.sub('(_|\(|\)|\[|\])', "", sentence)
@@ -30,7 +30,7 @@ def normalize_transcription(transcription, audio_length, max_length):
     normalized_transcription = []
     tmp_transcription = {}
     for utterance in transcription:
-        
+
         sentence = normalize_sentence(utterance["sentence"])
         if not sentence or utterance["start"] < 0 or utterance["end"] > audio_length:
             continue
@@ -89,7 +89,7 @@ def map_fn(batch, max_length):
                 "audio": None
             })
             new_batch["answer"].append({
-                "text": utterance["sentence"],
+                "text": "<Speaker1>: " + utterance["sentence"],
                 "audio": None
             })
             new_batch["other_attributes"].append({
@@ -105,15 +105,7 @@ def map_fn(batch, max_length):
         print(traceback.format_exc(), flush=True)
 
 
-def build_asr(split, max_length, workers=128):
-
-    print("start {}".format(split), flush=True)
-    part = split.split("/")[-1]
-    if os.path.exists(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{part}_ASR_v4"):
-        return
-
-    ds = load_from_disk(split)
-
+def map2schema(ds, max_length, workers=56):
     features = Features({
         'context'         : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
         'instruction'     : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
@@ -136,20 +128,39 @@ def build_asr(split, max_length, workers=128):
                 features          = features,
                 remove_columns    = ds.column_names,
                 num_proc          = workers)
+    return ds
 
-    ds_dict = ds.train_test_split(test_size=1000)
-    ds_dict["train"].save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{part}_ASR_v4", num_proc=8)
-    ds_dict["test"].save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{part}_ASR_v4")
+
+def build_asr(split, max_length, workers=56):
+
+    part = split.split("/")[-1]
+
+    ds = load_from_disk(split)
+    ds = map2schema(ds, max_length)
+
+    ds_test = load_from_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{part}_ASR_v4")
+    test_transcriptions=set()
+    for sample in ds_test:
+        test_transcriptions.add(normalize_sentence(sample["answer"]["text"]).lower())
+    print("samples of test_transcriptions: ", len(test_transcriptions), flush=True)
+
+    print(len(ds), flush=True)
+    ds_train    = ds.filter(lambda x: [normalize_sentence(answer["text"].replace("<Speaker1>: ", "")).lower() not in test_transcriptions for answer in x["answer"]], 
+                            batched=True, batch_size=1000, writer_batch_size=1000, num_proc=workers)
+    print(len(ds_train), flush=True)
+
+    ds_train.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{part}_ASR_v4", num_proc=10)
 
 
 def main():
     splits=[
-        # "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3",
-        # "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4",
-        # "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART5",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART5",
         "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6",
     ]
     for split in splits:
+        print("start {}".format(split), flush=True)
         build_asr(split=split, max_length=30)
     print("complete all", flush=True)
 

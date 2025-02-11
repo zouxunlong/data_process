@@ -155,106 +155,29 @@ def get_part6_time(workers=200):
                   ensure_ascii=False, indent=4)
 
 
-def check_part3_time():
+def check_time():
+    
+    for part in ["PART3", "PART4", "PART5", "PART6"]:
 
-    wav_script_pairs = []
-    root             = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3"
-    duration_dict    = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
+        wav_script_pairs = []
+        root             = f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}"
+        duration_dict    = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
 
-    for script, script_time in duration_dict["Scripts_Same"].items():
-        wav_time    = duration_dict["Audio_Same_CloseMic"][script.replace(".TextGrid", ".wav")]
-        script_file = os.path.join(f"{root}/Scripts_Same", script)
-        wav_file    = os.path.join(f"{root}/Audio_Same_CloseMic", script.replace(".TextGrid", ".wav"))
-        wav_script_pairs.append({"script_time": script_time, 
-                                  "wav_time": wav_time, 
-                                  "script_file": script_file, 
-                                  "wav_file": wav_file})
+        for script, script_time in duration_dict["Scripts"].items():
+            wav_time    = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
+            script_file = os.path.join(f"{root}/Scripts", script)
+            wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
+            wav_script_pairs.append({"script_time": script_time, 
+                                    "wav_time": wav_time, 
+                                    "script_file": script_file, 
+                                    "wav_file": wav_file})
 
-    for script, script_time in duration_dict["Scripts_Separate"].items():
-        wav_time    = duration_dict["Audio_Separate"][script.replace(".TextGrid", ".wav")]
-        script_file = os.path.join(f"{root}/Scripts_Separate", script)
-        wav_file    = os.path.join(f"{root}/Audio_Separate", script.replace(".TextGrid", ".wav"))
-        wav_script_pairs.append({"script_time": script_time, 
-                                  "wav_time": wav_time, 
-                                  "script_file": script_file, 
-                                  "wav_file": wav_file})
+        with open(f"{root}/wav_script_pairs.jsonl", "w", encoding="utf-8") as f:
+            for wav_script_pair in wav_script_pairs:
+                f.write(json.dumps(wav_script_pair, ensure_ascii=False)+"\n")
 
+        logging.info(f"{part} total_wav_script_pairs: {len(wav_script_pairs)}")
 
-    with open(f"{root}/wav_script_pairs.jsonl", "w", encoding="utf-8") as f:
-        for wav_script_pair in wav_script_pairs:
-            f.write(json.dumps(wav_script_pair, ensure_ascii=False)+"\n")
-
-    logging.info(f"PART3:")
-    logging.info(f"total_wav_script_pairs: {len(wav_script_pairs)}")
-
-
-def check_part4_time():
-
-    wav_script_pairs = []
-    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"
-    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
-
-    for script, script_time in duration_dict["Scripts"].items():
-        wav_time    = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        script_file = os.path.join(f"{root}/Scripts", script)
-        wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
-        wav_script_pairs.append({"script_time": script_time, 
-                                 "wav_time": wav_time, 
-                                 "script_file": script_file, 
-                                 "wav_file": wav_file})
-
-    with open(f"{root}/wav_script_pairs.jsonl", "w", encoding="utf-8") as f:
-        for wav_script_pair in wav_script_pairs:
-            f.write(json.dumps(wav_script_pair, ensure_ascii=False)+"\n")
-
-    logging.error(f"PART4:")
-    logging.info(f"total_wav_script_pairs: {len(wav_script_pairs)}")
-
-
-def check_part5_time():
-
-    wav_script_pairs = []
-    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5"
-    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
-
-    for script, script_time in duration_dict["Scripts"].items():
-        wav_time    = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        script_file = os.path.join(f"{root}/Scripts", script)
-        wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
-        wav_script_pairs.append({"script_time": script_time, 
-                                 "wav_time": wav_time, 
-                                 "script_file": script_file, 
-                                 "wav_file": wav_file})
-
-    with open(f"{root}/wav_script_pairs.jsonl", "w", encoding="utf-8") as f:
-        for wav_script_pair in wav_script_pairs:
-            f.write(json.dumps(wav_script_pair, ensure_ascii=False)+"\n")
-
-    logging.error(f"PART5:")
-    logging.info(f"total_wav_script_pairs: {len(wav_script_pairs)}")
-
-
-def check_part6_time():
-
-    wav_script_pairs = []
-    root          = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
-    duration_dict = json.load(open(f"{root}/duration_dict.json", "r", encoding="utf-8"))
-
-    for script, script_time in duration_dict["Scripts"].items():
-        wav_time    = duration_dict["Audio"][script.replace(".TextGrid", ".wav")]
-        script_file = os.path.join(f"{root}/Scripts", script)
-        wav_file    = os.path.join(f"{root}/Audio", script.replace(".TextGrid", ".wav"))
-        wav_script_pairs.append({"script_time": script_time, 
-                                 "wav_time": wav_time, 
-                                 "script_file": script_file, 
-                                 "wav_file": wav_file})
-
-    with open(f"{root}/wav_script_pairs.jsonl", "w", encoding="utf-8") as f:
-        for wav_script_pair in wav_script_pairs:
-            f.write(json.dumps(wav_script_pair, ensure_ascii=False)+"\n")
-
-    logging.error(f"PART6:")
-    logging.info(f"total_wav_script_pairs: {len(wav_script_pairs)}")
 
 
 def check(textgrid_file):
@@ -303,7 +226,11 @@ def check_part3_mis_match():
 
 def main():
     
-    check_part3_time()
+    # get_part3_time()
+    # get_part4_time()
+    # get_part5_time()
+    # get_part6_time()
+    check_time()
 
 
 if __name__ == "__main__":

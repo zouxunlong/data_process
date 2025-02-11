@@ -35,7 +35,6 @@ def main(workers=20):
 
     root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
 
-
     params = []
 
     wav_files = glob(os.path.join(root, 'Audio',  '*.wav'), recursive=True)
@@ -43,8 +42,8 @@ def main(workers=20):
 
         txt_file = wav_file.replace("/Audio/", "/txt_all/").replace(".wav", ".txt")
         mse      = float(open(txt_file).readlines()[-1].split(" || ")[-1].strip())
-        if mse > 1:
-            print(wav_file)
+        if mse > 2:
+            print("mse too large: ", wav_file, flush=True)
             continue
         
         wav_filename    = os.path.basename(wav_file)
@@ -55,8 +54,7 @@ def main(workers=20):
 
         speaker_metadata = {"speaker_id": speaker_id}
 
-        if os.path.exists(wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")):
-            script_file = wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")
+        assert os.path.exists(script_file), script_file
 
         params.append((wav_file,
                        script_file,

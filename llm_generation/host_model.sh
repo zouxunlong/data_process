@@ -6,11 +6,14 @@
 
 export HF_ENDPOINT=https://hf-mirror.com
 export HF_HOME=~/scratch/huggingface
-export CUDA_VISIBLE_DEVICES=0
 
 
 # model=casperhansen/llama-3-70b-instruct-awq
 model=hugging-quants/Meta-Llama-3.1-70B-Instruct-AWQ-INT4
+# model=deepseek-ai/DeepSeek-V3
+
+
+export CUDA_VISIBLE_DEVICES=0
 port=5000
 
 python -m vllm.entrypoints.openai.api_server \
@@ -130,5 +133,3 @@ echo "Started server on port $port"
 
 
 
-
-# bash host_model_judge_llama_3_70b_instruct_awq.sh

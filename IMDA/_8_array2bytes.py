@@ -19,28 +19,27 @@ def map_fn(example):
     example["context"]["audio"]={"bytes": open(fname, "rb").read()}
     return example
 
-def convert(split, num_proc, dir):
+def convert(split, num_proc):
     ds=load_from_disk(split)
     ds=ds.map(map_fn, num_proc=num_proc, batch_size=1, writer_batch_size=1, features=ds.features)
-    if not os.path.exists(split.replace(dir, dir+"_bytes")):
-        ds.save_to_disk(split.replace(dir, dir+"_bytes"), num_proc=4)
+    if not os.path.exists(split.replace("/imda_asr/", "/imda_bytes/")):
+        ds.save_to_disk(split.replace("/imda_asr/", "/imda_bytes/"), num_proc=4)
 
-def main(dir="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal", 
-         reverse=True, 
-         num_proc=224
-         ):
+def main(dir, 
+         reverse=True,
+         num_proc=220):
+
     splits=get_all_split(dir)
     splits.sort(reverse=reverse)
     pprint(splits)
     for split in splits:
-        if "IMDA_PART3_30_ASR_v4" not in split:
-            continue
-        print("=====start {}==========".format(split), flush=True)
-        if os.path.exists(split.replace(dir, dir+"_bytes")):
+        if os.path.exists(split.replace("/imda_asr/", "/imda_bytes/")):
             print("skip {}".format(split), flush=True)
             continue
-        convert(split, num_proc, dir)
-        print("======complete {}=======".format(split), flush=True)
+        print("=====start {}==========".format(split), flush=True)
+        convert(split, num_proc)
+        print("=====complete {}=======".format(split), flush=True)
+
 
 if __name__ == "__main__":
     fire.Fire(main)

@@ -291,13 +291,11 @@ def process_audio(batch):
         'other_attributes': [],
     }
     try:
-
         items = batch['transcriptions'][0]
         path = batch['context'][0]['audio']["path"]
         array = batch['context'][0]['audio']['array']
 
         for item in items:
-
             start_time  = item['start']
             end_time    = item['end']
             sentence    = item["text"].strip()
@@ -323,7 +321,6 @@ def process_audio(batch):
                 'speaker': item['speaker'],
                 'segment_id': item['segment_id'],
             })
-
         return new_batch
 
     except Exception as e:

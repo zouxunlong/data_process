@@ -62,8 +62,9 @@ def map_fn(batch):
         revised_question = "No match found!!!!"
         revised_answer = "No match found!!!!"
 
-    batch['instruction'][0]['text'] = revised_question
-    batch['answer'][0]['text'] = revised_answer
+    batch['instruction'][0]['text']               = revised_question
+    batch['answer'][0]['text']                    = revised_answer
+    batch['other_attributes'][0]['transcription'] = transcription
 
     return batch
 
@@ -95,29 +96,14 @@ def build(ROOT_PATH, DATASET_NAME):
 
 
 def main(split="all", dataset="all"):
-    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR',
-                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR']:
+    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_nlb/test/ASR',
+                      '/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes/datasets_nlb/train/ASR']:
 
         for DATASET_NAME in [
-            'IMDA_PART3_30_ASR_v4',
-            'IMDA_PART4_30_ASR_v4',
-            'IMDA_PART5_30_ASR_v4',
-            'IMDA_PART6_30_ASR_v4',
-
-            'IMDA_PART3_60_ASR_v4',
-            'IMDA_PART4_60_ASR_v4',
-            'IMDA_PART5_60_ASR_v4',
-            'IMDA_PART6_60_ASR_v4',
-
-            'IMDA_PART3_120_ASR_v4',
-            'IMDA_PART4_120_ASR_v4',
-            'IMDA_PART5_120_ASR_v4',
-            'IMDA_PART6_120_ASR_v4',
-
-            'IMDA_PART3_300_ASR_v4',
-            'IMDA_PART4_300_ASR_v4',
-            'IMDA_PART5_300_ASR_v4',
-            'IMDA_PART6_300_ASR_v4',
+            'NLB_30_ASR_v2',
+            'NLB_60_ASR_v2',
+            'NLB_120_ASR_v2',
+            'NLB_300_ASR_v2',
             ]:
             if (split == "all" or split in ROOT_PATH) and (dataset == "all" or dataset in DATASET_NAME):
                 build(ROOT_PATH, DATASET_NAME)

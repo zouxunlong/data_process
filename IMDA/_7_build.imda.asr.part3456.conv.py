@@ -2,6 +2,7 @@ import random
 import traceback
 import os
 import re
+import unicodedata
 from datasets import load_from_disk, Features, Value, Audio
 import fire
 
@@ -15,9 +16,11 @@ instructions_asr = [
 
 
 def normalize_sentence(sentence):
+    sentence = unicodedata.normalize('NFKC', sentence)
     sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
-    sentence = re.sub('(^|\s)<[a-zA-Z0-9/]*>($|\s)', " ", sentence)
-    sentence = re.sub('(^|\s)(\(ppb\)|\(ppc\)|\(ppl\)|\(ppo\))($|\s)', " ", sentence)
+    sentence = re.sub('<[a-zA-Z0-9/\s]*>', " ", sentence)
+    sentence = re.sub('\((ppc|ppb|ppl|ppo)\)', " ", sentence, flags=re.IGNORECASE)
+    sentence = re.sub('(_|\(|\)|\[|\])', "", sentence)
     sentence = " ".join(re.sub('_', "", sentence).split()).strip()
     return sentence
 
@@ -59,7 +62,6 @@ def swap_speakers(text):
         swapped = True
     else:
         swapped = False
-
     if swapped:
         lines = [line.replace("<Speaker1>:", "speaker2:").replace("<Speaker2>:", "<Speaker1>:").replace("speaker2:", "<Speaker2>:") for line in lines]
     return swapped, "\n".join(lines)
@@ -156,32 +158,26 @@ def chunking(batch, chunk_limit, partition):
                         "setting": batch["setting"][0],
                         "partition": batch["partition"][0],
                     })
-
         return new_batch
     except:
         print(traceback.format_exc(), flush=True)
 
 
-def chunk(split, chunk_limit, workers=112):
+def map2schema(ds, chunk_limit, part, workers=98):
 
-    print("start {}".format(split), flush=True)
-    partition = split.split("/")[-1]
-    if os.path.exists(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF_ASR_{chunk_limit}/train/{partition}"):
-        return
-    ds = load_from_disk(split)
-    if partition in ["PART3", "PART4", "PART5"]:
+    if part in ["PART3", "PART4", "PART5"]:
         features = Features({
-            'context': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
-            'instruction': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
-            'answer': {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
+            'context'         : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
+            'instruction'     : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
+            'answer'          : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
             'other_attributes': {
                 "conversation_id": ds.features["conversation_id"],
-                "start": Value(dtype="float64"),
-                "end": Value(dtype="float64"),
-                "setting": ds.features["setting"],
-                "partition": ds.features["partition"],
-                "speaker1": ds.features["speaker1"],
-                "speaker2": ds.features["speaker2"],
+                "start"          : Value(dtype="float64"),
+                "end"            : Value(dtype="float64"),
+                "setting"        : ds.features["setting"],
+                "partition"      : ds.features["partition"],
+                "speaker1"       : ds.features["speaker1"],
+                "speaker2"       : ds.features["speaker2"],
             }
         })
     else:
@@ -197,28 +193,37 @@ def chunk(split, chunk_limit, workers=112):
                 "partition": ds.features["partition"],
             }
         })
+
     ds = ds.map(chunking,
-                fn_kwargs         = {"chunk_limit": chunk_limit, "partition": partition},
+                fn_kwargs         = {"chunk_limit": chunk_limit, "partition": part},
                 batched           = True,
                 batch_size        = 1,
                 writer_batch_size = 1,
                 features          = features,
                 remove_columns    = ds.column_names,
                 num_proc          = workers)
-    ds_dict = ds.train_test_split(test_size=1000)
-    ds_dict["train"].save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF_ASR_{chunk_limit}/train/{partition}")
-    ds_dict["test"].save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/IMDA_HF_ASR_{chunk_limit}/test/{partition}")
+    return ds
 
 
-def main(
-    chunk_limit,
+def chunk(split, chunk_limit):
+
+    part = split.split("/")[-1]
+
+    ds = load_from_disk(split)
+    ds = map2schema(ds, chunk_limit, part)
+
+    ds.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{part}_{chunk_limit}_ASR_v4", num_proc=10)
+
+
+def main(chunk_limit):
     splits=[
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART3",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART4",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART5",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_hf/PART6"
-    ]):
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART3",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART4",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART5",
+        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART6",
+    ]
     for split in splits:
+        print("start {}".format(split), flush=True)
         chunk(split=split, chunk_limit=chunk_limit)
     print("complete all", flush=True)
 

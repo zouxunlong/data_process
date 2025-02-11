@@ -8,6 +8,9 @@ import logging
 import soundfile as sf
 from multiprocessing import Pool
 from tqdm import tqdm
+import textgrid
+import re
+import unicodedata
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -122,10 +125,13 @@ def get_key_part4(path):
     return path.split("/")[-1].split("_")[1]
 
 def get_key_part5(path):
-    return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("_")[4].split(".")[0]
+    if path.split("/")[-3] == "PART3":
+        return path.split("/")[-3] + "_" + path.split("/")[-1].split("_")[1]
+    else:
+        return path.split("/")[-3] + "_" + path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("_")[-1].split(".")[0]
 
 def get_key_part6(path):
-    return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("-")[-1].split(".")[0]
+    return path.split("/")[-1].split("_")[1] + "_" + path.split("/")[-1].split("_")[-1].split(".")[0]
 
 
 
@@ -138,10 +144,10 @@ def mix():
 
     print("Start PART3", flush=True)
 
-    root_mix_part3 = f"{root}/PART3/Audio_Separate_mixed"
+    root_mix_part3 = f"{root}/PART3/Audio_mixed"
     duration_dict  = json.load(open(f"{root}/PART3/duration_dict.json", "r", encoding="utf-8"))
 
-    root_part3 = f"{root}/PART3/Audio_Separate"
+    root_part3 = f"{root}/PART3/Audio"
     wav_files  = glob(os.path.join(root_part3, '*.wav'), recursive=True)
     wav_files.sort(key=get_key_part3)
 
@@ -165,8 +171,6 @@ def mix():
             params.append(([os.path.join(root_part3, audio_file1), os.path.join(root_part3, audio_file2)], os.path.join(root_mix_part3, f"{key}.wav"), "diff_time", "PART3"))
         else:
             params_large.append(([os.path.join(root_part3, audio_file1), os.path.join(root_part3, audio_file2)], os.path.join(root_mix_part3, f"{key}.wav"), "diff_time", "PART3"))
-
-
 
 
     print("Start PART4", flush=True)
@@ -197,8 +201,6 @@ def mix():
             params.append(([os.path.join(root_part4, audio_file1), os.path.join(root_part4, audio_file2)], os.path.join(root_mix_part4, f"{key}.wav"), "diff_time", "PART4"))
         else:
             params_large.append(([os.path.join(root_part4, audio_file1), os.path.join(root_part4, audio_file2)], os.path.join(root_mix_part4, f"{key}.wav"), "diff_time", "PART4"))
-
-
 
 
     print("Start PART5", flush=True)
@@ -279,9 +281,6 @@ def mix():
             shift_dict[file1]=shift1
             shift_dict[file2]=shift2
         json.dump(shift_dict, open(f"{root}/mix_shift.json", "w"), indent=4)
-
-
-
 
 
 

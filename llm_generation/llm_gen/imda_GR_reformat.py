@@ -64,20 +64,30 @@ def map_fn(batch):
     """
 
 
-    first_speaker=batch["other_attributes"][0]["speaker1"]
-    second_speaker=batch["other_attributes"][0]["speaker2"]
-
-    first_gender="female" if first_speaker["gender"] in ["F", "Female"] else "male"
-    second_gender="female" if second_speaker["gender"] in ["F", "Female"] else "male"
-    
-    transcription=batch["answer"][0]["text"]
-    if re.search("\n", transcription): 
-        speaker_information=f"""First Speaker Gender: {first_gender}.
-        Second Speaker Gender: {second_gender}.
-        Number of speakers: 2"""
-    else: 
-        speaker_information=f"""Speaker Information: {first_gender}.
+    if "speaker" in batch['other_attributes'][0]:
+        speaker=batch["other_attributes"][0]["speaker"]
+        if "gender" in speaker:
+            gender = "female" if speaker['gender'] in ["F", "Female"] else "male"
+        else:
+            batch['instruction'][0]['text'] = "No match found!!!!"
+            batch['answer'][0]['text']      = "No match found!!!!"
+            return batch
+        speaker_information=f"""Speaker Information: {gender}.
         Number of speakers: 1"""
+    else:
+        speaker1      = batch["other_attributes"][0]["speaker1"]
+        speaker2      = batch["other_attributes"][0]["speaker2"]
+        gender1       = "female" if speaker1['gender'] in ["F", "Female"] else "male"
+        gender2       = "female" if speaker2['gender'] in ["F", "Female"] else "male"
+        transcription = batch["answer"][0]["text"]
+        if re.search("<Speaker2>: ", transcription):
+            speaker_information=f"""First Speaker Gender: {gender1}.
+            Second Speaker Gender: {gender2}.
+            Number of speakers: 2"""
+        else: 
+            speaker_information=f"""Speaker Information: {gender1}.
+            Number of speakers: 1"""
+
 
     input_message = prompt.format(speaker_information = speaker_information)
 
@@ -108,55 +118,89 @@ def map_fn(batch):
         revised_question = "No match found!!!!"
         revised_answer = "No match found!!!!"
 
-        print("No match found!!!!", flush=True)
-        print("output:", output, flush=True)
-
-    batch['instruction'][0]['text']               = revised_question
-    batch['answer'][0]['text']                    = revised_answer
-    batch['other_attributes'][0]['transcription'] = transcription
+    batch['instruction'][0]['text'] = revised_question
+    batch['answer'][0]['text']      = revised_answer
+    
     return batch
 
 
 def build(ROOT_PATH, DATASET_NAME):
 
-    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/Paralingual"), DATASET_NAME.replace("_ASR_", "_GR_"))
+    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/PQA"), DATASET_NAME.replace("_ASR_", "_GR_"))
     if os.path.exists(output_path):
         print(f"Skipping {output_path} as it already exists")
         return    
 
     data = load_from_disk(os.path.join(ROOT_PATH, DATASET_NAME))
     data = data.map(map_fn,
-                    num_proc=224,
-                    batched=True,
-                    batch_size=1,
-                    writer_batch_size=1,
+                    num_proc          = 224,
+                    batched           = True,
+                    batch_size        = 1,
+                    writer_batch_size = 1,
+                    features          = data.features,
+                    desc              = f"map GR/{DATASET_NAME}",
                     )
 
     data = data.filter(lambda x: x['instruction']['text'] not in ["No match found!!!!", ""],
                         num_proc          = 224,
                         batch_size        = 1,
                         writer_batch_size = 1,
+                        desc              = f"filter GR/{DATASET_NAME}",
                         )
 
-    data.save_to_disk(output_path, num_proc=2)
+    data.save_to_disk(output_path, num_proc=10)
 
 
 def main(split="all", dataset="all"):
-    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/test/ASR',
-                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/train/ASR']:
+    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR',
+                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR']:
 
-        for DATASET_NAME in ['IMDA_PART3_30_ASR_v4',
-                             'IMDA_PART4_30_ASR_v4',
-                             'IMDA_PART5_30_ASR_v4',
+        for DATASET_NAME in [
+            'IMDA_PART1_ASR_v4',
+            'IMDA_PART2_ASR_v4',
+            'IMDA_PART3_ASR_v4',
+            'IMDA_PART4_ASR_v4',
+            'IMDA_PART5_ASR_v4',
 
-                             'IMDA_PART3_60_ASR_v4',
-                             'IMDA_PART4_60_ASR_v4',
-                             'IMDA_PART5_60_ASR_v4',
+            'IMDA_PART1_ASR_v4_0',
+            'IMDA_PART1_ASR_v4_1',
+            'IMDA_PART1_ASR_v4_2',
+            'IMDA_PART1_ASR_v4_3',
+            'IMDA_PART1_ASR_v4_4',
+            'IMDA_PART1_ASR_v4_5',
+            'IMDA_PART1_ASR_v4_6',
+            'IMDA_PART1_ASR_v4_7',
+            'IMDA_PART1_ASR_v4_8',
+            'IMDA_PART1_ASR_v4_9',
+            
+            'IMDA_PART2_ASR_v4_0',
+            'IMDA_PART2_ASR_v4_1',
+            'IMDA_PART2_ASR_v4_2',
+            'IMDA_PART2_ASR_v4_3',
+            'IMDA_PART2_ASR_v4_4',
+            'IMDA_PART2_ASR_v4_5',
+            'IMDA_PART2_ASR_v4_6',
+            'IMDA_PART2_ASR_v4_7',
+            'IMDA_PART2_ASR_v4_8',
+            'IMDA_PART2_ASR_v4_9',
 
-                             'IMDA_PART3_120_ASR_v4',
-                             'IMDA_PART4_120_ASR_v4',
-                             'IMDA_PART5_120_ASR_v4']:
+            'IMDA_PART3_30_ASR_v4',
+            'IMDA_PART4_30_ASR_v4',
+            'IMDA_PART5_30_ASR_v4',
+
+            'IMDA_PART3_60_ASR_v4',
+            'IMDA_PART4_60_ASR_v4',
+            'IMDA_PART5_60_ASR_v4',
+
+            'IMDA_PART3_120_ASR_v4',
+            'IMDA_PART4_120_ASR_v4',
+            'IMDA_PART5_120_ASR_v4',
+
+            'IMDA_PART3_300_ASR_v4',
+            'IMDA_PART4_300_ASR_v4',
+            'IMDA_PART5_300_ASR_v4']:
             if (split == "all" or split in ROOT_PATH) and (dataset == "all" or dataset in DATASET_NAME):
+                print(f"Processing {ROOT_PATH}/{DATASET_NAME}", flush=True)
                 build(ROOT_PATH, DATASET_NAME)
 
 if __name__ == "__main__":

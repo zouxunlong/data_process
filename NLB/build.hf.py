@@ -24,7 +24,7 @@ def map_fn(example, jsonl_aligned_dir):
     segments_split_time = [items[0]['start']] + [(items[i]['end'] + items[i+1]['start'])/2 for i in range(len(items)-1)] + [items[-1]['end']]
     for i, item in enumerate(items):
         item["start"] = segments_split_time[i]
-        item["end"] = segments_split_time[i+1]
+        item["end"]   = segments_split_time[i+1]
 
     example['transcriptions']=items
 
@@ -42,11 +42,11 @@ def build_hf(
     audio_dataset = Dataset.from_dict({"audio": audio_files})
 
     ds = audio_dataset.map(
-        function             = map_fn,
-        fn_kwargs            = {'jsonl_aligned_dir': jsonl_aligned_dir},
-        features             = features,
-        num_proc             = 10,
-        writer_batch_size    = 1,
+        function          = map_fn,
+        fn_kwargs         = {'jsonl_aligned_dir': jsonl_aligned_dir},
+        features          = features,
+        num_proc          = 10,
+        writer_batch_size = 1,
     )
     ds.save_to_disk(des_path, num_proc=4)
 

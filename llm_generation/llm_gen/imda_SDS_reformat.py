@@ -81,6 +81,7 @@ def map_fn(batch):
     )
     models = client.models.list()
     model = models.data[0].id
+
     chat_response = client.chat.completions.create(
         model      = model,
         messages   = [{"role": "user", "content": input_message},],
@@ -96,18 +97,15 @@ def map_fn(batch):
         revised_question = random.choice(candidate_instructions)
         revised_answer = "No match found!!!!"
 
-        print("No match found!!!!", flush=True)
-        print("output:", output, flush=True)
+    batch['instruction'][0]['text'] = revised_question
+    batch['answer'][0]['text']      = revised_answer
 
-    batch['instruction'][0]['text']               = revised_question
-    batch['answer'][0]['text']                    = revised_answer
-    batch['other_attributes'][0]['transcription'] = transcription
     return batch
 
 
 def build(ROOT_PATH, DATASET_NAME):
 
-    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/DS"), DATASET_NAME.replace("_ASR_", "_DS_"))
+    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/SDS"), DATASET_NAME.replace("_ASR_", "_SDS_"))
     if os.path.exists(output_path):
         print(f"Skipping {output_path} as it already exists")
         return
@@ -118,12 +116,14 @@ def build(ROOT_PATH, DATASET_NAME):
                     batched           = True,
                     batch_size        = 1,
                     writer_batch_size = 1,
+                    desc              = f"map SDS/{DATASET_NAME}",
                     )
 
     data = data.filter(lambda x: x['instruction']['text'] not in ["No match found!!!!", ""],
                        num_proc          = 224,
                        batch_size        = 1,
                        writer_batch_size = 1,
+                       desc              = f"filter SDS/{DATASET_NAME}",
                        )
 
     data.save_to_disk(output_path, num_proc=2)
@@ -131,33 +131,30 @@ def build(ROOT_PATH, DATASET_NAME):
 
 
 def main(split="all", dataset="all"):
-    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/test/ASR',
-                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/train/ASR']:
+    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR',
+                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR']:
 
-        for DATASET_NAME in ['IMDA_PART3_30_ASR_v4',
-                             'IMDA_PART4_30_ASR_v4',
-                             'IMDA_PART5_30_ASR_v4',
-                             'IMDA_PART6_30_ASR_v4_0',
-                             'IMDA_PART6_30_ASR_v4_1',
-                             'IMDA_PART6_30_ASR_v4_2',
-                             'IMDA_PART6_30_ASR_v4_3',
-                             'IMDA_PART6_30_ASR_v4_4',
-                             'IMDA_PART6_30_ASR_v4_5',
-                             'IMDA_PART6_30_ASR_v4_6',
-                             'IMDA_PART6_30_ASR_v4_7',
-                             'IMDA_PART6_30_ASR_v4_8',
-                             'IMDA_PART6_30_ASR_v4_9',
+        for DATASET_NAME in [
+            'IMDA_PART3_30_ASR_v4',
+            'IMDA_PART4_30_ASR_v4',
+            'IMDA_PART5_30_ASR_v4',
+            'IMDA_PART6_30_ASR_v4',
 
-                             'IMDA_PART3_60_ASR_v4',
-                             'IMDA_PART4_60_ASR_v4',
-                             'IMDA_PART5_60_ASR_v4',
-                             'IMDA_PART6_60_ASR_v4',
+            'IMDA_PART3_60_ASR_v4',
+            'IMDA_PART4_60_ASR_v4',
+            'IMDA_PART5_60_ASR_v4',
+            'IMDA_PART6_60_ASR_v4',
 
-                             'IMDA_PART3_120_ASR_v4',
-                             'IMDA_PART4_120_ASR_v4',
-                             'IMDA_PART5_120_ASR_v4',
-                             'IMDA_PART6_120_ASR_v4'
-                             ]:
+            'IMDA_PART3_120_ASR_v4',
+            'IMDA_PART4_120_ASR_v4',
+            'IMDA_PART5_120_ASR_v4',
+            'IMDA_PART6_120_ASR_v4',
+
+            'IMDA_PART3_300_ASR_v4',
+            'IMDA_PART4_300_ASR_v4',
+            'IMDA_PART5_300_ASR_v4',
+            'IMDA_PART6_300_ASR_v4',
+            ]:
             if (split == "all" or split in ROOT_PATH) and (dataset == "all" or dataset in DATASET_NAME):
                 build(ROOT_PATH, DATASET_NAME)
 

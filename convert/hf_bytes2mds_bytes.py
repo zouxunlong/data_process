@@ -80,10 +80,10 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(intput_dir="/mnt/data/all_datasets/datasets/datasets_hf_bytes", output_dir="/mnt/data/all_datasets/datasets/datasets_mosaic_bytes"):
+def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes", output_dir="/scratch/users/astar/ares/zoux/datasets/datasets_mosaic_bytes"):
 
     start_time = time.time()
-    num_pro    = 4
+    num_pro    = 16
 
     dataset_paths  = get_all_split(intput_dir)
     dataset_paths = [path for path in dataset_paths if path.split('/')[-3] in ["test", "train"]]

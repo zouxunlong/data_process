@@ -59,7 +59,7 @@ def map_fn(batch):
         Speaker Information: First language is Hokkien.
         Number of speakers: 1
 
-        Question: What can you tell about the speaker's accent?
+        Question: Can you describe the accent characteristics of the male speaker?
         Answer: The speaker have a Hokkien accent. They are likely from the Chinese-Speaking community of Singapore.
 
 
@@ -72,19 +72,35 @@ def map_fn(batch):
     """
 
 
-    first_speaker_first_language   = batch['other_attributes'][0]['speaker1']['first_language']
-    second_speaker_first_language  = batch['other_attributes'][0]['speaker2']['first_language']
-    
-    transcription=batch["answer"][0]["text"]
-    if re.search("\n", transcription): 
-        speaker_information=f"""First Speaker Information: First language is {first_speaker_first_language}.
-        Second Speaker Information: First language is {second_speaker_first_language}.
-        Number of speakers: 2"""
-    else: 
-        speaker_information=f"""Speaker Information: First language is {first_speaker_first_language}.
-        Number of speakers: 1"""        
-    input_message = prompt.format(speaker_information = speaker_information)
+    if "speaker" in batch['other_attributes'][0]:
+        speaker=batch["other_attributes"][0]["speaker"]
+        if "first_language" in speaker:
+            first_language = speaker['first_language']
+        elif "ethnic_group" in speaker:
+            first_language = speaker['ethnic_group']
+        else:
+            batch['instruction'][0]['text'] = "No match found!!!!"
+            batch['answer'][0]['text']      = "No match found!!!!"
+            return batch
+        speaker_information=f"""Speaker Information: First language is {first_language}.
+        Number of speakers: 1"""
+    else:
+        speaker1        = batch["other_attributes"][0]["speaker1"]
+        speaker2        = batch["other_attributes"][0]["speaker2"]
+        first_language1 = speaker1['first_language']
+        first_language2 = speaker2['first_language']
+        transcription   = batch["answer"][0]["text"]
+        if re.search("<Speaker2>: ", transcription):
+            speaker_information=f"""First Speaker Information: First language is {first_language1}.
+            Second Speaker Information: First language is {first_language2}.
+            Number of speakers: 2"""
+        else:
+            speaker_information=f"""Speaker Information: First language is {first_language1}.
+            Number of speakers: 1"""
 
+
+
+    input_message = prompt.format(speaker_information = speaker_information)
     port = random.choice([5000, 5001, 5002, 5003, 5004, 5005, 5006, 5007])
     client = OpenAI(
         api_key="EMPTY",
@@ -112,55 +128,67 @@ def map_fn(batch):
         revised_question = "No match found!!!!"
         revised_answer = "No match found!!!!"
 
-        print("No match found!!!!", flush=True)
-        print("output:", output, flush=True)
-
-    batch['instruction'][0]['text']               = revised_question
-    batch['answer'][0]['text']                    = revised_answer
-    batch['other_attributes'][0]['transcription'] = transcription
+    batch['instruction'][0]['text'] = revised_question
+    batch['answer'][0]['text']      = revised_answer
+    
     return batch
 
 
 def build(ROOT_PATH, DATASET_NAME):
 
-    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/Paralingual"), DATASET_NAME.replace("_ASR_","_AR_"))
+    output_path = os.path.join(ROOT_PATH.replace("/ASR", "/PQA"), DATASET_NAME.replace("_ASR_","_AR_"))
     if os.path.exists(output_path):
         print(f"Skipping {output_path} as it already exists")
         return
 
     data = load_from_disk(os.path.join(ROOT_PATH, DATASET_NAME))
     data = data.map(map_fn,
-                    num_proc=224,
-                    batched=True,
-                    batch_size=1,
-                    writer_batch_size=1,
+                    num_proc          = 224,
+                    batched           = True,
+                    batch_size        = 1,
+                    writer_batch_size = 1,
+                    features          = data.features,
+                    desc              = f"map AR/{DATASET_NAME}",
                     )
 
     data = data.filter(lambda x: x['instruction']['text'] != "No match found!!!!",
-                        num_proc=224,
-                        batch_size=1,
-                        writer_batch_size=1,
+                        num_proc          = 224,
+                        batch_size        = 1,
+                        writer_batch_size = 1,
+                        desc              = f"filter AR/{DATASET_NAME}",
                         )
 
-    data.save_to_disk(output_path, num_proc=2)
+    data.save_to_disk(output_path, num_proc=10)
 
 
 def main(split="all", dataset="all"):
-    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/test/ASR',
-                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/datasets_multimodal_bytes/train/ASR']:
+    for ROOT_PATH in ['/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR',
+                      '/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR']:
 
-        for DATASET_NAME in ['IMDA_PART3_30_ASR_v4',
-                             'IMDA_PART4_30_ASR_v4',
-                             'IMDA_PART5_30_ASR_v4',
+        for DATASET_NAME in [
+            'IMDA_PART1_ASR_v4',
+            'IMDA_PART2_ASR_v4',
+            'IMDA_PART3_ASR_v4',
+            'IMDA_PART4_ASR_v4',
+            'IMDA_PART5_ASR_v4',
 
-                             'IMDA_PART3_60_ASR_v4',
-                             'IMDA_PART4_60_ASR_v4',
-                             'IMDA_PART5_60_ASR_v4',
+            'IMDA_PART3_30_ASR_v4',
+            'IMDA_PART4_30_ASR_v4',
+            'IMDA_PART5_30_ASR_v4',
 
-                             'IMDA_PART3_120_ASR_v4',
-                             'IMDA_PART4_120_ASR_v4',
-                             'IMDA_PART5_120_ASR_v4']:
+            'IMDA_PART3_60_ASR_v4',
+            'IMDA_PART4_60_ASR_v4',
+            'IMDA_PART5_60_ASR_v4',
+
+            'IMDA_PART3_120_ASR_v4',
+            'IMDA_PART4_120_ASR_v4',
+            'IMDA_PART5_120_ASR_v4',
+
+            'IMDA_PART3_300_ASR_v4',
+            'IMDA_PART4_300_ASR_v4',
+            'IMDA_PART5_300_ASR_v4']:
             if (split == "all" or split in ROOT_PATH) and (dataset == "all" or dataset in DATASET_NAME):
+                print(f"Processing {ROOT_PATH}/{DATASET_NAME}", flush=True)
                 build(ROOT_PATH, DATASET_NAME)
 
 

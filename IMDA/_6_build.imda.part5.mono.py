@@ -43,15 +43,15 @@ def main(workers=20):
 
         txt_file = wav_file.replace("/Audio/", "/txt_all/").replace(".wav", ".txt")
         mse      = float(open(txt_file).readlines()[-1].split(" || ")[-1].strip())
-        if mse > 1:
-            print(wav_file)
+        if mse > 2:
+            print("mse too large: ", wav_file, flush=True)
             continue
 
         wav_filename    = os.path.basename(wav_file)
         script_file     = wav_file.replace("/Audio/", "/Scripts/").replace(".wav", ".TextGrid")
-        conversation_id  = wav_filename.split("_")[1]
-        speaker_id       = wav_filename.split("_")[2]
-        setting          = wav_filename.split(".")[0].split("_")[-1]
+        conversation_id = wav_filename.split("_")[1]
+        speaker_id      = wav_filename.split("_")[2]
+        setting         = wav_filename.split(".")[0].split("_")[-1]
 
         if speaker_id in speaker_metadata_dict:
             speaker_metadata = speaker_metadata_dict[speaker_id]
@@ -59,8 +59,7 @@ def main(workers=20):
             print(f"speaker_id {speaker_id} of {wav_filename} not in speaker_metadata_dict", flush=True)
             speaker_metadata = {"speaker_id": speaker_id}
 
-        if os.path.exists(wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")):
-            script_file = wav_file.replace("/Audio/", "/Scripts_fixed/").replace(".wav", ".TextGrid")
+        assert os.path.exists(script_file), script_file
 
         params.append((wav_file,
                        script_file,
