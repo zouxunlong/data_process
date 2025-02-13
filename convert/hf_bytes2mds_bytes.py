@@ -80,7 +80,7 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(intput_dir="/scratch/users/astar/ares/zoux/datasets/datasets_hf_bytes", output_dir="/scratch/users/astar/ares/zoux/datasets/datasets_mosaic_bytes"):
+def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_bytes", output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_bytes"):
 
     start_time = time.time()
     num_pro    = 16

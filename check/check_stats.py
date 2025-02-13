@@ -14,7 +14,7 @@ def get_all_split(ds_path):
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 224):
+def check_data(hf_folder: str, num_worker: int = 220):
 
     def map_fn(example):
         return {"audio_length": len(example["context"]["audio"]["array"])/16000}
@@ -31,10 +31,11 @@ def check_data(hf_folder: str, num_worker: int = 224):
         print('Checking {}'.format(split), flush=True)
         ds = load_from_disk(split).select_columns(["context"])
         ds = ds.map(map_fn,
-                    batch_size=1, 
-                    writer_batch_size=1,
-                    remove_columns=ds.column_names, 
-                    num_proc=num_worker)
+                    batch_size        = 1,
+                    writer_batch_size = 1,
+                    remove_columns    = ds.column_names,
+                    num_proc          = num_worker,
+                    desc              = f"{os.path.basename(split)}")
 
         num_of_samples = len(ds)
         total_audio_hours = sum(ds["audio_length"])/3600
@@ -60,15 +61,15 @@ def check_data(hf_folder: str, num_worker: int = 224):
     ds_stats = json.load(open(os.path.join(hf_folder, 'ds_stats.json')))
     dfList=[]
     for key, value in ds_stats.items():
-        _, mnt, data, all_datasets, datasets, datasets_hf_bytes, datasets_multimodal, other_prepared, TASK, DATASET_SPLIT= key.split("/")
+        datasets_multimodal, split, TASK, DATASET= key.split("/")[-4:]
 
         num_of_samples= value['num_of_samples']
         total_audio_hours= value['total_audio_hours']
         max_audio_seconds= value['max_audio_seconds']
         min_audio_seconds= value['min_audio_seconds']
-        path= f"/{mnt}/{data}/{all_datasets}/{datasets}/{datasets_hf_bytes}/{datasets_multimodal}/{other_prepared}/{TASK}/{DATASET_SPLIT}"
+        path= f"/mnt/data/all_datasets/datasets/datasets_hf_bytes/{datasets_multimodal}/{split}/{TASK}/{DATASET}"
 
-        dfList.append([other_prepared, TASK, DATASET_SPLIT, total_audio_hours, max_audio_seconds, min_audio_seconds, num_of_samples, path])
+        dfList.append([split, TASK, DATASET, total_audio_hours, max_audio_seconds, min_audio_seconds, num_of_samples, path])
     df_new =  pd.DataFrame(dfList)
     df_new.to_excel(f'{hf_folder}.xlsx', index=False, header=False)
 
