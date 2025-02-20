@@ -95,12 +95,9 @@ def map2schema_commonvoice_no_features(dataset_path, num_proc):
     print(ds.features, flush=True)
     ds = ds.cast_column("audio", Audio(sampling_rate=16000, decode=True))
     ds = ds.map(mapping, remove_columns=ds.column_names, num_proc=num_proc)
-    ds = ds.cast_column('context', {"text": Value(
-        dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
-    ds = ds.cast_column('instruction', {"text": Value(
-        dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
-    ds = ds.cast_column('answer', {"text": Value(
-        dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
+    ds = ds.cast_column('context', {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
+    ds = ds.cast_column('instruction', {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
+    ds = ds.cast_column('answer', {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)})
     print(ds.features, flush=True)
     return ds
 

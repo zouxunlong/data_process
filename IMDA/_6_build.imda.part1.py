@@ -75,8 +75,8 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART1"
-    speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/speaker_metadata_part1.json"))
+    root                  = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART1"
+    speaker_metadata_dict = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/IMDA/speaker_metadata_part1.json"))
 
     script_files = glob(os.path.join(root, '**', '*.TXT'), recursive=True)
     script_files.sort(key=lambda path: path.split("/")[-1])
@@ -93,7 +93,7 @@ def main(workers=20):
         dss=list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds=concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1_bytes"
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1_bytes"
     ds=ds.map(map_fn, num_proc=112, batch_size=1, writer_batch_size=1, features=ds.features)
     ds.save_to_disk(save_path, num_proc=workers)
 

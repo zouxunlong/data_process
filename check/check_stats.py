@@ -37,7 +37,7 @@ def check_data(hf_folder: str, num_worker: int = 112):
                     num_proc          = num_worker,
                     desc              = f"{os.path.basename(split)}")
 
-        num_of_samples = len(ds)
+        num_of_samples    = len(ds)
         total_audio_hours = sum(ds["audio_length"])/3600
         max_audio_seconds = max(ds["audio_length"])
         min_audio_seconds = min(ds["audio_length"])

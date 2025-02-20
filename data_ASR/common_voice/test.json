@@ -1,0 +1,6 @@
+{
+    'context'         : {'audio': {'array': array([0.00064087, ..., 0.00030518]), 'path': None, 'sampling_rate': 16000}, 'text': None},
+    'instruction'     : {'audio': None, 'text': 'Convert the speech into a written transcript.'},
+    'answer'          : {'audio': None, 'text': 'hello hello 可以'},
+    'other_attributes': {'path': 'common_voice_ta_23908199.mp3'}
+}
