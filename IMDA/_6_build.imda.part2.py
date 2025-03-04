@@ -1,5 +1,5 @@
 import random
-from datasets import Audio, Dataset, concatenate_datasets
+from datasets import Audio, Dataset, concatenate_datasets, load_from_disk
 from tqdm import tqdm
 import os
 from glob import glob
@@ -25,7 +25,6 @@ def grep_script_map(file):
                     id = id[-9:]
                 transcription = script.strip()
                 id_script_map[id] = transcription
-
     return id_script_map
 
 def process_script_file(args):
@@ -76,8 +75,8 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    root="/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART2"
-    speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/IMDA/speaker_metadata_part2.json"))
+    root="/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART2"
+    speaker_metadata_dict = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/IMDA/speaker_metadata_part2.json"))
 
     script_files = glob(os.path.join(root, '**', '*.TXT'), recursive=True)
     script_files.sort(key=lambda path: path.split("/")[-1])
@@ -94,9 +93,14 @@ def main(workers=20):
         dss=list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds=concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART2_bytes"
-    ds=ds.map(map_fn, num_proc=112, batch_size=1, writer_batch_size=1, features=ds.features)
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART2"
+    save_path_bytes = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART2_bytes"
+    
     ds.save_to_disk(save_path, num_proc=workers)
+
+    ds=load_from_disk(save_path)
+    ds=ds.map(map_fn, num_proc=112, batch_size=1, writer_batch_size=1, features=ds.features)
+    ds.save_to_disk(save_path_bytes, num_proc=workers)
 
 
 if __name__ == "__main__":

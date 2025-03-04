@@ -37,10 +37,10 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/speaker_metadata_part5.json"))
-    items=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
-    wavs = glob("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/Audio_mixed/*.wav", recursive=True)
-    params = []
+    speaker_metadata_dict = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/speaker_metadata_part5.json"))
+    items                 = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
+    wavs                  = glob("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART5/Audio_mixed/*.wav", recursive=True)
+    params                = []
 
     for wav_file in sorted(wavs):
         filename = os.path.basename(wav_file)
@@ -53,8 +53,8 @@ def main(workers=20):
         assert os.path.exists(script_file1), script_file1
         assert os.path.exists(script_file2), script_file2
 
-        conversation_id = key.split("_")[1]
-        setting         = key.split(".")[0].split("_")[-1]
+        conversation_id = key.split("_")[1] + "_" + key.split("_")[2]
+        setting         = key.split("_")[-1]
         speaker1_id     = os.path.basename(script_file1).split("_")[2]
         speaker2_id     = os.path.basename(script_file2).split("_")[2]
 
@@ -83,7 +83,7 @@ def main(workers=20):
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART5"
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART5"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

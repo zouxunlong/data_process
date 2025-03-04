@@ -27,10 +27,10 @@ def mix_wav(param):
 
     mixed_array = np.concatenate([np.array([0]*start2), array1, np.array([0]*(length-length1-start2))]) + np.concatenate([np.array([0]*start1), array2, np.array([0]*(length-length2-start1))])
 
-    output_file=f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/Audio_mixed/{key}.wav"
+    output_file=f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/{part}/Audio_mixed/{key}.wav"
 
     sf.write(output_file, mixed_array, 16000)
-    
+
 
 
 
@@ -49,16 +49,15 @@ def get_key(path):
 
 def mix():
 
-    items=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
+    items=json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
 
     params=[]
 
     for key, value in items.items():
-        
+
         file1, file2 = value.keys()
         start1=value[file1]
         start2=value[file2]
-
         params.append((key, file1, file2, start1, start2))
 
     with Pool(processes=56) as pool:

@@ -33,7 +33,7 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
+    root = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6"
 
     params = []
 
@@ -48,9 +48,9 @@ def main(workers=20):
         
         wav_filename    = os.path.basename(wav_file)
         script_file     = wav_file.replace("/Audio/", "/Scripts/").replace(".wav", ".TextGrid")
-        conversation_id = wav_filename.split("_")[1]
         speaker_id      = wav_filename.split("_")[2]
         setting         = wav_filename.split(".")[0].split("-")[-1]
+        conversation_id = wav_filename.split("_")[1]+"_"+wav_filename.split("_")[-1].split(".")[0]
 
         speaker_metadata = {"speaker_id": speaker_id}
 
@@ -74,8 +74,8 @@ def main(workers=20):
 
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
-    ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6"
+    ds        = concatenate_datasets(dss)
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

@@ -50,13 +50,13 @@ def mix_script(params):
     transcription_textgrid_1 = textgrid.TextGrid.fromFile(input_files[0])
     transcription_textgrid_2 = textgrid.TextGrid.fromFile(input_files[1])
 
-    total_duration_1         = transcription_textgrid_1.maxTime
-    total_duration_2         = transcription_textgrid_2.maxTime
+    total_duration_1 = transcription_textgrid_1.maxTime
+    total_duration_2 = transcription_textgrid_2.maxTime
 
-    transcription_1          = [{"start": interval.minTime, "end": interval.maxTime, "sentence": normalize_sentence(interval.mark)} for interval in transcription_textgrid_1[0] if len(normalize_sentence(interval.mark).split())>3]
-    transcription_2          = [{"start": interval.minTime, "end": interval.maxTime, "sentence": normalize_sentence(interval.mark)} for interval in transcription_textgrid_2[0] if len(normalize_sentence(interval.mark).split())>3]
-    length_diff              = total_duration_1 - total_duration_2
-    max_ratio                = 1
+    transcription_1 = [{"start": interval.minTime, "end": interval.maxTime, "sentence": normalize_sentence(interval.mark)} for interval in transcription_textgrid_1[0] if len(normalize_sentence(interval.mark).split())>3]
+    transcription_2 = [{"start": interval.minTime, "end": interval.maxTime, "sentence": normalize_sentence(interval.mark)} for interval in transcription_textgrid_2[0] if len(normalize_sentence(interval.mark).split())>3]
+    length_diff     = total_duration_1 - total_duration_2
+    max_ratio       = 1
 
     bar1 = [0] * round(total_duration_1*10)
     bar2 = [0] * round(total_duration_2*10)

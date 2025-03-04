@@ -36,8 +36,8 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    items=json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
-    wavs = glob("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/Audio_mixed/*.wav", recursive=True)
+    items=json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
+    wavs = glob("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART6/Audio_mixed/*.wav", recursive=True)
     params = []
 
     for wav_file in sorted(wavs):
@@ -51,8 +51,8 @@ def main(workers=20):
         assert os.path.exists(script_file1), script_file1
         assert os.path.exists(script_file2), script_file2
 
-        conversation_id = key.split("_")[1]
         setting         = key.split(".")[0].split("-")[-1]
+        conversation_id = key.split("_")[1]+"_"+key.split("_")[-1]
 
         params.append((conversation_id, 
                        wav_file,
@@ -75,7 +75,7 @@ def main(workers=20):
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART6"
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART6"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

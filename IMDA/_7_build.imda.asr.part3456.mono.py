@@ -105,7 +105,7 @@ def map_fn(batch, max_length):
         print(traceback.format_exc(), flush=True)
 
 
-def map2schema(ds, max_length, workers=56):
+def map2schema(ds, max_length, workers=112):
     features = Features({
         'context'         : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
         'instruction'     : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
@@ -131,33 +131,32 @@ def map2schema(ds, max_length, workers=56):
     return ds
 
 
-def build_asr(split, max_length, workers=56):
+def build_asr(split, max_length):
 
     part = split.split("/")[-1]
 
-    ds = load_from_disk(split)
-    ds = map2schema(ds, max_length)
+    ds                        = load_from_disk(split)
+    conversation_ids          = ds.unique("conversation_id")
+    conversation_ids_selected = random.sample(conversation_ids, int(len(conversation_ids)*0.02))
 
-    ds_test = load_from_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{part}_ASR_v4")
-    test_transcriptions=set()
-    for sample in ds_test:
-        test_transcriptions.add(normalize_sentence(sample["answer"]["text"]).lower())
-    print("samples of test_transcriptions: ", len(test_transcriptions), flush=True)
+    ds_test  = ds.filter(lambda x: [item in conversation_ids_selected for item in x["conversation_id"]], batched=True, num_proc=4)
+    ds_train = ds.filter(lambda x: [item not in conversation_ids_selected for item in x["conversation_id"]], batched=True, num_proc=4)
 
-    print(len(ds), flush=True)
-    ds_train    = ds.filter(lambda x: [normalize_sentence(answer["text"].replace("<Speaker1>: ", "")).lower() not in test_transcriptions for answer in x["answer"]], 
-                            batched=True, batch_size=1000, writer_batch_size=1000, num_proc=workers)
-    print(len(ds_train), flush=True)
+    ds_test  = map2schema(ds_test, max_length)
+    print("ds_test: ", len(ds_test), flush=True)
+    ds_test.save_to_disk(f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{part}_ASR", num_proc=10)
 
-    ds_train.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{part}_ASR_v4", num_proc=10)
+    ds_train = map2schema(ds_train, max_length)
+    print("ds_train: ", len(ds_train), flush=True)
+    ds_train.save_to_disk(f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{part}_ASR", num_proc=10)
 
 
 def main():
     splits=[
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART5",
-        "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6",
+        "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART3",
+        "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4",
+        "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART5",
+        "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART6",
     ]
     for split in splits:
         print("start {}".format(split), flush=True)

@@ -13,6 +13,7 @@ def get_all_split(root_hf):
     for dirpath, dirs, files in os.walk(root_hf):
         if len(dirs) == 0:
             directories.append(dirpath)
+    directories.sort(reverse=False)
     return directories
 
 
@@ -80,19 +81,19 @@ def convert_to_mds(args) -> None:
                 pass
 
 
-def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_bytes", output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_bytes"):
+def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_bytes_bucket", 
+         output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_bytes_bucket"):
 
     start_time = time.time()
     num_pro    = 16
 
     dataset_paths  = get_all_split(intput_dir)
     dataset_paths = [path for path in dataset_paths if path.split('/')[-3] in ["test", "train"]]
-    dataset_paths.sort(reverse=True)
-    
+
 
     for dataset_path in dataset_paths:
         dataset_output_path = dataset_path.replace(intput_dir, output_dir)
-        
+
         if os.path.exists(dataset_output_path):
             print(f"Skipping {dataset_output_path}", flush=True)
             continue

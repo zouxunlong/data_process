@@ -13,8 +13,18 @@ instructions_asr = [
 
 translator = str.maketrans('', '', string.punctuation)
 
-def normalize_sentence(sentence):
+def normalize_sentence_for_filter(sentence):
     sentence = unicodedata.normalize('NFKC', sentence.translate(translator))
+    sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
+    sentence = re.sub('<[a-zA-Z0-9/\s]*>', " ", sentence)
+    sentence = re.sub('\((ppc|ppb|ppl|ppo)\)', " ", sentence, flags=re.IGNORECASE)
+    sentence = re.sub('(_|\(|\)|\[|\])', "", sentence)
+    sentence = " ".join(re.sub('_', "", sentence).split()).strip()
+    return sentence
+
+
+def normalize_sentence(sentence):
+    sentence = unicodedata.normalize('NFKC', sentence)
     sentence = re.sub('<(tamil|malay|mandarin)>([^<>:]*):?([^<>:]*)</(tamil|malay|mandarin)>', r"\2", sentence)
     sentence = re.sub('<[a-zA-Z0-9/\s]*>', " ", sentence)
     sentence = re.sub('\((ppc|ppb|ppl|ppo)\)', " ", sentence, flags=re.IGNORECASE)
@@ -46,7 +56,7 @@ def mapping(example):
     }
 
 
-def map2schema(ds, workers=56):
+def map2schema(ds, workers=112):
 
     features = Features({
         'context'         : {"text": Value(dtype='string'), "audio": Audio(sampling_rate=16000, decode=True)},
@@ -60,6 +70,7 @@ def map2schema(ds, workers=56):
             "partition": ds.features["partition"],
         }
     })
+
     ds = ds.map(mapping,
                 features          = features,
                 remove_columns    = ds.column_names,
@@ -73,27 +84,29 @@ def map2schema(ds, workers=56):
 def build(split, workers=56):
 
     print("start {}".format(split), flush=True)
-    partition = split.split("/")[-1]
-    ds        = load_from_disk(split)
+    part = split.split("/")[-1]
+    ds   = load_from_disk(split)
     print(ds, flush=True)
-    
-    ds_test = load_from_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/test/ASR/IMDA_{partition}_ASR_v4")
+
+    ds_test = load_from_disk(f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR/IMDA_{part}_ASR_v4")
     test_transcriptions=set()
-    for sample in ds_test:
-        test_transcriptions.add(normalize_sentence(sample["answer"]["text"]).lower().strip())
+    for sample in ds_test["answer"]:
+        test_transcriptions.add(normalize_sentence_for_filter(sample["text"].replace("<Speaker1>: ", "")).lower().strip())
     print(len(test_transcriptions), flush=True)
+    print(next(iter(test_transcriptions)), flush=True)
+
     print(len(ds), flush=True)
-    ds_train    = ds.filter(lambda x: [normalize_sentence(transcription).lower().strip() not in test_transcriptions for transcription in x["transcription"]], 
+    ds_train = ds.filter(lambda x: [normalize_sentence_for_filter(transcription).lower().strip() not in test_transcriptions for transcription in x["transcription"]], 
                             batched=True, batch_size=1000, writer_batch_size=1000, num_proc=workers)
     print(len(ds_train), flush=True)
 
     ds_train = map2schema(ds_train)
-    ds_train.save_to_disk(f"/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_asr/train/ASR/IMDA_{partition}_ASR_v4", num_proc=10)
+    ds_train.save_to_disk(f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR/IMDA_{part}_ASR", num_proc=10)
 
 
 def main(splits=[
-    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1",
-    "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART2"
+    "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART1_bytes",
+    "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART2_bytes"
 ]):
     for split in splits:
         build(split)

@@ -1,4 +1,5 @@
 import os
+import shutil
 from datasets import load_from_disk
 import fire
 
@@ -8,13 +9,15 @@ def get_all_split(root_hf):
     for dirpath, dirs, files in os.walk(root_hf):
         if len(dirs) == 0:
             directories.append(dirpath)
+    directories.sort()
     return directories
 
 
 def do_check(ds_path):
-    print(f"start checking {ds_path}", flush=True)
     ds = load_from_disk(ds_path)
     N = len(ds)
+    if N < 16:
+        shutil.rmtree(ds_path)
     print(f"complete checking {ds_path}: {N}", flush=True)
 
 

@@ -1,7 +1,6 @@
 from datasets import load_from_disk
 from tqdm import tqdm
 import re
-from multiprocessing import Pool
 from fire import Fire
 import logging
 import string
@@ -9,7 +8,6 @@ import unicodedata
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-
 
 translator = str.maketrans('', '', string.punctuation)
 
@@ -38,12 +36,11 @@ def map_fn(batch, id_script_map):
 
 def main(workers=20):
 
-    for part in ["PART1"]:
+    for part in ["PART1", "PART2"]:
 
         test_path  = f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/test/ASR/IMDA_{part}_ASR_v4"
         train_path = f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_bytes/train/ASR/IMDA_{part}_ASR_v4"
-        
-        
+
         ds_test  = load_from_disk(test_path)
         ds_train = load_from_disk(train_path)
 
@@ -52,14 +49,12 @@ def main(workers=20):
 
         test_transcriptions=set()
         for sample in tqdm(ds_test["answer"]):
-            test_transcriptions.add(normalize_sentence(sample["text"]).lower().strip())
-
-        breakpoint()
+            test_transcriptions.add(normalize_sentence(sample["text"].replace("<Speaker1>: ", "")).lower().strip())
         print(len(test_transcriptions), flush=True)
-        print(len(ds_train), flush=True)
 
-        ds_train = ds_train.filter(lambda x: [answer["text"].replace("<Speaker1>: ", "").lower().strip() not in test_transcriptions for answer in x["answer"]], 
-                                batched=True, batch_size=1000, writer_batch_size=1000, num_proc=workers)
+        print(len(ds_train), flush=True)
+        ds_train = ds_train.filter(lambda x: [normalize_sentence(answer["text"].replace("<Speaker1>: ", "")).lower().strip() not in test_transcriptions for answer in x["answer"]], 
+                                batched=True, batch_size=2000, writer_batch_size=1000, num_proc=workers)
         print(len(ds_train), flush=True)
 
         ds_train.save_to_disk(train_path.replace("ASR_v4", "ASR_v5"), num_proc=10)

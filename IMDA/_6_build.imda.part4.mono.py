@@ -33,7 +33,7 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    root                  = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"
+    root                  = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART4"
     speaker_metadata_dict = json.load(open(f"{root}/speaker_metadata_part4.json"))
 
     params = []
@@ -79,7 +79,7 @@ def main(workers=20):
         dss = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4"
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_mono_hf/PART4"
     ds.save_to_disk(save_path, num_proc=workers)
 
 

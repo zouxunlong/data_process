@@ -37,10 +37,10 @@ def build_ds(dict_list):
 
 def main(workers=20):
 
-    speaker_metadata_dict = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/speaker_metadata_part3.json"))
-    items                 = json.load(open("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
-    wav_same              = glob("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Same/*.wav", recursive=True)
-    wav_mixed             = glob("/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_mixed/*.wav", recursive=True)
+    speaker_metadata_dict = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/speaker_metadata_part3.json"))
+    items                 = json.load(open("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/mix_shift_selected.json", "r", encoding="utf-8"))
+    wav_same              = glob("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_Same/*.wav", recursive=True)
+    wav_mixed             = glob("/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_raw/PART3/Audio_mixed/*.wav", recursive=True)
     params                = []
 
     for wav_file in sorted(wav_same):
@@ -119,7 +119,7 @@ def main(workers=20):
         dss        = list(tqdm(pool.imap_unordered(build_ds, params), total=len(params)))
 
     ds        = concatenate_datasets(dss)
-    save_path = "/scratch/users/astar/ares/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART3"
+    save_path = "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/imda/imda_conv_hf/PART3"
     ds.save_to_disk(save_path, num_proc=workers)
 
 
