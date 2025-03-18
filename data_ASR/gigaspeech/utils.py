@@ -59,19 +59,16 @@ asr_instructions_zh = ['Can you write out the speech in Chinese?',
 
 
 def map_id(instructions):
-    for instruction in instructions:
-        instruction["text"]=random.choice(asr_instructions_id)
-    return {"instruction": instructions}
+    new_instructions=[{"text":random.choice(asr_instructions_id), "audio":None} for _ in instructions]
+    return {"instruction": new_instructions}
 
 def map_th(instructions):
-    for instruction in instructions:
-        instruction["text"]=random.choice(asr_instructions_th)
-    return {"instruction": instructions}
+    new_instructions=[{"text":random.choice(asr_instructions_th), "audio":None} for _ in instructions]
+    return {"instruction": new_instructions}
 
 def map_vi(instructions):
-    for instruction in instructions:
-        instruction["text"]=random.choice(asr_instructions_vi)
-    return {"instruction": instructions}
+    new_instructions=[{"text":random.choice(asr_instructions_vi), "audio":None} for _ in instructions]
+    return {"instruction": new_instructions}
 
 dss=glob("/mnt/data/all_datasets/data_process/_data_in_processing/gigaspeech2/id/test")
 for ds_path in sorted(dss):
@@ -106,4 +103,7 @@ for ds_path in sorted(dss):
 
     ds.save_to_disk(ds_path+"_new", num_proc=4)
 
+
     print(f"Done {ds_path}")
+
+
