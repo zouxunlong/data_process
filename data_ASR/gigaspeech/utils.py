@@ -1,7 +1,6 @@
 from datasets import load_from_disk
-from pprint import pprint
 from glob import glob
-import os, random
+import random
 
 asr_instructions_vi = ['Can you write out the speech in Vietnamese?',
                        'Capture the spoken content in writing in Vietnamese.',
@@ -73,37 +72,33 @@ def map_vi(instructions):
 dss=glob("/mnt/data/all_datasets/data_process/_data_in_processing/gigaspeech2/id/test")
 for ds_path in sorted(dss):
 
-
     ds = load_from_disk(ds_path)
-    if ds[0]["instruction"]["text"] != "":
-        continue
+
     if ds_path.split("/")[-2]=="id":
         ds=ds.map(map_id, 
-                  input_columns=["instruction"], 
-                  remove_columns=["instructions"],
-                  batched=True, 
-                  writer_batch_size=1, 
-                  num_proc=16)
+                  input_columns     = ["instruction"],
+                  remove_columns    = ["instructions"],
+                  batched           = True,
+                  writer_batch_size = 1,
+                  num_proc          = 16)
 
     if ds_path.split("/")[-2]=="vi":
         ds=ds.map(map_vi, 
-                  input_columns=["instruction"], 
-                  remove_columns=["instructions"],
-                  batched=True, 
-                  writer_batch_size=1, 
-                  num_proc=16)
+                  input_columns     = ["instruction"],
+                  remove_columns    = ["instructions"],
+                  batched           = True,
+                  writer_batch_size = 1,
+                  num_proc          = 16)
 
     if ds_path.split("/")[-2]=="th":
         ds=ds.map(map_th, 
-                  input_columns=["instruction"], 
-                  remove_columns=["instructions"],
-                  batched=True, 
-                  writer_batch_size=1, 
-                  num_proc=16)
+                  input_columns     = ["instruction"],
+                  remove_columns    = ["instructions"],
+                  batched           = True,
+                  writer_batch_size = 1,
+                  num_proc          = 16)
 
     ds.save_to_disk(ds_path+"_new", num_proc=4)
 
-
     print(f"Done {ds_path}")
-
 

@@ -31,7 +31,7 @@ def convert(split, num_proc, dir):
     if not os.path.exists(split.replace(dir, dir+"_bytes")):
         ds.save_to_disk(split.replace(dir, dir+"_bytes"), num_proc=4)
 
-def main(dir, reverse=True, num_proc=192):
+def main(dir, reverse=True, num_proc=224):
     splits=get_all_split(dir)
     splits.sort(reverse=reverse)
     pprint(splits)
