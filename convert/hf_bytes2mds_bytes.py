@@ -25,7 +25,7 @@ def get_bytes(audio):
     return audio["bytes"] if audio is not None else b""
 
 
-def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task):
+def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task, language):
     chunk_size = [dataset_length//num_pro+1 if i < dataset_length%num_pro else dataset_length//num_pro for i in range(num_pro)]
 
     cur_start_id = 0
@@ -33,12 +33,12 @@ def each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task):
         start_sample_idx = cur_start_id
         end_sample_idx = cur_start_id + chunk_size[group]
         dataset_output_subpath = os.path.join(dataset_output_path, str(group))
-        yield dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro
+        yield dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, language, num_pro
         cur_start_id += chunk_size[group]
 
 
 def convert_to_mds(args) -> None:
-    dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, num_pro = args
+    dataset_path, dataset_output_subpath, start_sample_idx, end_sample_idx, task, language, num_pro = args
 
     dataset                      = load_from_disk(dataset_path).select(range(start_sample_idx, end_sample_idx))
     features                     = dataset.features
@@ -54,7 +54,8 @@ def convert_to_mds(args) -> None:
         "instruction_audio": "bytes",
         "answer_text"      : "str",
         "answer_audio"     : "bytes",
-        "task"             : "str"
+        "task"             : "str",
+        "language"         : "str"
     }
 
     with MDSWriter(
@@ -74,15 +75,16 @@ def convert_to_mds(args) -> None:
                         "instruction_audio": get_bytes(sample["instruction"]["audio"]),
                         "answer_text"      : get_text(sample["answer"]["text"]),
                         "answer_audio"     : get_bytes(sample["answer"]["audio"]),
-                        "task"             : task
+                        "task"             : task,
+                        "language"         : language
                     }
                 )
             except:
                 pass
 
 
-def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_MNSC_v2", 
-         output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_stage_MNSC_v2"):
+def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2", 
+         output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_stage_AudioLLM_v2"):
 
     start_time = time.time()
     num_pro    = 16
@@ -98,12 +100,17 @@ def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_MNS
 
         print('Converting {}'.format(dataset_path), flush=True)
         os.makedirs(dataset_output_path, exist_ok=True)
-    
+
         dataset        = load_from_disk(dataset_path)
         dataset_length = len(dataset)
 
-        task       = dataset_path.split('/')[-2]
-        arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task)
+        task = dataset_path.split('/')[-2]
+        if task == "ASR":
+            lang_id  = dataset_path.split('_')[-3]
+            language = lang_id if lang_id in ["zh", "ms", "ta", "vi", "th", "id", "codeswitch"] else "en"
+        else:
+            language = ""
+        arg_tuples = each_task(dataset_path, dataset_output_path, dataset_length, num_pro, task, language)
 
         with Pool(processes=num_pro) as pool:
             for count in pool.imap_unordered(convert_to_mds, arg_tuples):

@@ -10,7 +10,7 @@ def get_all_split(ds_path):
     for dirpath, dirs, files in os.walk(ds_path):
         if len(dirs) == 0:
             directories.append(dirpath)
-    directories.sort(reverse=False)
+    directories.sort(reverse=True)
     return directories
 
 
@@ -34,12 +34,13 @@ def check_data(hf_folder: str, num_worker: int = 112):
         max_audio_seconds = max(audio_lengths)
         min_audio_seconds = min(audio_lengths)
 
+        bucket=ds_path.split("_")[-2]
         curr_res = {
             "num_of_samples"   : num_of_samples,
             "total_audio_hours": total_audio_hours,
             "max_audio_seconds": max_audio_seconds,
             "min_audio_seconds": min_audio_seconds,
-            "length_bucket"    : None
+            "length_bucket"    : int(bucket)
         }
 
         split, task, dataset_name = ds_path.split('/')[-3:]
@@ -56,6 +57,7 @@ def check_data(hf_folder: str, num_worker: int = 112):
                 language_answer      = ["en"]
 
             if task == "ASR":
+
                 if "IMDA_PART4" in dataset_name:
                     language_audio       = ["en","zh","ms","ta"]
                     language_instruction = ["en"]
@@ -80,6 +82,46 @@ def check_data(hf_folder: str, num_worker: int = 112):
                     language_audio       = ["th"]
                     language_instruction = ["en"]
                     language_answer      = ["th"]
+
+                elif "chinese_asr_new" in dataset_name:
+                    language_audio       = ["zh"]
+                    language_instruction = ["en"]
+                    language_answer      = ["zh"]
+
+                elif "google_resource_crowdsourced_ta" in dataset_name:
+                    language_audio       = ["ta"]
+                    language_instruction = ["en"]
+                    language_answer      = ["ta"]
+
+                elif "magicdata_mandarin_chinese_read_speech_corpus_zh" in dataset_name:
+                    language_audio       = ["zh"]
+                    language_instruction = ["en"]
+                    language_answer      = ["zh"]
+
+                elif "malay-conversational-speech-corpus_ms" in dataset_name:
+                    language_audio       = ["ms"]
+                    language_instruction = ["en"]
+                    language_answer      = ["ms"]
+
+                elif "Malaya-speech-malay-stt_ms" in dataset_name:
+                    language_audio       = ["ms"]
+                    language_instruction = ["en"]
+                    language_answer      = ["ms"]
+
+                elif "mile_tamil_asr_corpus_new_ta" in dataset_name:
+                    language_audio       = ["ta"]
+                    language_instruction = ["en"]
+                    language_answer      = ["ta"]
+
+                elif "SEAME" in dataset_name:
+                    language_audio       = ["en", "zh"]
+                    language_instruction = ["en"]
+                    language_answer      = ["en", "zh"]
+
+                elif "wenetspeech_zh" in dataset_name:
+                    language_audio       = ["zh"]
+                    language_instruction = ["en"]
+                    language_answer      = ["zh"]
 
                 else:
                     language_audio       = ["en"]

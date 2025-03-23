@@ -81,7 +81,17 @@ def move(dir: str="/data/projects/13003558/zoux/datasets/datasets_hf_stage_MNSC_
             continue
 
         move2extra(ds_path)
-        
+
+
+def addup_task(dir: str="/data/projects/13003558/zoux/datasets/datasets_hf_stage_MNSC_v2"):
+    ds_paths=get_all_split(dir)
+    for ds_path in ds_paths:
+        task = ds_path.split("/")[-2]
+        if task=="ASR" and not ds_path.split("_")[-1]==task:
+            print(ds_path)
+            os.rename(ds_path, ds_path+"_"+task)
+
+
 if __name__ == "__main__":
-    fire.Fire(move)
+    fire.Fire(addup_task)
 
