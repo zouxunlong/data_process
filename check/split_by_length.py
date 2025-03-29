@@ -12,30 +12,30 @@ def get_all_split(ds_path):
     return directories
 
 
-def split_by_length(hf_folder: str, num_worker: int = 224):
+def split_by_length(hf_folder: str="/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/datasets_hf_bytes_rest/*/yodas_ms_ASR", num_worker: int = 224):
+    from glob import glob
+    ds_paths = glob(hf_folder)
 
-    ds_paths = get_all_split(hf_folder)
-
-    ds_paths = [path for path in ds_paths if not "/other" in path and not "_greater_than_300" in path]
+    ds_paths = [path for path in ds_paths if not "_greater_than_300" in path]
 
     for ds_path in ds_paths:
 
         print(f"start {ds_path}", flush=True)
         ds = load_from_disk(ds_path)
-        if not os.path.exists(ds_path+"_30"):
+        if not os.path.exists(ds_path.replace("_ASR", "_30_ASR")):
             ds_30 = ds.filter(lambda batch: [audio_length < 30 for audio_length in batch["audio_length"]],
                               batched=True,
                               num_proc=num_worker)
             if len(ds_30) > 0:
-                ds_30.save_to_disk(ds_path+"_30", num_proc=8)
+                ds_30.save_to_disk(ds_path.replace("_ASR", "_30_ASR"), num_proc=4)
                 print(f"complete 30s {ds_path}", flush=True)
 
-        if not os.path.exists(ds_path+"_300"):
+        if not os.path.exists(ds_path.replace("_ASR", "_300_ASR")):
             ds_300 = ds.filter(lambda batch: [30 <= audio_length < 300 for audio_length in batch["audio_length"]],
                                batched=True,
                                num_proc=num_worker)
             if len(ds_300) > 0:
-                ds_300.save_to_disk(ds_path+"_300")
+                ds_300.save_to_disk(ds_path.replace("_ASR", "_300_ASR"))
                 print(f"complete 300s {ds_path}", flush=True)
 
         if not os.path.exists(ds_path+"_greater_than_300"):

@@ -1,11 +1,11 @@
 import json
 import pandas as pd
+import fire
 
 
 def json2excel(json_file):
     ds_stats = json.load(open(json_file))
     dfList=[]
-    breakpoint()
     for key, value in ds_stats.items():
         datasets_multimodal, split, task, dataset_name= key.split("/")[-4:]
         num_of_samples= value['num_of_samples']
@@ -20,5 +20,5 @@ def json2excel(json_file):
 
 
 if __name__ == "__main__":
-    json2excel("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/ds_stats.json")
+    fire.Fire(json2excel)
 

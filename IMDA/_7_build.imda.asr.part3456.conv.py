@@ -30,8 +30,7 @@ def normalize_transcription(transcription, speaker):
     for utterance in transcription:
         normalized_sentence = normalize_sentence(utterance["sentence"])
         if normalized_sentence:
-            normalized_transcription.append(
-                (speaker, normalized_sentence, utterance["start"], utterance["end"]))
+            normalized_transcription.append((speaker, normalized_sentence, utterance["start"], utterance["end"]))
     return normalized_transcription
 
 
@@ -239,7 +238,7 @@ def main():
     ]
     for split in splits:
         for chunk_limit in [30, 60, 120, 300]:
-            print("start {} chunk_limite: {}".format(split, chunk_limit), flush=True)
+            print("start {} chunk_limit: {}".format(split, chunk_limit), flush=True)
             chunk(split=split, chunk_limit=chunk_limit)
     print("complete all", flush=True)
 

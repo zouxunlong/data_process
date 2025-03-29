@@ -87,7 +87,7 @@ def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_Aud
          output_dir="/data/projects/13003558/zoux/datasets/datasets_mosaic_stage_AudioLLM_v2"):
 
     start_time = time.time()
-    num_pro    = 64
+    num_pro    = 16
 
     dataset_paths  = get_all_split(intput_dir)
 
@@ -104,7 +104,7 @@ def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_Aud
         dataset        = load_from_disk(dataset_path)
         dataset_length = len(dataset)
 
-        if dataset_length < num_pro:
+        if dataset_length < num_pro*2:
             print(f"Skipping {dataset_output_path}, too few samples", flush=True)
             continue
 

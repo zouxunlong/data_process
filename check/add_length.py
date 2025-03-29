@@ -15,18 +15,18 @@ def map_fn(batch):
     return {"audio_length": [len(context["audio"]["array"])/16000 for context in batch["context"]]}
 
 
-def add_length(hf_folder: str, start: int, end: int, num_worker: int = 112):
+def add_length(hf_folder: str, num_worker: int = 224):
 
     ds_paths = get_all_split(hf_folder)
-    
 
-    for ds_path in ds_paths[start:end]:
+    for ds_path in ds_paths:
         if os.path.exists(ds_path.replace(hf_folder, hf_folder+"_with_length")):
             print(f"Skipping {ds_path}", flush=True)
             continue
 
         print('Adding length of {}'.format(ds_path), flush=True)
-        ds = load_from_disk(ds_path)
+        ds = load_from_disk(ds_path).select_columns(["context", "instruction", "answer", "other_attributes"])
+        print(ds, flush=True)
 
         audio_length = ds.map(map_fn,
                               batched           = True,
@@ -36,10 +36,11 @@ def add_length(hf_folder: str, start: int, end: int, num_worker: int = 112):
                               desc              = f"{os.path.basename(ds_path)}")
 
         ds = ds.add_column("audio_length", audio_length["audio_length"])
+        ds = ds.add_column("language", ["ta"]*len(audio_length))
         if os.path.exists(ds_path.replace(hf_folder, hf_folder+"_with_length")):
             print(f"Skipping {ds_path}", flush=True)
             continue
-        ds.save_to_disk(ds_path.replace(hf_folder, hf_folder+"_with_length"), num_proc=4)
+        ds.save_to_disk(ds_path.replace(hf_folder, hf_folder+"_with_length"))
 
 
 if __name__ == "__main__":

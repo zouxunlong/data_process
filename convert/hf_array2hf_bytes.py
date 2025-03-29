@@ -29,7 +29,7 @@ def convert(split, num_proc, dir):
     ds=load_from_disk(split)
     ds=ds.map(map_fn, num_proc=num_proc, batch_size=1, writer_batch_size=1, features=ds.features)
     if not os.path.exists(split.replace(dir, dir+"_bytes")):
-        ds.save_to_disk(split.replace(dir, dir+"_bytes"), num_proc=4)
+        ds.save_to_disk(split.replace(dir, dir+"_bytes"))
 
 def main(dir, reverse=True, num_proc=224):
     splits=get_all_split(dir)

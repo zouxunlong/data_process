@@ -14,7 +14,23 @@ def get_all_split(ds_path):
     return directories
 
 
-def check_data(hf_folder: str, num_worker: int = 112):
+def json2excel(json_file):
+    ds_stats = json.load(open(json_file))
+    dfList=[]
+    for key, value in ds_stats.items():
+        datasets_multimodal, split, task, dataset_name= key.split("/")[-4:]
+        num_of_samples= value['num_of_samples']
+        total_audio_hours= value['total_audio_hours']
+        max_audio_seconds= value['max_audio_seconds']
+        min_audio_seconds= value['min_audio_seconds']
+        path= f"./{datasets_multimodal}/{split}/{task}/{dataset_name}"
+
+        dfList.append([split, task, dataset_name, total_audio_hours, max_audio_seconds, min_audio_seconds, num_of_samples, path])
+    df_new =  pd.DataFrame(dfList)
+    df_new.to_excel(json_file.replace("ds_stats.json", "ds_stats.xlsx"), index=False, header=False)
+
+
+def check_data(hf_folder: str):
 
     ds_paths = get_all_split(hf_folder)
     stats = {}
@@ -44,7 +60,7 @@ def check_data(hf_folder: str, num_worker: int = 112):
         }
 
         split, task, dataset_name = ds_path.split('/')[-3:]
-        if split in ["train", "test", "other_prepared"]:
+        if split in ["train", "test", "other"]:
 
             if task == "AC":
                 language_audio       = []
@@ -221,6 +237,8 @@ def check_data(hf_folder: str, num_worker: int = 112):
 
     with open(os.path.join(hf_folder, 'ds_stats.json'), 'w') as f:
         json.dump(stats, f, ensure_ascii=False, indent=1)
+
+    json2excel(os.path.join(hf_folder, 'ds_stats.json'))
     print('complete all', flush=True)
 
 
