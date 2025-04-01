@@ -1,4 +1,5 @@
-from datasets import load_from_disk
+from json import load
+from datasets import load_from_disk, concatenate_datasets
 import fire
 import os
 
@@ -12,7 +13,7 @@ def get_all_split(ds_path):
     return directories
 
 
-def split_by_length(hf_folder: str="/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/datasets_hf_bytes_rest/*/yodas_ms_ASR", num_worker: int = 224):
+def split_by_length(hf_folder: str="/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/*checked_ASR", num_worker: int = 224):
     from glob import glob
     ds_paths = glob(hf_folder)
 

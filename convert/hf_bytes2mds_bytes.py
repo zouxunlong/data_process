@@ -98,15 +98,15 @@ def main(intput_dir="/data/projects/13003558/zoux/datasets/datasets_hf_stage_Aud
             print(f"Skipping {dataset_output_path}", flush=True)
             continue
 
-        print('Converting {}'.format(dataset_path), flush=True)
-        os.makedirs(dataset_output_path, exist_ok=True)
-
         dataset        = load_from_disk(dataset_path)
         dataset_length = len(dataset)
 
         if dataset_length < num_pro:
             print(f"Skipping {dataset_output_path}, too few samples", flush=True)
             continue
+
+        print('Converting {}'.format(dataset_path), flush=True)
+        os.makedirs(dataset_output_path, exist_ok=True)
 
         task = dataset_path.split('/')[-2]
         if task == "ASR":

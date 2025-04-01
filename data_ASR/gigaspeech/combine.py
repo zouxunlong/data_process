@@ -1,9 +1,11 @@
 from datasets import load_from_disk, concatenate_datasets
 
-ds_paths = [f"/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/datasets_hf_with_length/train/ASR/wenetspeech_with_length/wenetspeec_{i}" for i in range(30)]
+ds_paths = ["/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/chinese_callcenter_datatang_500hrs_30_zh_300_ASR",
+            "/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/chinese_callcenter_datatang_500hrs_300_zh_300_ASR"
+            ]
 print("start concat", flush=True)
 
 ds = concatenate_datasets([load_from_disk(path) for path in ds_paths])
 print("start save", flush=True)
 ds.save_to_disk(
-    "/data/projects/13003558/zoux/workspaces/data_process/_data_in_processing/datasets_hf_with_length/train/ASR/wenetspeech_with_length2", num_proc=20)
+    "/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/chinese_callcenter_datatang_500hrs_zh_300_ASR", num_proc=4)
