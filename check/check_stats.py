@@ -30,7 +30,7 @@ def json2excel(json_file):
     df_new.to_excel(json_file.replace("ds_stats.json", "ds_stats.xlsx"), index=False, header=False)
 
 
-def check_data(hf_folder: str="/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2"):
+def check_data(hf_folder: str="/mnt/data/all_datasets/datasets/datasets_hf_stage_AudioLLM_v2"):
 
     ds_paths = get_all_split(hf_folder)
     stats = {}

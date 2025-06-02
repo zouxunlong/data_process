@@ -15,7 +15,7 @@ def map_fn(batch):
     return {"audio_length": [len(context["audio"]["array"])/16000 for context in batch["context"]]}
 
 
-def add_length(hf_folder: str, num_worker: int = 224):
+def add_length(hf_folder: str, num_worker: int = 32):
 
     ds_paths = get_all_split(hf_folder)
 
