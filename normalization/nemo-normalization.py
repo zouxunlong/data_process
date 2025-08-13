@@ -40,6 +40,7 @@ def norm_map(batch):
     sentences = [answer["text"] for answer in batch['answer']]
     predictions = model.add_punctuation_capitalization(sentences)
 
+    need_further_proecess_list = check_same(sentences, predictions)
 
     for i in range(len(sentences)):
         batch['answer'][i]['text'] = predictions[i]

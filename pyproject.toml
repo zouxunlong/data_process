@@ -1,0 +1,13 @@
+[project]
+name = "data-process"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "chardet>=5.2.0",
+    "datasets[audio]>=4.0.0",
+    "fire>=0.7.0",
+    "librosa>=0.11.0",
+    "pandas>=2.3.1",
+]
