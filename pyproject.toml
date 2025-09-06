@@ -7,7 +7,13 @@ requires-python = ">=3.10"
 dependencies = [
     "chardet>=5.2.0",
     "datasets[audio]>=4.0.0",
+    "ffmpeg>=1.4",
+    "ffmpeg-python>=0.2.0",
     "fire>=0.7.0",
     "librosa>=0.11.0",
+    "numpy>=2.2.6",
+    "openpyxl>=3.1.5",
     "pandas>=2.3.1",
+    "torch>=2.8.0",
+    "torchcodec>=0.6.0",
 ]

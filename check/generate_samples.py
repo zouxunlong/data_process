@@ -1,7 +1,6 @@
 import json
 import os
 from datasets import load_from_disk
-import fire
 import soundfile as sf
 
 def get_all_split(root_hf):
@@ -31,11 +30,12 @@ def generate(split):
 
 def main():
     from glob import glob
-    splits=glob("/mnt/data/all_datasets/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/*_yue_30_*")
+    splits=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/*_en_30_*")
+    print(len(splits), flush=True)
     splits.sort()
     for split in splits:
         generate(split)
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    main()
