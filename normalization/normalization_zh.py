@@ -18,7 +18,8 @@ class DocumentDataset(Dataset):
         self.config = make_model_config()
         self.documents = documents
         self.data = [{'tokens': list(document)} for document in self.documents]
-        self.window_size = max([len(d['tokens']) for d in self.data])+1
+        if self.data:
+            self.window_size = max([len(d['tokens']) for d in self.data])+1
 
     def __getitem__(self, index):
         data = self.data[index]
@@ -105,7 +106,6 @@ def norm_map(batch, rank):
     need_process_answers = [(index, answer) for index, answer in enumerate(original_answers) if re.search(pattern_punctuation, answer.replace("<Speaker1>:", "").replace("<Speaker2>:", "")) is None]
     indexs, sentences = zip(*need_process_answers) if len(need_process_answers) > 0 else ([], [])
 
-
     dataset = DocumentDataset(sentences)
     dataloader = DataLoader(dataset=dataset, shuffle=False, batch_size=1000)
 
@@ -130,7 +130,7 @@ def norm_map(batch, rank):
 
 
 def main(rev=False):
-    input_paths=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2_normalized/datasets_multimodal/train/ASR/*_zh_30_ASR")
+    input_paths=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2_normalized/datasets_multimodal/train/ASR/*_zh_30*_ASR")
 
     for input_path in sorted(input_paths, reverse=rev):
         output_path = input_path.replace("/ASR/","/ASR_normalized/")
