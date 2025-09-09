@@ -12,9 +12,8 @@ def get_all_split(root_hf):
 
 
 def generate(split):
-
     ds=load_from_disk(split)
-    for i in [1,11,21,31,41,51,61,71,79]:
+    for i in [1,11,21,31,41,51,61,71,81,91]:
         item=ds[i]
         save_path = split.replace("/all_datasets/", "/all_datasets/samples/")
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -30,7 +29,7 @@ def generate(split):
 
 def main():
     from glob import glob
-    splits=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v2/datasets_multimodal/train/ASR/*_en_30_*")
+    splits=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v3/datasets_multimodal/train/ASR/*_hok_*_ASR")
     print(len(splits), flush=True)
     splits.sort()
     for split in splits:
