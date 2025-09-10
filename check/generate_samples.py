@@ -10,10 +10,10 @@ def get_all_split(root_hf):
             directories.append(dirpath)
     return directories
 
-
 def generate(split):
     ds=load_from_disk(split)
     for i in [1,11,21,31,41,51,61,71,81,91]:
+        # breakpoint()
         item=ds[i]
         save_path = split.replace("/all_datasets/", "/all_datasets/samples/")
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -23,18 +23,18 @@ def generate(split):
         with open("{}_{}.json".format(save_path, i), "w", encoding="utf8") as f_out:
             del item["context"]
             if "answer" in item.keys():
-                item["answer"]["audio"]=None
+                item["answer"]["audio"] = None
             f_out.write(json.dumps(item, ensure_ascii=False, indent=2))
-
+        with open("{}_{}.txt".format(save_path, i), "w", encoding="utf8") as f_txt:
+            f_txt.write(json.dumps(item["answer"]["text"], ensure_ascii=False, indent=2))
 
 def main():
     from glob import glob
-    splits=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v3/datasets_multimodal/train/ASR/*_hok_*_ASR")
+    splits=glob("/mnt/data/all_datasets/datasets/datasets_hf_stage_AudioLLM_v3/datasets_multimodal/train/ASR/IMDA_PART2_mono_en_30_ASR")
     print(len(splits), flush=True)
     splits.sort()
     for split in splits:
         generate(split)
-
 
 if __name__ == "__main__":
     main()
