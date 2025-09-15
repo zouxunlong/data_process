@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N interactive
-#PBS -l select=1:ngpus=1:container_engine=enroot
+#PBS -l select=1:ngpus=4:container_engine=enroot
 #PBS -l walltime=12:00:00
 #PBS -q normal
 #PBS -P 13003558
@@ -10,8 +10,8 @@
 #PBS -j oe
 #PBS -k oed
 
-echo "hello"
-sleep 360000
+# echo "hello"
+# sleep 360000
 
 # enroot start \
 # 	-m /data:/data -r -w \
