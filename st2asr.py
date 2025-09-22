@@ -12,8 +12,8 @@ instructions_asr = [
 
 def map_fn(batch):
 
-    instructions = [random.choice(instructions_asr) for _ in batch["instruction"]]
-    batch["instruction"]=instructions
+    instructions         = [{"text":random.choice(instructions_asr), "audio":None} for _ in batch["instruction"]]
+    batch["instruction"] = instructions
     return batch
 
 
@@ -24,7 +24,7 @@ def convert(split):
 
 
 def main():
-    splits=glob("/data/projects/13003558/zoux/datasets/datasets_hf_stage_AudioLLM_v3/datasets_multimodal/*/ST/*_hok_zh_30_ST")
+    splits=glob("/mnt/data/all_datasets/datasets/datasets_hf_stage_AudioLLM_v3/datasets_multimodal/*/ST/*_hok_zh_30_ST")
     print(splits, flush=True)
     for split in splits:
         print(f"start {split}")
